@@ -7,12 +7,13 @@ Lancer une demo :
 - Faire de même avec les fichiers présent dans data/Deparis_data_binaire/part_end.
 - Le cube de donnée est désormais visible à l'écran
 
-Commande :
-- Déplacement dans le plan XZ : touche zqsd et flèches directionnel
+Commandes :
+- Déplacement dans le plan XZ : touche zqsd et flèches directionnelles
 - Orientation de la caméra : drag & drop à la souris
 - Vitesse de déplacement : molette de la souris
 
 Paramètres :
 - Camera speed : Vitesse de la caméra
 - Time : Temps relatif entre les deux cubes de données (interpolation linéaire)
-- TimeOffset : Vitesse
+- TimeOffset : Vitesse d'animation des particules ( vitesse d'interpolation entre les deux cube de données )
+- Point size : Taille des points à l'écran
