@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Data modeling</title>
+	<link rel="stylesheet" href="index.css">
+	<script type="text/javascript" src="lib/stats.min.js"></script>
+	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
+
+	<script type="text/javascript" src="lib/three.js"></script>
+
+	<script type="text/javascript" src="lib/OrbitControls.js"></script>
+	<script type="text/javascript" src="lib/FirstPersonControls.js"></script>
+</head>
+<body>
+<div id="loader">
+	<input type="file" accept="*" id="files" name="file" multiple />
+	<!--<input type="file" accept="*" id="endFile" name="endFile" multiple />-->
+	<!--<div id="progress_bar"><div id="percent">0%</div></div>
+-->
+</div>
+
+<script type="x-shader/x-vertex" id="vertexshader">
+			uniform float size;
+	        uniform float t;
+	        attribute vec3 endPosition;
+
+	        varying vec4 mvPosition;
+
+	        void main() {
+	        	
+	            mvPosition = modelViewMatrix * vec4( position+endPosition*t, 1.0 );
+
+	            gl_PointSize = size / length( mvPosition.xyz );
+
+	            gl_Position = projectionMatrix * mvPosition;
+
+	        }
+
+		</script>
+
+<script type="x-shader/x-fragment" id="fragmentshader">
+			uniform vec3 color;
+			uniform float fog;
+			uniform float fogDistance;
+
+			varying vec4 mvPosition;
+
+			void main() {
+				gl_FragColor = mix(vec4(color, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0))));
+			}
+
+		</script>
+
+<!-- TOOLS -->
+<div id="tools">
+	<img src="resources/icons/fps_controls.png" onclick="useFPSControls()" title="Fly Camera"/>
+	<img src="resources/icons/orbit_controls.png" onclick="useOrbitControls()" title="Orbit Controls"/>
+	<img src="resources/icons/focus.png" onclick="controls.reset()" title="focus on pointcloud"/>
+</div>
+
+</body>
+
+<script type="text/javascript" src="js/reader.js"></script>
+<script type="text/javascript" src="js/camera.js"></script>
+<script type="text/javascript" src="js/setup.js"></script>
+<script type="text/javascript" src="js/gui.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+
+
+
+</html>

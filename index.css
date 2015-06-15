@@ -1,0 +1,45 @@
+body {
+    margin: 0;
+}
+
+canvas {
+    width: 100%; height: 100%;
+}
+
+body {
+    overflow:hidden;
+}
+
+#progress_bar {
+    margin: 0px;
+    padding: 0px;
+    border: 1px solid #000;
+    font-size: 14px;
+    clear: both;
+    opacity: 0;
+    -moz-transition: opacity 1s linear;
+    -o-transition: opacity 1s linear;
+    -webkit-transition: opacity 1s linear;
+}
+
+#progress_bar.loading {
+    opacity: 1.0;
+}
+
+#progress_bar #percent {
+    background-color: #99ccff;
+    height: auto;
+    width: 0;
+}
+#loader {
+    color:white;
+    position: fixed;
+    left: calc(50% - 132px);
+}
+
+#tools {
+    position: fixed;
+    width: 110px;
+    bottom: 10px;
+    right: 10px;
+}

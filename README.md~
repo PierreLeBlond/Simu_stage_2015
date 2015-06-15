@@ -10,9 +10,5 @@ Lancer une demo :
 Commande :
 - Déplacement dans le plan XZ : touche zqsd et flèches directionnel
 - Orientation de la caméra : drag & drop à la souris
-- Vitesse de déplacement : molette de la souris
 
-Paramètres :
-- Camera speed : Vitesse de la caméra
-- Time : Temps relatif entre les deux cubes de données (interpolation linéaire)
-- TimeOffset : Vitesse
+
