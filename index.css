@@ -65,7 +65,7 @@ body {
     position: fixed;
     background: black;
     color: white;
-    border: blue 1px;
+    border: blue 2px solid;
     border-radius: 2px;
 }
 
@@ -77,7 +77,7 @@ body {
     position: fixed;
     background: black;
     color: white;
-    border: green 1px;
+    border: green 2px solid;
     border-radius: 2px;
 }
 

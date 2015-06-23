@@ -28,7 +28,7 @@
 	</div>
 </div>
 
-<script type="x-shader/x-vertex" id="vertexshader">
+<script type="x-shader/x-vertex" id="animatedfogvertexshader">
 			uniform float size;
 	        uniform float t;
 
@@ -45,6 +45,31 @@
 	        	vec3 pos = position+endPosition*t;
 
 	            mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+
+	            gl_PointSize = size / length( mvPosition.xyz );
+
+	            gl_Position = projectionMatrix * mvPosition;
+
+	        }
+
+		</script>
+
+<script type="x-shader/x-vertex" id="animatedvertexshader">
+			uniform float size;
+	        uniform float t;
+
+	        attribute vec3 endPosition;
+	        attribute vec3 color;
+
+	        varying vec3 color_out;
+
+	        void main() {
+
+	        	color_out = color;
+
+	        	vec3 pos = position+endPosition*t;
+
+	            vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
 
 	            gl_PointSize = size / length( mvPosition.xyz );
 
@@ -80,21 +105,37 @@
 </script>
 
 <script type="x-shader/x-fragment" id="fragmentshader">
+
+			uniform sampler2D map;
+
+			varying vec3 color_out;
+
+			void main() {
+				vec4 diffuse = texture2D(map, gl_PointCoord);
+				vec4 color = vec4(color_out, 1.0);
+				gl_FragColor = color * diffuse;
+			}
+
+		</script>
+
+<script type="x-shader/x-fragment" id="fogfragmentshader">
 			uniform float fog;
 			uniform float fogDistance;
 			uniform float scale;
+			uniform sampler2D map;
 
 			varying vec4 mvPosition;
 			varying vec3 color_out;
 
 			void main() {
-				gl_FragColor = mix(vec4(color_out, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0))));
-				//gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+				vec4 diffuse = texture2D(map, gl_PointCoord);
+				vec4 color = mix(vec4(color_out, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0))));
+				gl_FragColor = color * diffuse;
 			}
 
 		</script>
 
-<script type="x-shader/x-vertex" id="vertexshaderwithouttime">
+<script type="x-shader/x-vertex" id="staticfogvertexshader">
 			uniform float size;
 			uniform float scale;
 
@@ -108,6 +149,27 @@
 	        	color_out = color;
 
 	            mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+	            gl_PointSize = size / length( mvPosition.xyz );
+
+	            gl_Position = projectionMatrix * mvPosition;
+
+	        }
+</script>
+
+<script type="x-shader/x-vertex" id="staticvertexshader">
+			uniform float size;
+			uniform float scale;
+
+	        attribute vec3 color;
+
+	        varying vec3 color_out;
+
+	        void main() {
+
+	        	color_out = color;
+
+	            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
 
 	            gl_PointSize = size / length( mvPosition.xyz );
 
@@ -141,6 +203,7 @@
 </body>
 
 <script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript" src="js/shader.js"></script>
 <script type="text/javascript" src="js/colorPicking.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>
 <script type="text/javascript" src="js/raycasting.js"></script>

@@ -58,22 +58,50 @@ function setupScene()
         size:           { type: 'f', value: 0.0001},
         fog:            { type: 'f', value: 1.1},
         fogDistance:    { type: 'f', value: 3.4},
-        texture:        { type: "t", value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
+        map:        { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
     };
 
-    App.animationShaderMaterial = new THREE.ShaderMaterial( {
+    App.animatedShaderMaterial = new THREE.ShaderMaterial( {
         attributes:     App.attributes,
         uniforms:       App.uniforms,
-        transparent:    true,
-        vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-        fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        //transparent:    true,
+        vertexShader:   App.shader.animated.nofog.vertex,
+        fragmentShader: App.shader.animated.nofog.fragment,
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true
+    });
+
+    App.animatedFogShaderMaterial = new THREE.ShaderMaterial({
+        attributes:     App.attributes,
+        uniforms:       App.uniforms,
+        vertexShader:   App.shader.animated.fog.vertex,
+        fragmentShader: App.shader.animated.fog.fragment,
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true
     });
 
     App.staticShaderMaterial = new THREE.ShaderMaterial({
         attributes:     App.simpleAttributes,
         uniforms:       App.uniforms,
-        vertexShader:   document.getElementById( 'vertexshaderwithouttime' ).textContent,
-        fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+        vertexShader:   App.shader.static.nofog.vertex,
+        fragmentShader: App.shader.static.nofog.fragment,
+
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true
+    });
+
+    App.staticFogShaderMaterial = new THREE.ShaderMaterial({
+        attributes:     App.simpleAttributes,
+        uniforms:       App.uniforms,
+        vertexShader:   App.shader.static.fog.vertex,
+        fragmentShader: App.shader.static.fog.fragment,
+
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true
     });
 
     App.colorPickerShaderMaterial = new THREE.ShaderMaterial({
@@ -81,6 +109,11 @@ function setupScene()
         uniforms:       App.uniforms,
         vertexShader:   document.getElementById( 'colorpickingvertexshader' ).textContent,
         fragmentShader: document.getElementById( 'colorpickingfragmentshader' ).textContent
+    });
+
+    App.pointCloudSpriteMaterial = new THREE.PointCloudMaterial({
+        map:    THREE.ImageUtils.loadTexture("resources/textures/spark1.png"),
+        size:   App.uniforms.size/300
     });
 
     App.scene = new THREE.Scene();

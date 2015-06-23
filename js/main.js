@@ -126,7 +126,7 @@ function loadData(){
     App.animationBufferGeometry.addAttribute('endPosition' , new THREE.BufferAttribute( endPositionArray, 3 ));
     App.animationBufferGeometry.addAttribute('color' , new THREE.BufferAttribute( color, 3));
 
-    App.animationBufferGeometryPointCloud = new THREE.PointCloud(App.animationBufferGeometry, App.animationShaderMaterial);
+    App.animationBufferGeometryPointCloud = new THREE.PointCloud(App.animationBufferGeometry, App.animatedFogShaderMaterial);
 
     //
     App.staticBufferGeometry = new THREE.BufferGeometry();
@@ -138,11 +138,11 @@ function loadData(){
 
     App.staticBufferGeometry.drawcalls.push({
         start: 0,
-        count: 2097152,
+        count: 100,
         index: 0
     });
 
-    App.staticBufferGeometryPointCloud = new THREE.PointCloud(App.staticBufferGeometry, App.staticShaderMaterial);
+    App.staticBufferGeometryPointCloud = new THREE.PointCloud(App.staticBufferGeometry, App.staticFogShaderMaterial);
 
     computePositions();
 
@@ -162,16 +162,16 @@ function loadData(){
 
     for(i = 0;i < positionArray.length / 3;i++ ){
         geometry.vertices.push(new THREE.Vector3(positionArray[3*i], positionArray[3*i + 1], positionArray[3*i + 2]));
-        App.animationShaderMaterial.attributes.endPosition.value.push(new THREE.Vector3(endPositionArray[3*i], endPositionArray[3*i + 1], endPositionArray[3*i + 2]));
-        App.animationShaderMaterial.attributes.color.value.push(new THREE.Vector3(color[3*i], color[3*i + 1], color[3*i + 2]));
+        App.animatedShaderMaterial.attributes.endPosition.value.push(new THREE.Vector3(endPositionArray[3*i], endPositionArray[3*i + 1], endPositionArray[3*i + 2]));
+        App.animatedShaderMaterial.attributes.color.value.push(new THREE.Vector3(color[3*i], color[3*i + 1], color[3*i + 2]));
         App.staticShaderMaterial.attributes.color.value.push(new THREE.Vector3(color[3*i], color[3*i + 1], color[3*i + 2]));
 
     }
-    App.animationShaderMaterial.attributes.color.needsUpdate = true;
-    App.animationShaderMaterial.attributes.endPosition.needsUpdate = true;
+    App.animatedShaderMaterial.attributes.color.needsUpdate = true;
+    App.animatedShaderMaterial.attributes.endPosition.needsUpdate = true;
     App.staticShaderMaterial.attributes.color.needsUpdate = true;
 
-    App.geometryPointCloud = new THREE.PointCloud(geometry, App.animationShaderMaterial);*/
+    App.geometryPointCloud = new THREE.PointCloud(geometry, App.animatedShaderMaterial);*/
 
     //
     App.pointCloud = App.staticBufferGeometryPointCloud;

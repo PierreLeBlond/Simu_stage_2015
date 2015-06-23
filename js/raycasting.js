@@ -10,7 +10,7 @@
 function selectPoint(event) {
 
     if (App.pointCloud != null) {
-        event.preventDefault();
+        //event.preventDefault();
         var mouse = new THREE.Vector2(
             ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
             -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
@@ -188,7 +188,7 @@ function zoomMacro(event)
 {
     if(App.pointCloud != null)
     {
-        event.preventDefault();
+        //event.preventDefault();
         var mouse = new THREE.Vector2(
             ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
             - ( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
@@ -202,10 +202,10 @@ function zoomMacro(event)
             var y = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3+1];
             var z = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3+2];
 
-            Camera.camera.position.set(x+size,y+size,z+size);
+            Camera.camera.position.set(x,y,z);
 
             //Camera.controls.moveSpeed = padding * 10;
-            //App.animationShaderMaterial.size = padding;
+            //App.animatedShaderMaterial.size = padding;
             //App.uniforms.size = padding;
 
         }

@@ -32,7 +32,8 @@ function setupGUI(){
         "geometryBuffer" : App.GEOMETRYBUFFER,
         "CPUCalcul" : App.CPUCALCUL,
         "colorPicking" : App.COLORPICKING,
-        "nbPoint" : nbpoint
+        "nbPoint" : nbpoint,
+        "setfog" : App.FOG
     };
 
     //TODO remove listen() calls, cause we don't need to check for changing values every frames, and we know when, understood ?
@@ -66,8 +67,28 @@ function setupGUI(){
 
     //enable raycasting
     Gui.gui.add(parameters, 'raycasting').name("Raycasting").onChange(function(value){
-        disableMouseEventHandling();
+        if(!value)
+            disableMouseEventHandling();
+        else
+            enableMouseEventHandling();
     }).listen();
+
+    //enable fog
+    Gui.gui.add(parameters, 'setfog').name("Fog").onChange(function(value){
+        if(value){
+            if(App.play){
+                App.pointCloud.material = App.animatedFogShaderMaterial;
+            }else{
+                App.pointCloud.material = App.staticFogShaderMaterial;
+            }
+        }else{
+            if(App.play){
+                App.pointCloud.material = App.animatedShaderMaterial;
+            }else{
+                App.pointCloud.material = App.staticShaderMaterial;
+            }
+        }
+    });
 
     //enable CPU processing of positions at each frame - useless
     /*Gui.gui.add(parameters, 'CPUCalcul').name("CPU Time Calcul").onChange(function(value){
@@ -76,7 +97,7 @@ function setupGUI(){
             App.pointCloud.material = App.staticShaderMaterial;
             App.pointCloud.geometry = App.staticBufferGeometry;
         }else{
-            App.pointCloud.material = App.animationShaderMaterial;
+            App.pointCloud.material = App.animatedShaderMaterial;
             App.pointCloud.geometry = App.animationBufferGeometry;
         }
     });*/
