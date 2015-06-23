@@ -19,17 +19,32 @@
 	<!--<div id="progress_bar"><div id="percent">0%</div></div>
 -->
 </div>
+<div id="info_wrapper">
+	<div id="info_intersected">
+
+	</div>
+	<div id="info_selected">
+
+	</div>
+</div>
 
 <script type="x-shader/x-vertex" id="vertexshader">
 			uniform float size;
 	        uniform float t;
+
 	        attribute vec3 endPosition;
+	        attribute vec3 color;
 
 	        varying vec4 mvPosition;
+	        varying vec3 color_out;
 
 	        void main() {
-	        	
-	            mvPosition = modelViewMatrix * vec4( position+endPosition*t, 1.0 );
+
+	        	color_out = color;
+
+	        	vec3 pos = position+endPosition*t;
+
+	            mvPosition = modelViewMatrix * vec4( pos, 1.0 );
 
 	            gl_PointSize = size / length( mvPosition.xyz );
 
@@ -39,18 +54,76 @@
 
 		</script>
 
+<script type="x-shader/x-vertex" id="colorpickingvertexshader">
+	uniform float size;
+	uniform float t;
+
+	attribute vec3 endPosition;
+	attribute vec3 colorIndex;
+
+	varying vec4 mvPosition;
+	varying vec3 color_out;
+
+	void main() {
+
+	        	color_out = colorIndex;
+
+	        	vec3 pos = position+endPosition*t;
+
+	            mvPosition = modelViewMatrix * vec4( pos, 1.0 );
+
+	            gl_PointSize = size / length( mvPosition.xyz );
+
+	            gl_Position = projectionMatrix * mvPosition;
+
+	        }
+</script>
+
 <script type="x-shader/x-fragment" id="fragmentshader">
-			uniform vec3 color;
 			uniform float fog;
 			uniform float fogDistance;
+			uniform float scale;
 
 			varying vec4 mvPosition;
+			varying vec3 color_out;
 
 			void main() {
-				gl_FragColor = mix(vec4(color, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0))));
+				gl_FragColor = mix(vec4(color_out, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0))));
+				//gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
 			}
 
 		</script>
+
+<script type="x-shader/x-vertex" id="vertexshaderwithouttime">
+			uniform float size;
+			uniform float scale;
+
+	        attribute vec3 color;
+
+	        varying vec4 mvPosition;
+	        varying vec3 color_out;
+
+	        void main() {
+
+	        	color_out = color;
+
+	            mvPosition = modelViewMatrix * vec4( position, 1.0 );
+
+	            gl_PointSize = size / length( mvPosition.xyz );
+
+	            gl_Position = projectionMatrix * mvPosition;
+
+	        }
+</script>
+
+<script type="x-shader/x-fragment" id="colorpickingfragmentshader">
+	varying vec4 mvPosition;
+	varying vec3 color_out;
+
+	void main(){
+		gl_FragColor = vec4(color_out/255.0, 1.0);
+		}
+</script>
 
 <!-- TOOLS -->
 <div id="tools">
@@ -59,13 +132,25 @@
 	<img src="resources/icons/focus.png" onclick="controls.reset()" title="focus on pointcloud"/>
 </div>
 
+<div id="debugInfo">
+
+</div>
+
+<div id="colorPickingTexture"></div>
+
 </body>
 
-<script type="text/javascript" src="js/reader.js"></script>
-<script type="text/javascript" src="js/camera.js"></script>
-<script type="text/javascript" src="js/setup.js"></script>
-<script type="text/javascript" src="js/gui.js"></script>
 <script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript" src="js/colorPicking.js"></script>
+<script type="text/javascript" src="js/reader.js"></script>
+<script type="text/javascript" src="js/raycasting.js"></script>
+<script type="text/javascript" src="js/camera.js"></script>
+<script type="text/javascript" src="js/gui.js"></script>
+<script type="text/javascript" src="js/setup.js"></script>
+<script type="text/javascript" src="js/util.js"></script>
+<script type="text/javascript" src="js/event.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+
 
 
 

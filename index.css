@@ -8,6 +8,7 @@ canvas {
 
 body {
     overflow:hidden;
+    cursor: crosshair;
 }
 
 #progress_bar {
@@ -42,4 +43,44 @@ body {
     width: 110px;
     bottom: 10px;
     right: 10px;
+}
+
+#colorPickingTexture {
+    position : fixed;
+    width: 10%;
+    height: 10%;
+    right: 10px;
+    bottom: 100px;
+}
+
+#debugInfo {
+    position: fixed;
+    left: 10px;
+    bottom : 10px;
+    color: white;
+    background : black;
+}
+
+#info_intersected {
+    position: fixed;
+    background: black;
+    color: white;
+    border: blue 1px;
+    border-radius: 2px;
+}
+
+#info_intersected:hover {
+    cursor: crosshair;
+}
+
+#info_selected {
+    position: fixed;
+    background: black;
+    color: white;
+    border: green 1px;
+    border-radius: 2px;
+}
+
+#info_selected:hover {
+    cursor: crosshair;
 }

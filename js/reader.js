@@ -34,8 +34,7 @@ function initFileReading() {
 
             App.clearPointCloud();
 
-            d0 = Date.now();
-            console.info("Lancement de la boucle à " + d0);
+            App.timer.start();
             //Loop used to launch the reading of each file
             switch(App.type){
                 case App.FileType.BIN :
@@ -52,8 +51,7 @@ function initFileReading() {
                     break;
             }
 
-            d1 = Date.now();
-            console.info("Temps de chargement : " + (d1 - d0));
+            App.timer.stop("Chargement fichier");
         }
         //Setting the event change on the file input to launch the function handleFileSelect
         document.getElementById('files').addEventListener('change', handleFileSelect, false);
@@ -71,6 +69,7 @@ function initFileReading() {
  */
 function readAdd(files, numFile)
 {
+    App.timer.start();
     var reader = new FileReader();
     var fileName = files[numFile].name;
 
@@ -187,9 +186,9 @@ function readAdd(files, numFile)
                 for(var i = 0; i<nbElements;i++)
                 {
                     var identifiant = array[8+i*10];
-                    positionArray[identifiant*3]=array[2+i*10];
-                    positionArray[identifiant*3+1]=array[3+i*10];
-                    positionArray[identifiant*3+2]=array[4+i*10];
+                    positionArray[identifiant*3]=currentPositionArray[identifiant*3]=array[2+i*10];
+                    positionArray[identifiant*3+1]=currentPositionArray[identifiant*3+1]=array[3+i*10];
+                    positionArray[identifiant*3+2]=currentPositionArray[identifiant*3+2]=array[4+i*10];
                 }
             }
             else
@@ -253,12 +252,16 @@ function readAdd(files, numFile)
             //Checking if it's the last file reading
             if(nbCloud==files.length)
             {
+                App.timer.stop("populating buffer");
+
                 nbCloud = 0;
 
                 //If it's not the first part file reading, then call loadData that will add the elements to the scene
                 if(!first)
                 {
+                    App.timer.start();
                     loadData();
+                    App.timer.stop("Load Data");
                 }
                 first = false;
 

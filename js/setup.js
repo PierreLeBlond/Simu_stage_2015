@@ -1,6 +1,5 @@
 
 
-var pointSize = 0.025;
 var defaultSpeed = 1.0;
 var fog = 1.1;
 var fogDistance = 3.4;
@@ -14,9 +13,17 @@ var nbCloud = 0;
 
 var first = true;
 var positionArray = new Float32Array(2097152*3);
+var currentPositionArray = new Float32Array(2097152*3);
 var endPositionArray = new Float32Array(2097152*3);
+var color = new Float32Array(2097152*3);
+var colorIndex = new Float32Array(2097152*3);
 var t = 0.0;
-var timeOffset = 0.0;
+var speed = 0.1;
+var nbpoint = 2097152;
+
+var lastTime = t;
+
+
 
 
 
@@ -26,34 +33,73 @@ var timeOffset = 0.0;
  */
 function setupScene()
 {
+    App.timer = new App.Timer();
     App.clock = new THREE.Clock();
     App.width = window.innerWidth;
     App.height = window.innerHeight;
 
     App.attributes = {
-        endPosition: { type:'v3', value:null }
+        endPosition:    {type: 'v3', value: []},
+        color:          {type: 'v3', value: []}
+    };
+
+    App.simpleAttributes = {
+        color:          {type: 'v3', value: []}
+    };
+
+    App.colorPickerAttributes = {
+        endPosition:    {type: 'v3', value: []},
+        colorIndex:     {type: 'v3', value: []}
     };
 
     App.uniforms = {
-        t:              { type: 'f', value: 0.0},
-        size:           { type: 'f', value: 0.1 },
-        color:          { type: "c", value: new THREE.Color( 0xffffff ) },
+        t:              { type: 'f', value: 0.001},
+        scale:          { type: 'f', value: window.innerHeight / 2 },
+        size:           { type: 'f', value: 0.0001},
         fog:            { type: 'f', value: 1.1},
-        fogDistance:    { type: 'f', value: 3.4}
+        fogDistance:    { type: 'f', value: 3.4},
+        texture:        { type: "t", value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
     };
 
-    App.shaderMaterial = new THREE.ShaderMaterial( {
+    App.animationShaderMaterial = new THREE.ShaderMaterial( {
         attributes:     App.attributes,
         uniforms:       App.uniforms,
+        transparent:    true,
         vertexShader:   document.getElementById( 'vertexshader' ).textContent,
-        fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+    });
+
+    App.staticShaderMaterial = new THREE.ShaderMaterial({
+        attributes:     App.simpleAttributes,
+        uniforms:       App.uniforms,
+        vertexShader:   document.getElementById( 'vertexshaderwithouttime' ).textContent,
+        fragmentShader: document.getElementById( 'fragmentshader' ).textContent
+    });
+
+    App.colorPickerShaderMaterial = new THREE.ShaderMaterial({
+        attributes:     App.colorPickerAttributes,
+        uniforms:       App.uniforms,
+        vertexShader:   document.getElementById( 'colorpickingvertexshader' ).textContent,
+        fragmentShader: document.getElementById( 'colorpickingfragmentshader' ).textContent
     });
 
     App.scene = new THREE.Scene();
+    App.colorPickerScene = new THREE.Scene();
 
     //Adding an axis to the scene
     var axisHelper = new THREE.AxisHelper(1);
     App.scene.add( axisHelper );
+    axisHelper.frustumCulled = true;
+
+    //Adding colorPicker info on top of window
+    App.colorPickingRenderer = new THREE.WebGLRenderer({antialias: false});
+    App.colorPickingRenderer.setSize(App.width/10, App.height/10);
+    document.getElementById('colorPickingTexture').appendChild(App.colorPickingRenderer.domElement);
+
+    App.colorPickerTexture = generateDataTexture(App.width, App.height, new THREE.Color(0x000000));
+    App.colorPickerTexture.minFilter = THREE.NearestFilter;
+    var colorPickerMaterial = new THREE.SpriteMaterial({map : App.colorPickerTexture, color: 0xffffff, fog : false});
+    App.colorPickerSprite = new THREE.Sprite(colorPickerMaterial);
 
     //RENDERER PROPERTIES
     App.renderer = new THREE.WebGLRenderer({ antialias: false });
@@ -63,23 +109,10 @@ function setupScene()
     //CAMERA PROPERTIES
     //PerspectiveCamera(fov, aspect, near, far)
     Camera.camera = new THREE.PerspectiveCamera( 75, App.width / App.height, 0.00001, 200 );
-    Camera.camera.rotation.order = 'ZYX'; //to fit with FPScontrols
+    Camera.camera.rotation.order = 'ZYX'; //to fit with FPScontrols - But doesn't fit with raycaster !
     Camera.camera.position.set(0.5,0.5,0.5);
+
+    //
+    App.colorPickerTarget = new THREE.WebGLRenderTarget(App.width, App.height);
+    App.colorPickerTarget.generateMipmaps = false;
 }
-
-/**
- * @author mrdoob
- * @description when resizing the windows, takes care that the ratio and aspect stays good
- */
-function onWindowResize() {
-    App.width = window.innerWidth;
-    App.height = window.innerHeight;
-
-    Camera.camera.aspect = App.width / App.height;
-    Camera.camera.updateProjectionMatrix();
-
-    App.renderer.setSize( App.width, App.height );
-
-}
-//adding a listener to resize the window when it changes
-window.addEventListener( 'resize', onWindowResize, false );

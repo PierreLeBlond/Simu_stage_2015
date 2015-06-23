@@ -24,14 +24,18 @@ function setupGUI(){
 
     var parameters = {
         "partSize" : App.uniforms.size.value,
-        "point size" : pointSize,
-        "camera speed" : Camera.fpControls.moveSpeed,
-        "timeOffset" : timeOffset,
+        "speed" : speed,
         "fog" : fog,
         "fogDistance" : fogDistance,
-        "frustum culling" : frustumCulling
+        "frustum culling" : frustumCulling,
+        "raycasting" : App.RAYCASTING,
+        "geometryBuffer" : App.GEOMETRYBUFFER,
+        "CPUCalcul" : App.CPUCALCUL,
+        "colorPicking" : App.COLORPICKING,
+        "nbPoint" : nbpoint
     };
 
+    //TODO remove listen() calls, cause we don't need to check for changing values every frames, and we know when, understood ?
     //camera speed of the firstPersonControls
     var pCameraSpeed = Gui.gui.add(Camera.fpControls, 'moveSpeed').min(0.0001).max(1.000).step(0.01).listen().name("camera speed");
     pCameraSpeed.onFinishChange(function(value){
@@ -39,22 +43,74 @@ function setupGUI(){
     });
 
     //size of the points of the pointcloud
-    var pTime = Gui.gui.add(App.uniforms.t, 'value').min(0.0).max(1.0).step(0.001).name("time");
-    pTime.onChange(function(value){
-        App.uniforms.t.value=value;
+    Gui.gui.add(App.uniforms.size, 'value', 0.0001, 1).name("point size").listen();
+
+
+    Gui.gui.add(parameters, 'nbPoint', 1, 2097152).name("number of point").onFinishChange(function(value){
+        App.staticBufferGeometry.drawcalls[0].count = value;
+    });
+
+
+
+    //time
+    Gui.gui.add(App.uniforms.t, 'value', 0.00001, 1).name("time").listen().onFinishChange(function(){
+       if(!App.play){//If we jump in time while disabling animation, let's compute again the position !
+           //timedChunckComputePositions();
+           computePositions();
+       }
     });
 
     //speed of the animation
-    var pTimeOffset = Gui.gui.add(parameters, 'timeOffset').min(0.0).max(0.01).step(0.0001).name("timeOffset");
-    pTimeOffset.onFinishChange(function(value){
-        timeOffset=value;
-    });
+    Gui.gui.add(parameters, 'speed', 0.00001, 1).name("speed");
 
-    //size of the points of the pointcloud
-    var pPointSize = Gui.gui.add(App.uniforms.size, 'value').min(0.00001).max(1).step(0.0001).name("point size");
-    pPointSize.onFinishChange(function(value){
-        App.uniforms.size.value=value;
-    });
+
+    //enable raycasting
+    Gui.gui.add(parameters, 'raycasting').name("Raycasting").onChange(function(value){
+        disableMouseEventHandling();
+    }).listen();
+
+    //enable CPU processing of positions at each frame - useless
+    /*Gui.gui.add(parameters, 'CPUCalcul').name("CPU Time Calcul").onChange(function(value){
+        App.CPUCALCUL = value;
+        if(App.CPUCALCUL) {
+            App.pointCloud.material = App.staticShaderMaterial;
+            App.pointCloud.geometry = App.staticBufferGeometry;
+        }else{
+            App.pointCloud.material = App.animationShaderMaterial;
+            App.pointCloud.geometry = App.animationBufferGeometry;
+        }
+    });*/
+
+    /*var pGeometryBuffer = Gui.gui.add(parameters, 'geometryBuffer').name("Geometry buffer");
+    pGeometryBuffer.onChange(function(value){
+        App.GEOMETRYBUFFER = value;
+        if(App.GEOMETRYBUFFER){
+            App.scene.remove(App.pointCloud);
+            if(App.play) {
+                App.pointCloud = App.animationBufferGeometryPointCloud;
+            }else{
+                App.pointCloud = App.staticBufferGeometryPointCloud;
+
+            }
+            App.scene.add(App.pointCloud);
+        }else{
+            App.scene.remove(App.pointCloud);
+            App.pointCloud = App.geometryPointCloud;
+            App.scene.add(App.pointCloud);
+        }
+    });*/
+
+    /*var pColorPicking = Gui.gui.add(parameters, 'colorPicking').name("Color Picking");
+    pColorPicking.onChange(function(value){
+        App.COLORPICKING = value;
+        if(App.COLORPICKING){
+            App.renderer.domElement.addEventListener( "mousedown", getColorPickingPointCloudIntersectionIndex, false);
+            App.renderer.domElement.addEventListener( "mousemove", getColorPickingPointCloudIntersectionIndex, false);
+        }else{
+            App.renderer.domElement.removeEventListener( "mousedown", getColorPickingPointCloudIntersectionIndex, false);
+            App.renderer.domElement.removeEventListener( "mousemove", getColorPickingPointCloudIntersectionIndex, false);
+        };
+    });*/
 
     /*var pFog = Gui.gui.add(App.uniforms.fog, 'value').min(0.1).max(10.0).step(0.1).name("fog");
     pFog.onChange(function(value){
@@ -64,10 +120,16 @@ function setupGUI(){
     var pFogDistance = Gui.gui.add(App.uniforms.fogDistance, 'value').min(0.1).max(10.0).step(0.1).name("fog distance");
     pFogDistance.onChange(function(value){
         App.uniforms.fogDistance.value=value;
-    });
-
-    var pCullingSelector = Gui.gui.add(parameters, 'frustum culling');
-    pCullingSelector.onChange(function(value){
-        App.pointCloud.frustumCulled = value;
     });*/
+
+    //enable frustum culling - useless when using one point cloud
+    Gui.gui.add(parameters, 'frustum culling').onChange(function(value){
+        App.pointCloud.frustumCulled = value;
+    });
+}
+
+function showDebugInfo(){
+    var el = document.getElementById('debugInfo');
+    var info = App.renderer.info.render;
+    el.innerHTML = ["Call :", info.calls, " | vertices : ", info.vertices, " | faces : ", info.faces, " | points : ", info.points].join('');//More efficient than string concatenation
 }
