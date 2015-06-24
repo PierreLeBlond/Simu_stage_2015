@@ -3,6 +3,7 @@
  */
 
 Camera = {};
+Camera.defaultSpeed = 0.1;
 
 /**
  * @author arnaud steinmetz <s.arnaud67@hotmail.fr>
@@ -18,7 +19,7 @@ function useFPSControls(){
     if(!Camera.fpControls)
     {
         Camera.fpControls = new THREE.FirstPersonControls(Camera.camera, App.renderer.domElement);
-        Camera.fpControls.moveSpeed =  defaultSpeed;
+        Camera.fpControls.moveSpeed =  Camera.defaultSpeed;
     }
     Camera.controls = Camera.fpControls;
     Camera.controls.enabled = true;

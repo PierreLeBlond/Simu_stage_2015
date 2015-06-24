@@ -1,32 +1,3 @@
-
-
-var defaultSpeed = 1.0;
-var fog = 1.1;
-var fogDistance = 3.4;
-var frustumCulling = true;
-
-var pointCloudsPart = [];
-
-
-
-var nbCloud = 0;
-
-var first = true;
-var positionArray = new Float32Array(2097152*3);
-var currentPositionArray = new Float32Array(2097152*3);
-var endPositionArray = new Float32Array(2097152*3);
-var color = new Float32Array(2097152*3);
-var colorIndex = new Float32Array(2097152*3);
-var t = 0.0;
-var speed = 0.1;
-var nbpoint = 2097152;
-
-var lastTime = t;
-
-
-
-
-
 /**
  * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
  * Creation of the scene, renderer, camera.
@@ -52,10 +23,24 @@ function setupScene()
         colorIndex:     {type: 'v3', value: []}
     };
 
+    App.data = {
+        positionsArray:         [],
+        positionArray:          new Float32Array(2097152*3),
+        currentPositionArray:   new Float32Array(2097152*3),
+        endPositionArray:       new Float32Array(2097152*3),
+        color:                  new Float32Array(2097152*3),
+        colorIndex:             new Float32Array(2097152*3)
+    };
+
+    App.parameters = {
+        speed:          0.1,
+        nbPoint:        2097152,
+        nbSnapShot:     0
+    };
+
     App.uniforms = {
         t:              { type: 'f', value: 0.001},
-        scale:          { type: 'f', value: window.innerHeight / 2 },
-        size:           { type: 'f', value: 0.0001},
+        size:           { type: 'f', value: 0.001},
         fog:            { type: 'f', value: 1.1},
         fogDistance:    { type: 'f', value: 3.4},
         map:        { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
@@ -64,7 +49,6 @@ function setupScene()
     App.animatedShaderMaterial = new THREE.ShaderMaterial( {
         attributes:     App.attributes,
         uniforms:       App.uniforms,
-        //transparent:    true,
         vertexShader:   App.shader.animated.nofog.vertex,
         fragmentShader: App.shader.animated.nofog.fragment,
         blending:       THREE.AdditiveBlending,
@@ -109,11 +93,6 @@ function setupScene()
         uniforms:       App.uniforms,
         vertexShader:   document.getElementById( 'colorpickingvertexshader' ).textContent,
         fragmentShader: document.getElementById( 'colorpickingfragmentshader' ).textContent
-    });
-
-    App.pointCloudSpriteMaterial = new THREE.PointCloudMaterial({
-        map:    THREE.ImageUtils.loadTexture("resources/textures/spark1.png"),
-        size:   App.uniforms.size/300
     });
 
     App.scene = new THREE.Scene();

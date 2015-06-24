@@ -60,14 +60,14 @@ function disableMouseEventHandling(){
 function onKeyboardDown(event){
     switch(event.keyCode){
         case 80 ://p
-            if(App.play){
-                App.play = false;
+            if(App.PLAY){
+                App.PLAY = false;
                 App.updated = false;
                 enableMouseEventHandling();
                 //timedChunckComputePositions();
                 computePositions();
             }else{
-                App.play = true;
+                App.PLAY = true;
                 disableMouseEventHandling();
                 setAnimationShaderMode();
             }

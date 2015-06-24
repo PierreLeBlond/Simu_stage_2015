@@ -23,29 +23,17 @@ function selectPoint(event) {
             switch (event.button) {
                 case 0 :
                     if(App.selection != null){
-                        if(App.GEOMETRYBUFFER){
-                            whitify(App.selection.object.geometry.attributes.color, App.selection.index);
-                        }else{
-                            whitify(App.selection.object.material.attributes.color, App.selection.index);
-                        }
+                        whitify(App.selection.object.geometry.attributes.color, App.selection.index);
                     }
 
-                    if(App.GEOMETRYBUFFER){
-                        greenify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-                    }else{
-                        greenify(App.intersection.object.material.attributes.color, App.intersection.index);
-                    }
+                    greenify(App.intersection.object.geometry.attributes.color, App.intersection.index);
 
                     App.selection = App.intersection;
 
                     break;
                 case 2 :
                     if(App.selection.index != null && App.intersection.index == App.selection.index){
-                        if(App.GEOMETRYBUFFER){
-                            whitify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-                        }else{
-                            whitify(App.intersection.object.material.attributes.color, App.intersection.index);
-                        }
+                        whitify(App.intersection.object.geometry.attributes.color, App.intersection.index);
 
                         App.selection = null;
                     }
@@ -65,7 +53,7 @@ function selectPoint(event) {
 function checkForPointUnderMouse(event){
 
     if(App.pointCloud != null) {
-        event.preventDefault();
+        //event.preventDefault();
         var mouse = new THREE.Vector2(
             ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
             -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
@@ -75,21 +63,15 @@ function checkForPointUnderMouse(event){
         intersection = getMousePointCloudIntersection(mouse);
 
         if(App.intersection != null && (intersection == null || App.intersection != intersection) && (App.selection == null || App.intersection != App.selection)){
-            if(App.GEOMETRYBUFFER){
-                whitify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-            }else{
-                whitify(App.intersection.object.material.attributes.color, App.intersection.index);
-            }
+            whitify(App.intersection.object.geometry.attributes.color, App.intersection.index);
+
         }
         if(intersection != null && (App.selection == null || intersection.index != App.selection.index)){
 
             App.intersection = intersection;
 
-            if(App.GEOMETRYBUFFER){
-                redify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-            }else{
-                redify(App.intersection.object.material.attributes.color, App.intersection.index);
-            }
+            redify(App.intersection.object.geometry.attributes.color, App.intersection.index);
+
         }
 
 
@@ -147,7 +129,7 @@ function whitify(color, index){
 function getMousePointCloudIntersection(mouse)
 {
     var magic_size = Gui.gui.__controllers[0].__min/2;//Why ? --> this value is small enough to be accurate - without intersecting too many particles, and big enough to catch something on screen.
-    var size = App.uniforms.size.value/(2*400);//This one works, but is a bit too big. There is a risk of catching off-screen particles.
+    var size = App.uniforms.size.value/(2*400);//This one works, but is also a bit magical.
     var point = null;
     if(App.pointCloud != null)
     {
@@ -180,7 +162,7 @@ function getMousePointCloudIntersection(mouse)
 }
 
 /**
- * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
+ * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr> - modified by Pierre Lespingal
  * @description Zoom on the point that was clicked by the user and reduce the size of the points to see the positions with more accuracy.
  *
  */
@@ -220,12 +202,7 @@ function zoomMacro(event)
  * @returns {*}
  */
 function worldToScreen(position){
-    //console.log(position);
     var pos = position.clone();
-    //var projScreenMat = new THREE.Matrix4();
-    //projScreenMat.multiplyMatrices(Camera.camera.projectionMatrix, Camera.camera.matrixWorldInverse);
-    //pos.applyMatrix4(projScreenMat);
-    //Camera.camera.updateMatrixWorld;
     var result = pos.project(Camera.camera);
     result.x =  (result.x + 1) / 2 * App.width;
     result.y =  -(result.y - 1) / 2 * App.height;

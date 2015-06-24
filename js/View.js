@@ -7,7 +7,7 @@
  * L'idée et de pouvoir afficher simultanément plusieurs vues des données dans des parties différents de l'écran :
  * - On souhaite comparer différents jeux de données
  * - On souhaite comparer des données à des temps différents
- * - On souhaite comparer des informations différents sur les données
+ * - On souhaite comparer des informations différentes sur les données
  */
 
 /**
@@ -17,8 +17,9 @@
 App.View = function () {
 
     this.domElement = null;
-    this.scene = new THREE.Scene();
-    this.renderer = new THREE.WebGLRenderer({antialias:false});//disabling antialiasing for perf
+    this.scene = null;
+    this.renderer = null;
+    this.camera = null;
 
     this.pointCloud = null;
 
@@ -32,15 +33,23 @@ App.View.prototype.getRenderer = function(){
     return this.renderer;
 };
 
-App.View.prototype.setElement = function(e){
+App.View.prototype.setDomElement = function(e){
     this.domElement = e;
 };
 
 App.View.prototype.setupScene = function(){
     if(this.domElement) {
+
+        new THREE.WebGLRenderer({antialias:false});//disabling antialiasing for perf
         App.render.setSize(this.domElement.innerWidth, this.domElement.innerHeight);
         this.domElement.appendChild(this.renderer.domElement);
+        this.scene = new THREE.Scene();
+
     }else{
         console.log("Error : Scene does not have a dom element")
     }
-}
+};
+
+App.View.prototype.setCamera = function(camera){
+    this.camera = camera;
+};

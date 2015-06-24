@@ -67,6 +67,9 @@ body {
     color: white;
     border: blue 2px solid;
     border-radius: 2px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 #info_intersected:hover {
@@ -79,6 +82,9 @@ body {
     color: white;
     border: green 2px solid;
     border-radius: 2px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
 }
 
 #info_selected:hover {

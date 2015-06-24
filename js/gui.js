@@ -23,16 +23,12 @@ function setupGUI(){
     Gui.gui = new dat.GUI();
 
     var parameters = {
-        "partSize" : App.uniforms.size.value,
-        "speed" : speed,
-        "fog" : fog,
-        "fogDistance" : fogDistance,
-        "frustum culling" : frustumCulling,
+        "speed" : App.parameters.speed,
+        "nbPoint" : App.parameters.nbPoint,
+        "frustum culling" : App.FRUSTUMCULLING,
         "raycasting" : App.RAYCASTING,
-        "geometryBuffer" : App.GEOMETRYBUFFER,
         "CPUCalcul" : App.CPUCALCUL,
         "colorPicking" : App.COLORPICKING,
-        "nbPoint" : nbpoint,
         "setfog" : App.FOG
     };
 
@@ -55,14 +51,16 @@ function setupGUI(){
 
     //time
     Gui.gui.add(App.uniforms.t, 'value', 0.00001, 1).name("time").listen().onFinishChange(function(){
-       if(!App.play){//If we jump in time while disabling animation, let's compute again the position !
+       if(!App.PLAY){//If we jump in time while disabling animation, let's compute again the position !
            //timedChunckComputePositions();
            computePositions();
        }
     });
 
     //speed of the animation
-    Gui.gui.add(parameters, 'speed', 0.00001, 1).name("speed");
+    Gui.gui.add(parameters, 'speed', 0.00001, 1).name("speed").onFinishChange(function(value){
+        speed = value;
+    });
 
 
     //enable raycasting
@@ -76,50 +74,19 @@ function setupGUI(){
     //enable fog
     Gui.gui.add(parameters, 'setfog').name("Fog").onChange(function(value){
         if(value){
-            if(App.play){
+            if(App.PLAY){
                 App.pointCloud.material = App.animatedFogShaderMaterial;
             }else{
                 App.pointCloud.material = App.staticFogShaderMaterial;
             }
         }else{
-            if(App.play){
+            if(App.PLAY){
                 App.pointCloud.material = App.animatedShaderMaterial;
             }else{
                 App.pointCloud.material = App.staticShaderMaterial;
             }
         }
     });
-
-    //enable CPU processing of positions at each frame - useless
-    /*Gui.gui.add(parameters, 'CPUCalcul').name("CPU Time Calcul").onChange(function(value){
-        App.CPUCALCUL = value;
-        if(App.CPUCALCUL) {
-            App.pointCloud.material = App.staticShaderMaterial;
-            App.pointCloud.geometry = App.staticBufferGeometry;
-        }else{
-            App.pointCloud.material = App.animatedShaderMaterial;
-            App.pointCloud.geometry = App.animationBufferGeometry;
-        }
-    });*/
-
-    /*var pGeometryBuffer = Gui.gui.add(parameters, 'geometryBuffer').name("Geometry buffer");
-    pGeometryBuffer.onChange(function(value){
-        App.GEOMETRYBUFFER = value;
-        if(App.GEOMETRYBUFFER){
-            App.scene.remove(App.pointCloud);
-            if(App.play) {
-                App.pointCloud = App.animationBufferGeometryPointCloud;
-            }else{
-                App.pointCloud = App.staticBufferGeometryPointCloud;
-
-            }
-            App.scene.add(App.pointCloud);
-        }else{
-            App.scene.remove(App.pointCloud);
-            App.pointCloud = App.geometryPointCloud;
-            App.scene.add(App.pointCloud);
-        }
-    });*/
 
     /*var pColorPicking = Gui.gui.add(parameters, 'colorPicking').name("Color Picking");
     pColorPicking.onChange(function(value){
@@ -133,7 +100,7 @@ function setupGUI(){
         };
     });*/
 
-    /*var pFog = Gui.gui.add(App.uniforms.fog, 'value').min(0.1).max(10.0).step(0.1).name("fog");
+    var pFog = Gui.gui.add(App.uniforms.fog, 'value').min(0.1).max(10.0).step(0.1).name("fog");
     pFog.onChange(function(value){
         App.uniforms.fog.value=value;
     });
@@ -141,7 +108,7 @@ function setupGUI(){
     var pFogDistance = Gui.gui.add(App.uniforms.fogDistance, 'value').min(0.1).max(10.0).step(0.1).name("fog distance");
     pFogDistance.onChange(function(value){
         App.uniforms.fogDistance.value=value;
-    });*/
+    });
 
     //enable frustum culling - useless when using one point cloud
     Gui.gui.add(parameters, 'frustum culling').onChange(function(value){
@@ -149,6 +116,10 @@ function setupGUI(){
     });
 }
 
+/**
+ * @author Pierre Lespingal
+ * @description Show some info about rendering
+ */
 function showDebugInfo(){
     var el = document.getElementById('debugInfo');
     var info = App.renderer.info.render;
