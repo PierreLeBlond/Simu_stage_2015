@@ -18,6 +18,7 @@ App.COLORPICKING        = false;//Disable color picking for object picking
 App.FOG                 = true;//Enable fog
 App.FRUSTUMCULLING      = true;
 App.PLAY                = false;//Disable animation mode
+App.ANIMATION           = false;
 //App.FIRST               = true;
 
 

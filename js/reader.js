@@ -23,7 +23,7 @@ App.addScript = function(name, script){
  */
 App.Script = function(){
     this.name = "";
-    this.script = function(file, files, last){console.log("default script, usage : function(file, files, last)")};
+    this.script = function(file){console.log("default script, usage : function(file), return [{name:\"index\", value:X}, {name:\"position\", value:Y}, {name:\"color\", value:Z}, ...]")};
 };
 
 /**
@@ -47,16 +47,37 @@ function initFileReading() {
             var files = evt.target.files;
             var nbFiles = files.length;
 
-            App.clearPointCloud();
-
             App.timer.start();
             //Loop used to launch the reading of each file
             switch(App.type){
                 case App.FileType.BIN :
-                    for(var numFile = 0; numFile < nbFiles; numFile++)
-                    {
-                        readAdd(files, numFile, numFile == nbFiles - 1);
+                    App.data.positionsArray.push(new Float32Array(2097152*3));
+                    if(App.parameters.nbSnapShot != 0){
+                        App.data.directionsArray.push(new Float32Array(2097152*3));
                     }
+                    async.forEach(files, readAdd, function(err){
+                            App.timer.stop("populating buffer");
+
+                            App.timer.start();
+                            loadData();
+                            App.timer.stop("Load Data");
+                            App.parameters.nbSnapShot++;
+                            App.parameters.posSnapShot = 0;
+                        }
+                    );
+
+                    /*for(var numFile = 0; numFile < nbFiles; numFile++)
+                    {
+                        readAdd(files[numFile]);
+                    }
+                     App.timer.stop("populating buffer");
+
+                     App.timer.start();
+                     loadData();
+                     App.timer.stop("Load Data");
+                     App.parameters.nbSnapShot++;
+                     App.parameters.posSnapShot = 0;*/
+
                     break;
                 case App.FileType.STRING :
                     break;
@@ -66,7 +87,6 @@ function initFileReading() {
                     break;
             }
 
-            App.timer.stop("Chargement fichier");
         }
         //Setting the event change on the file input to launch the function handleFileSelect
         document.getElementById('files').addEventListener('change', handleFileSelect, false);
@@ -82,10 +102,10 @@ function initFileReading() {
  * @param {FileList} files - List of the file selected.
  * @param {int} numFile - Number of the file that is read.
  */
-function readAdd(files, numFile, last) {
+function readAdd(file, callback) {
     App.timer.start();
     var reader = new FileReader();
-    var fileName = files[numFile].name;
+    //var fileName = files[numFile].name;
 
     //
     reader.onerror = function (evt) {
@@ -135,9 +155,104 @@ function readAdd(files, numFile, last) {
         var file = evt.target;
         //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
-            App.scripts[0].script(file, files, last);
+            var data = App.scripts[0].script(file);
+            var i;
+            for(i = 1;i < data.length;i++){
+                var index;
+                switch(data[i].name){
+                    case "position" :
+                        var position = data[i].value;
+                        var length = data[0].value.length;
+                        if(App.parameters.nbSnapShot == 0){
+                            for(i = 0; i < length;i++)
+                            {
+                                index = data[0].value[i];
+                                App.data.positionsArray[0][index*3]=App.data.currentPositionArray[index*3]=position[3*i];
+                                App.data.positionsArray[0][index*3 + 1]=App.data.currentPositionArray[index*3 + 1]=position[3*i + 1];
+                                App.data.positionsArray[0][index*3 + 2]=App.data.currentPositionArray[index*3 + 2]=position[3*i + 2];
+                            }
+                        }
+                        else
+                        {
+                            for(i = 0; i < length;i++)
+                            {
+                                index = data[0].value[i];
+
+                                var x = position[3*i];
+                                var y = position[3*i+1];
+                                var z = position[3*i+2];
+
+                                var dx = x-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3];
+                                var dy = y-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1];
+                                var dz = z-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2];
+
+                                //Correcting the vector direction for the elements going outside the box
+                                //To be exact, you can check in the shader if the position goes outside the box, then you change it. Instead of doing that here.
+                                if(dx > 0.5)
+                                {
+                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]+=1;
+                                    dx = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-x);
+                                }
+                                else if(dx < -0.5)
+                                {
+                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-=1;
+                                    dx = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-x);
+                                }
+
+
+                                if(dy > 0.5)
+                                {
+                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]+=1;
+                                    dy = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-y);
+                                }
+                                else if(dy < -0.5)
+                                {
+                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-=1;
+                                    dy = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-y);
+                                }
+
+
+                                if(dz > 0.5)
+                                {
+                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]+=1;
+                                    dz = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-z);
+                                }
+                                else if(dz < -0.5)
+                                {
+                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-=1;
+                                    dz = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-z);
+                                }
+
+                                App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3]= dx;
+                                App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+1]= dy;
+                                App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+2]= dz;
+
+                                App.data.positionsArray[App.parameters.nbSnapShot][index*3]= x;
+                                App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 1]= y;
+                                App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 2]= z;
+                            }
+                        }
+                        position = null;    //let's free some memory as fast as possible, shall we ?
+                        break;
+                    case "color" :
+                        if(App.parameters.nbSnapShot == 0) {
+                            var color = data[i].value;
+                            length = color.length;
+                            for (i = 0; i < length; i++) {
+                                index = data[0].value[i];
+                                App.data.color[index] = color[i];
+                            }
+                        color = null;
+                        }
+                        break;
+                    default :
+                        break;
+                }
+            }
         }
+        callback();
     };
     // Read in the file as a ArrayBuffer.
-    reader.readAsArrayBuffer(files[numFile]);
+    reader.readAsArrayBuffer(file);
+    //reader.readAsBinaryString(file);
 }

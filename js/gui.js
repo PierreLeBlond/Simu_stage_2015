@@ -73,6 +73,7 @@ function setupGUI(){
 
     //enable fog
     Gui.gui.add(parameters, 'setfog').name("Fog").onChange(function(value){
+        App.FOG = value;
         if(value){
             if(App.PLAY){
                 App.pointCloud.material = App.animatedFogShaderMaterial;

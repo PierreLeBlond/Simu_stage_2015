@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Data modeling</title>
 	<link rel="stylesheet" href="index.css">
+	<link rel="stylesheet" href="css/timeline.css">
 	<script type="text/javascript" src="lib/stats.min.js"></script>
 	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
 
@@ -11,6 +12,8 @@
 
 	<script type="text/javascript" src="lib/OrbitControls.js"></script>
 	<script type="text/javascript" src="lib/FirstPersonControls.js"></script>
+
+	<script type="text/javascript" src="lib/async.js"></script>
 </head>
 <body>
 <div id="loader">
@@ -187,6 +190,13 @@
 		}
 </script>
 
+<div id="timeline">
+	<div id="cursor"></div>
+	<div class="snapshot" id="s_1"></div>
+	<div class="snapshot" id="s_2"></div>
+	<div id="progress"></div>
+</div>
+
 <!-- TOOLS -->
 <div id="tools">
 	<img src="resources/icons/fps_controls.png" onclick="useFPSControls()" title="Fly Camera"/>
@@ -203,6 +213,7 @@
 </body>
 
 <script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript" src="js/script.js"></script>
 <script type="text/javascript" src="js/shader.js"></script>
 <script type="text/javascript" src="js/colorPicking.js"></script>
 <script type="text/javascript" src="js/reader.js"></script>

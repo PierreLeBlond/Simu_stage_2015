@@ -60,16 +60,18 @@ function disableMouseEventHandling(){
 function onKeyboardDown(event){
     switch(event.keyCode){
         case 80 ://p
-            if(App.PLAY){
-                App.PLAY = false;
-                App.updated = false;
-                enableMouseEventHandling();
-                //timedChunckComputePositions();
-                computePositions();
-            }else{
-                App.PLAY = true;
-                disableMouseEventHandling();
-                setAnimationShaderMode();
+            if(App.ANIMATION) {
+                if (App.PLAY) {
+                    App.PLAY = false;
+                    App.updated = false;
+                    enableMouseEventHandling();
+                    //timedChunckComputePositions();
+                    computePositions();
+                } else {
+                    App.PLAY = true;
+                    disableMouseEventHandling();
+                    setAnimationShaderMode();
+                }
             }
             break;
         default:

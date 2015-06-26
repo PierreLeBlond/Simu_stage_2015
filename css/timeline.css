@@ -1,0 +1,17 @@
+#timeline {
+    position:fixed;
+    bottom:10px;
+    width:20%;
+    height:20px;
+    background: grey;
+    border: solid 2px darkslateblue;
+    left: 40%;
+}
+
+#cursor {
+    position: fixed;
+    bottom:12px;
+    height:8px;
+    width:10px;
+    background:darkred;
+}

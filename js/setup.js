@@ -25,17 +25,29 @@ function setupScene()
 
     App.data = {
         positionsArray:         [],
-        positionArray:          new Float32Array(2097152*3),
+        directionsArray:         [],
+        departureArray:          null,
         currentPositionArray:   new Float32Array(2097152*3),
-        endPositionArray:       new Float32Array(2097152*3),
+        directionArray:       null,
         color:                  new Float32Array(2097152*3),
         colorIndex:             new Float32Array(2097152*3)
     };
 
+    var length = App.data.color.length / 3;
+    for (var i = 0; i < length; i++) {
+        App.data.color[3 * i] = 1.0;
+        App.data.color[3 * i + 1] = 1.0;
+        App.data.color[3 * i + 2] = 1.0;
+        App.data.colorIndex[3 * i] = i;
+        App.data.colorIndex[3 * i + 1] = i >> 8;
+        App.data.colorIndex[3 * i + 2] = i >> 16;
+    }
+
     App.parameters = {
         speed:          0.1,
         nbPoint:        2097152,
-        nbSnapShot:     0
+        nbSnapShot:     0,
+        posSnapShot:    -1   //Give a hint about which and which snapshot we are currently between. -1 stand for only one snapshot
     };
 
     App.uniforms = {
