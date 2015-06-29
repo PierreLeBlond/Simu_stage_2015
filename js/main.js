@@ -7,7 +7,7 @@
  * @description Function that is used to refresh the renderer
  */
 function render() {
-    requestAnimationFrame(function (){
+    App.requestId = requestAnimationFrame(function (){
         render();
     });
 
@@ -47,7 +47,7 @@ function render() {
     //App.colorPickingRenderer.render(App.colorPickerSprite, Camera.camera);
     //getColorPickingPointCloudIntersectionIndex();
 
-    App.requestId = App.renderer.render( App.scene, Camera.camera );
+    App.renderer.render( App.scene, Camera.camera );
     Camera.controls.update(App.clock.getDelta());
 }
 
