@@ -55,10 +55,14 @@ var script2 = function(file){
 
         var oldest = -1;
 
+        var i;
+        var info;
+
+
         //Determine max age of the input stars
         //Need to be place directly in the files
-        for (var i = 0; i<lines;i++){
-            var info = data[i+2].trim().split('  ');
+        for (i = 0; i<lines;i++){
+            info = data[i+2].trim().split('  ');
 
             //Determine max age of the input stars
             var compare = parseFloat(info[5]);
@@ -71,12 +75,11 @@ var script2 = function(file){
 
         //storedData[fileName] = []; //Cleaning the stored data
 
-        var info;
-        for (var i = 0; i<lines;i++){
+        for (i = 0; i<lines;i++){
             //Separating the different informations in the
             info = data[i+2].trim().split('  ');
 
-            index[i] = parseInt(info[1]);
+            index[i] = info[1];
             //Setting the position in the buffer
             vertices[i*3]=parseFloat(info[2]);      //x
             vertices[i*3+1]=parseFloat(info[3]);    //y

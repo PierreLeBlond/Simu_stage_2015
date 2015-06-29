@@ -3,15 +3,24 @@
     bottom:10px;
     width:20%;
     height:20px;
-    background: grey;
-    border: solid 2px darkslateblue;
+    background: #303030;
+    border: solid 2px #806787;
+    border-radius:10px;
     left: 40%;
 }
 
 #cursor {
-    position: fixed;
-    bottom:12px;
-    height:8px;
-    width:10px;
+    position: relative;
+    width:5%;
+    right:0px;
     background:darkred;
+}
+
+#progressBar {
+    position:relative;
+    left:5%;
+    width:50%;
+    height:50%;
+    margin-bottom:25%;
+    background:#2fa1d6;
 }

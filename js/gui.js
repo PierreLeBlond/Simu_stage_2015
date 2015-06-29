@@ -29,7 +29,8 @@ function setupGUI(){
         "raycasting" : App.RAYCASTING,
         "CPUCalcul" : App.CPUCALCUL,
         "colorPicking" : App.COLORPICKING,
-        "setfog" : App.FOG
+        "setfog" : App.FOG,
+        "nbDrawCalls" : App.parameters.nbCalls
     };
 
     //TODO remove listen() calls, cause we don't need to check for changing values every frames, and we know when, understood ?
@@ -44,7 +45,21 @@ function setupGUI(){
 
 
     Gui.gui.add(parameters, 'nbPoint', 1, 2097152).name("number of point").onFinishChange(function(value){
-        App.staticBufferGeometry.drawcalls[0].count = value;
+        App.parameters.nbPoint = value;
+        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+        var v = parameters.nbPoint/App.parameters.nbCalls;
+        for(var i = 0;i < App.parameters.nbCalls;i++){
+            App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
+        }
+    });
+
+    Gui.gui.add(parameters, 'nbDrawCalls', 1, 100).step(1).name("number of calls").onFinishChange(function(value){
+        App.parameters.nbCalls = value;
+        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+        var v = parameters.nbPoint/App.parameters.nbCalls;
+        for(var i =0;i < App.parameters.nbCalls;i++){
+            App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
+        }
     });
 
 
@@ -88,6 +103,8 @@ function setupGUI(){
             }
         }
     });
+
+
 
     /*var pColorPicking = Gui.gui.add(parameters, 'colorPicking').name("Color Picking");
     pColorPicking.onChange(function(value){

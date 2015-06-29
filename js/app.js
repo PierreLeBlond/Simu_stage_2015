@@ -19,6 +19,7 @@ App.FOG                 = true;//Enable fog
 App.FRUSTUMCULLING      = true;
 App.PLAY                = false;//Disable animation mode
 App.ANIMATION           = false;
+App.CAMERAISFREE        = true;
 //App.FIRST               = true;
 
 
