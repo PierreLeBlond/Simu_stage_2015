@@ -10,6 +10,21 @@ App.FileType            = {
     STRING : 2
 };
 
+/* List of different types of display, useful to remember the current display */
+App.DisplayType = {
+    UNKNOWN : 0,
+    SIMPLEVIEW : 1,
+    MULTIVIEW : 2,
+    OCULUS : 3,
+    CARDBOARD : 4
+}
+
+/* Used to remember the current display */
+App.currentDisplay = App.SIMPLEVIEW;
+
+/*Used to enable and disable controls out and in menu */
+App.controlsEnabled = true;
+
 App.type                = App.FileType.BIN;
 
 App.RAYCASTING          = true;//Enable raycasting for object picking

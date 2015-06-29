@@ -7,7 +7,7 @@
  * @description Function that is used to refresh the renderer
  */
 function render() {
-    requestAnimationFrame(function (){
+    App.requestId = requestAnimationFrame(function (){
         render();
     });
 
@@ -269,6 +269,7 @@ function setStaticShaderMode(){
     App.scene.add(App.pointCloud);
 }
 
+document.getElementById('blocker').style.display = 'none';
 
 App.addScript(name, script);
 App.addScript(name2, script2);
