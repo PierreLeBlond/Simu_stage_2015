@@ -47,7 +47,7 @@ function render() {
     //App.colorPickingRenderer.render(App.colorPickerSprite, Camera.camera);
     //getColorPickingPointCloudIntersectionIndex();
 
-    App.renderer.render( App.scene, Camera.camera );
+    App.requestId = App.renderer.render( App.scene, Camera.camera );
     Camera.controls.update(App.clock.getDelta());
 }
 
@@ -271,6 +271,7 @@ function setStaticShaderMode(){
     App.scene.add(App.pointCloud);
 }
 
+document.getElementById('blocker').style.display = 'none';
 
 App.addScript(name, script);
 App.addScript(name2, script2);

@@ -74,6 +74,10 @@ function onKeyboardDown(event){
                 }
             }
             break;
+        case 27: // Echap
+            document.getElementById('blocker').style.display = 'initial';
+            App.controlsEnabled = false;
+            break;
         default:
             break;
     }

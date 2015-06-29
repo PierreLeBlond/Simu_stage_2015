@@ -19,9 +19,38 @@
 	<script type="text/javascript" src="lib/StereoEffect.js"></script>
 	<script type="text/javascript" src="lib/DeviceOrientationControls.js"></script>
 
-
 </head>
 <body>
+
+<!-- Menu -->
+
+<div id="blocker">
+
+	<div id="instructions">
+
+		<span style="font-size:50px">Choose display type</span>
+		<br/>
+
+		<div id="simpleview" class="choices">
+			<span>Simple View</span>
+		</div>
+
+		<div id="multiview" class="choices">
+			<span>Multiview</span>
+		</div>
+
+		<div id="oculus" class="choices">
+			<span>Oculus Rift</span>
+		</div>
+
+		<div id="cardboard" class="choices">
+			<span>Google Cardboard</span>
+		</div>
+
+	</div>
+
+</div>
+
 <div id="loader">
 	<input type="file" accept="*" id="files" name="file" multiple />
 	<!--<input type="file" accept="*" id="endFile" name="endFile" multiple />-->
@@ -229,6 +258,7 @@
 <script type="text/javascript" src="js/setup.js"></script>
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/event.js"></script>
+<script type="text/javascript" src="js/menu.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 
 
