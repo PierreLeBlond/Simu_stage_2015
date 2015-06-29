@@ -24,10 +24,9 @@ function render() {
                 App.animationBufferGeometry.attributes.position.needsUpdate = true;
                 App.animationBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(App.data.directionArray, 3);
                 App.animationBufferGeometryPointCloud.geometry.attributes.endPosition.needsUpdate = true;
-
             }else{
-                App.uniforms.t.value = 1.0;//TODO go back to static mode ?
-                computePositions();
+                App.uniforms.t.value = 1.0;
+                computePositions();//Let's go back to static mode
                 App.PLAY = false;
             }
         }
@@ -122,11 +121,10 @@ function loadData(){
 
         App.staticBufferGeometry.computeBoundingSphere();
 
-        App.staticBufferGeometry.drawcalls.push({
-            start: 0,
-            count: 2097152,
-            index: 0
-        });
+        App.staticBufferGeometry.addDrawCall(0, 2097152, 0);
+        //App.staticBufferGeometry.addDrawCall(2097152/2, 2097152/2, 2097152/2);
+
+        console.log(App.staticBufferGeometry.drawcalls);
 
         if(App.FOG){
             App.staticBufferGeometryPointCloud = new THREE.PointCloud(App.staticBufferGeometry, App.staticFogShaderMaterial);
@@ -154,7 +152,7 @@ function loadData(){
         App.scene.add(App.pointCloud);
         //App.colorPickerScene.add(App.colorPickerBufferGeometryPointCloud);
 
-        //TODO disable all event related to animation
+        //TODO disable all events related to animation
 
 
     }else if(App.parameters.nbSnapShot == 1){   //if it's just the second time, it's animated shadering turn

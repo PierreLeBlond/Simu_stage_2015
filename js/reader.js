@@ -55,7 +55,7 @@ function initFileReading() {
                     if(App.parameters.nbSnapShot != 0){
                         App.data.directionsArray.push(new Float32Array(2097152*3));
                     }
-                    async.forEach(files, readAdd, function(err){
+                    async.forEach(files, readAdd, function(err){ //TODO use async.map instead to manage all data once they are load, hence an access to the exact number of point before even populating buffers.
                             App.timer.stop("populating buffer");
 
                             App.timer.start();
@@ -240,8 +240,9 @@ function readAdd(file, callback) {
                             length = color.length;
                             for (i = 0; i < length; i++) {
                                 index = data[0].value[i];
-                                App.data.color[index] = color[i];
+                                App.data.color[index] = color[i]*255;
                             }
+                            App.staticBufferGeometryPointCloud.geometry.attributes.color.needsUpdate = true;
                         color = null;
                         }
                         break;
