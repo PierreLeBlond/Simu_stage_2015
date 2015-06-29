@@ -39,7 +39,7 @@ function initSimpleView()
             cancelAnimationFrame(App.requestId);
             document.body.removeChild( App.renderer.domElement );
             document.body.removeChild( Gui.stats.domElement );
-            document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
+            //document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
             Gui.gui.destroy();
             Camera.fpControls = undefined;
             Camera.controls = undefined;
@@ -94,7 +94,7 @@ function initMultiView()
             cancelAnimationFrame(App.requestId);
             document.body.removeChild( App.renderer.domElement );
             document.body.removeChild( Gui.stats.domElement );
-            document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
+            //document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
             Gui.gui.destroy();
             Camera.fpControls = undefined;
             Camera.controls = undefined;
@@ -156,7 +156,7 @@ function initCardboard()
             cancelAnimationFrame(App.requestId);
             document.body.removeChild( App.renderer.domElement );
             document.body.removeChild( Gui.stats.domElement );
-            document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
+            //document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
             Gui.gui.destroy();
             Camera.fpControls = undefined;
             Camera.controls = undefined;
