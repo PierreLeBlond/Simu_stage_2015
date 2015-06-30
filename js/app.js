@@ -38,3 +38,4 @@ App.CAMERAISFREE        = true;
 //App.FIRST               = true;
 
 
+App.autoLoadData = true;

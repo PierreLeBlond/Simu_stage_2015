@@ -290,6 +290,11 @@ setupScene();
 setupcamera();
 setupGUI();
 
+if (App.autoLoadData)
+{
+    loadBinaryFile();
+}
+
 initFileReading();
 initEventhandling();
 

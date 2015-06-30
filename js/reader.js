@@ -331,7 +331,7 @@ function loadBinaryFile()
             {
                 var ab = xhr.response;
                 var data = App.scripts[App.idScript].script(ab);
-                test(null, [data]);
+                onEveryLoadEnd(null, [data]);
             }
         }
     }
