@@ -4,7 +4,7 @@
 
 App.scripts = [];
 App.idScript = 0;
-
+App.nbFiles = 1;
 /**
  * @description Add a new script for loading file
  * @param name
@@ -29,6 +29,60 @@ App.Script = function(){
     this.script = function(file){console.log("default script, usage : function(file), return [{name:\"index\", value:X}, {name:\"position\", value:Y}, {name:\"color\", value:Z}, ...]")};
     this.binary = true;
 };
+
+function test(err, results){
+    var size = 0;
+    for(var i = 0;i < results.length;i++){
+        size += results[i][0].value.length;
+    }
+
+    if(App.parameters.nbSnapShot == 0) {
+        App.parameters.nbPoint = size;
+
+        //Gui.devFolder.remove(Gui.nbPoint);
+
+        Gui.nbPoint = Gui.userFolder.add(Gui.parameters, 'nbPoint', 0, size).name("number of point").onFinishChange(function(value){
+            App.parameters.nbPoint = value;
+            App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+            var nbCalls = App.parameters.nbCalls;
+            var v = App.parameters.nbPoint/nbCalls;
+            for(var i = 0;i < nbCalls;i++){
+                App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
+            }
+        });
+
+        Gui.nbPoint.max(size).updateDisplay();
+
+        App.data.color = new Float32Array(size * 3);
+        App.data.currentPositionArray = new Float32Array(size * 3);
+        App.data.positionsArray.push(new Float32Array(size * 3));
+
+        var length = App.data.color.length / 3;
+        for (var i = 0; i < length; i++) {
+            App.data.color[3 * i] = 1.0;
+            App.data.color[3 * i + 1] = 1.0;
+            App.data.color[3 * i + 2] = 1.0;
+            /*App.data.colorIndex[3 * i] = i;
+             App.data.colorIndex[3 * i + 1] = i >> 8;
+             App.data.colorIndex[3 * i + 2] = i >> 16;*/
+        }
+    }else{ //TODO test if the number of point is the same as before
+        App.data.positionsArray.push(new Float32Array(size * 3));
+        App.data.directionsArray.push(new Float32Array(size * 3));
+    }
+
+    async.forEach(results, populateBuffer, function(){
+        App.timer.stop("populating buffer");
+
+        App.timer.start();
+        loadData();
+        App.timer.stop("Load Data");
+        App.parameters.nbSnapShot++;
+        App.parameters.posSnapShot = 0;
+        document.getElementById('fileLoadingProgress').style.display = 'none';
+    });
+
+}
 
 /**
  * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
@@ -55,60 +109,9 @@ function initFileReading() {
             document.getElementById('fileLoadingProgress').value = 0;
             document.getElementById('fileLoadingProgress').style.display = 'block';
 
-                    async.map(files, readAdd, function(err, results){
-                            var size = 0;
-                            for(var i = 0;i < results.length;i++){
-                                size += results[i][0].value.length;
-                            }
+                    async.map(files, readAdd, test);
 
-                            if(App.parameters.nbSnapShot == 0) {
-                                App.parameters.nbPoint = size;
 
-                                //Gui.devFolder.remove(Gui.nbPoint);
-
-                                Gui.nbPoint = Gui.userFolder.add(Gui.parameters, 'nbPoint', 0, size).name("number of point").onFinishChange(function(value){
-                                    App.parameters.nbPoint = value;
-                                    App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
-                                    var nbCalls = App.parameters.nbCalls;
-                                    var v = App.parameters.nbPoint/nbCalls;
-                                    for(var i = 0;i < nbCalls;i++){
-                                        App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
-                                    }
-                                });
-
-                                Gui.nbPoint.max(size).updateDisplay();
-
-                                App.data.color = new Float32Array(size * 3);
-                                App.data.currentPositionArray = new Float32Array(size * 3);
-                                App.data.positionsArray.push(new Float32Array(size * 3));
-
-                                var length = App.data.color.length / 3;
-                                for (var i = 0; i < length; i++) {
-                                    App.data.color[3 * i] = 1.0;
-                                    App.data.color[3 * i + 1] = 1.0;
-                                    App.data.color[3 * i + 2] = 1.0;
-                                    /*App.data.colorIndex[3 * i] = i;
-                                     App.data.colorIndex[3 * i + 1] = i >> 8;
-                                     App.data.colorIndex[3 * i + 2] = i >> 16;*/
-                                }
-                            }else{ //TODO test if the number of point is the same as before
-                                App.data.positionsArray.push(new Float32Array(size * 3));
-                                App.data.directionsArray.push(new Float32Array(size * 3));
-                            }
-
-                            async.forEach(results, populateBuffer, function(){
-                                App.timer.stop("populating buffer");
-
-                                App.timer.start();
-                                loadData();
-                                App.timer.stop("Load Data");
-                                App.parameters.nbSnapShot++;
-                                App.parameters.posSnapShot = 0;
-                                document.getElementById('fileLoadingProgress').style.display = 'none';
-                            });
-
-                        }
-                    );
 
                     /*for(var numFile = 0; numFile < nbFiles; numFile++)
                     {
@@ -320,11 +323,18 @@ function loadBinaryFile()
     {
         if(xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0))
         {
-
+            if (xhr.response)
+            {
+                var ab = xhr.response;
+                var data = App.scripts[App.idScript].script(ab);
+                test(null, [data]);
+            }
         }
     }
 
     xhr.open("GET", file, true);
+
+    xhr.responseType = 'arraybuffer';
 
     xhr.send(null);
 
