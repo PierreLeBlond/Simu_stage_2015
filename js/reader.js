@@ -3,17 +3,20 @@
  */
 
 App.scripts = [];
+App.idScript = 0;
 
 /**
  * @description Add a new script for loading file
  * @param name
  * @param script
  */
-App.addScript = function(name, script){
+App.addScript = function(name, script, binary){
     var myScript = new App.Script();
     App.scripts.push(myScript);
     myScript.name = name;
     myScript.script = script;
+    myScript.binary = binary;
+
 };
 
 /**
@@ -24,6 +27,7 @@ App.addScript = function(name, script){
 App.Script = function(){
     this.name = "";
     this.script = function(file){console.log("default script, usage : function(file), return [{name:\"index\", value:X}, {name:\"position\", value:Y}, {name:\"color\", value:Z}, ...]")};
+    this.binary = true;
 };
 
 /**
@@ -45,24 +49,64 @@ function initFileReading() {
          */
         function handleFileSelect(evt) {
             var files = evt.target.files;
-            var nbFiles = files.length;
+            App.nbFiles = files.length;
 
             App.timer.start();
-            //Loop used to launch the reading of each file
-            switch(App.type){
-                case App.FileType.BIN :
-                    App.data.positionsArray.push(new Float32Array(2097152*3));
-                    if(App.parameters.nbSnapShot != 0){
-                        App.data.directionsArray.push(new Float32Array(2097152*3));
-                    }
-                    async.forEach(files, readAdd, function(err){ //TODO use async.map instead to manage all data once they are load, hence an access to the exact number of point before even populating buffers.
-                            App.timer.stop("populating buffer");
+            document.getElementById('fileLoadingProgress').value = 0;
+            document.getElementById('fileLoadingProgress').style.display = 'block';
 
-                            App.timer.start();
-                            loadData();
-                            App.timer.stop("Load Data");
-                            App.parameters.nbSnapShot++;
-                            App.parameters.posSnapShot = 0;
+                    async.map(files, readAdd, function(err, results){
+                            var size = 0;
+                            for(var i = 0;i < results.length;i++){
+                                size += results[i][0].value.length;
+                            }
+
+                            if(App.parameters.nbSnapShot == 0) {
+                                App.parameters.nbPoint = size;
+
+                                //Gui.devFolder.remove(Gui.nbPoint);
+
+                                Gui.nbPoint = Gui.userFolder.add(Gui.parameters, 'nbPoint', 0, size).name("number of point").onFinishChange(function(value){
+                                    App.parameters.nbPoint = value;
+                                    App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+                                    var nbCalls = App.parameters.nbCalls;
+                                    var v = App.parameters.nbPoint/nbCalls;
+                                    for(var i = 0;i < nbCalls;i++){
+                                        App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
+                                    }
+                                });
+
+                                Gui.nbPoint.max(size).updateDisplay();
+
+                                App.data.color = new Float32Array(size * 3);
+                                App.data.currentPositionArray = new Float32Array(size * 3);
+                                App.data.positionsArray.push(new Float32Array(size * 3));
+
+                                var length = App.data.color.length / 3;
+                                for (var i = 0; i < length; i++) {
+                                    App.data.color[3 * i] = 1.0;
+                                    App.data.color[3 * i + 1] = 1.0;
+                                    App.data.color[3 * i + 2] = 1.0;
+                                    /*App.data.colorIndex[3 * i] = i;
+                                     App.data.colorIndex[3 * i + 1] = i >> 8;
+                                     App.data.colorIndex[3 * i + 2] = i >> 16;*/
+                                }
+                            }else{ //TODO test if the number of point is the same as before
+                                App.data.positionsArray.push(new Float32Array(size * 3));
+                                App.data.directionsArray.push(new Float32Array(size * 3));
+                            }
+
+                            async.forEach(results, populateBuffer, function(){
+                                App.timer.stop("populating buffer");
+
+                                App.timer.start();
+                                loadData();
+                                App.timer.stop("Load Data");
+                                App.parameters.nbSnapShot++;
+                                App.parameters.posSnapShot = 0;
+                                document.getElementById('fileLoadingProgress').style.display = 'none';
+                            });
+
                         }
                     );
 
@@ -77,15 +121,6 @@ function initFileReading() {
                      App.timer.stop("Load Data");
                      App.parameters.nbSnapShot++;
                      App.parameters.posSnapShot = 0;*/
-
-                    break;
-                case App.FileType.STRING :
-                    break;
-                case App.FileType.SKYBOT :
-                    break;
-                default :
-                    break;
-            }
 
         }
         //Setting the event change on the file input to launch the function handleFileSelect
@@ -153,107 +188,121 @@ function readAdd(file, callback) {
      */
     reader.onloadend = function (evt) {
         var file = evt.target;
+        document.getElementById('fileLoadingProgress').value += 50/App.nbFiles;
         //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
-            var data = App.scripts[0].script(file);
-            var i;
-            for(i = 1;i < data.length;i++){
-                var index;
-                switch(data[i].name){
-                    case "position" :
-                        var position = data[i].value;
-                        var length = data[0].value.length;
-                        if(App.parameters.nbSnapShot == 0){
-                            for(i = 0; i < length;i++)
-                            {
-                                index = data[0].value[i];
-                                App.data.positionsArray[0][index*3]=App.data.currentPositionArray[index*3]=position[3*i];
-                                App.data.positionsArray[0][index*3 + 1]=App.data.currentPositionArray[index*3 + 1]=position[3*i + 1];
-                                App.data.positionsArray[0][index*3 + 2]=App.data.currentPositionArray[index*3 + 2]=position[3*i + 2];
-                            }
-                        }
-                        else
-                        {
-                            for(i = 0; i < length;i++)
-                            {
-                                index = data[0].value[i];
-
-                                var x = position[3*i];
-                                var y = position[3*i+1];
-                                var z = position[3*i+2];
-
-                                var dx = x-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3];
-                                var dy = y-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1];
-                                var dz = z-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2];
-
-                                //Correcting the vector direction for the elements going outside the box
-                                //To be exact, you can check in the shader if the position goes outside the box, then you change it. Instead of doing that here.
-                                if(dx > 0.5)
-                                {
-                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]+=1;
-                                    dx = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-x);
-                                }
-                                else if(dx < -0.5)
-                                {
-                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-=1;
-                                    dx = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-x);
-                                }
-
-
-                                if(dy > 0.5)
-                                {
-                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]+=1;
-                                    dy = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-y);
-                                }
-                                else if(dy < -0.5)
-                                {
-                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-=1;
-                                    dy = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-y);
-                                }
-
-
-                                if(dz > 0.5)
-                                {
-                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]+=1;
-                                    dz = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-z);
-                                }
-                                else if(dz < -0.5)
-                                {
-                                    App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-=1;
-                                    dz = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-z);
-                                }
-
-                                App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3]= dx;
-                                App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+1]= dy;
-                                App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+2]= dz;
-
-                                App.data.positionsArray[App.parameters.nbSnapShot][index*3]= x;
-                                App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 1]= y;
-                                App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 2]= z;
-                            }
-                        }
-                        position = null;    //let's free some memory as fast as possible, shall we ?
-                        break;
-                    case "color" :
-                        if(App.parameters.nbSnapShot == 0) {
-                            var color = data[i].value;
-                            length = color.length;
-                            for (i = 0; i < length; i++) {
-                                index = data[0].value[i];
-                                App.data.color[index] = color[i]*255;
-                            }
-                            App.staticBufferGeometryPointCloud.geometry.attributes.color.needsUpdate = true;
-                        color = null;
-                        }
-                        break;
-                    default :
-                        break;
-                }
-            }
+            var data = App.scripts[App.idScript].script(file);
+            callback(null, data);
+        }else{
+            callback(null, null);
         }
-        callback();
     };
     // Read in the file as a ArrayBuffer.
-    reader.readAsArrayBuffer(file);
-    //reader.readAsBinaryString(file);
+    if(App.scripts[App.idScript].binary) {
+        reader.readAsArrayBuffer(file);
+    }else{
+        reader.readAsBinaryString(file);
+    }
+}
+
+function populateBuffer(data, callback){
+    var i;
+    var j;
+    for(j = 1;j < data.length;j++){
+        var index;
+        switch(data[j].name){
+            case "position" :
+                var position = data[j].value;
+                var length = data[0].value.length;
+                if(App.parameters.nbSnapShot == 0){
+                    for(i = 0; i < length;i++)
+                    {
+                        index = data[0].value[i];
+                        App.data.positionsArray[0][index*3]=App.data.currentPositionArray[index*3]=position[3*i];
+                        App.data.positionsArray[0][index*3 + 1]=App.data.currentPositionArray[index*3 + 1]=position[3*i + 1];
+                        App.data.positionsArray[0][index*3 + 2]=App.data.currentPositionArray[index*3 + 2]=position[3*i + 2];
+                    }
+                }
+                else
+                {
+                    for(i = 0; i < length;i++)
+                    {
+                        index = data[0].value[i];
+
+                        var x = position[3*i];
+                        var y = position[3*i+1];
+                        var z = position[3*i+2];
+
+                        var dx = x-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3];
+                        var dy = y-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1];
+                        var dz = z-App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2];
+
+                        //Correcting the vector direction for the elements going outside the box
+                        //To be exact, you can check in the shader if the position goes outside the box, then you change it. Instead of doing that here.
+                        if(dx > 0.5)
+                        {
+                            App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]+=1;
+                            dx = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-x);
+                        }
+                        else if(dx < -0.5)
+                        {
+                            App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-=1;
+                            dx = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3]-x);
+                        }
+
+
+                        if(dy > 0.5)
+                        {
+                            App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]+=1;
+                            dy = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-y);
+                        }
+                        else if(dy < -0.5)
+                        {
+                            App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-=1;
+                            dy = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+1]-y);
+                        }
+
+
+                        if(dz > 0.5)
+                        {
+                            App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]+=1;
+                            dz = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-z);
+                        }
+                        else if(dz < -0.5)
+                        {
+                            App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-=1;
+                            dz = -(App.data.positionsArray[App.parameters.nbSnapShot - 1][index*3+2]-z);
+                        }
+
+                        App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3]= dx;
+                        App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+1]= dy;
+                        App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+2]= dz;
+
+                        App.data.positionsArray[App.parameters.nbSnapShot][index*3]= x;
+                        App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 1]= y;
+                        App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 2]= z;
+                    }
+                }
+                position = null;    //let's free some memory as fast as possible, shall we ?
+                break;
+            case "color" :
+                if(App.parameters.nbSnapShot == 0) {
+                    var color = data[j].value;
+                    length = color.length/3;
+                    for (i = 0; i < length; i++) {
+                        index = data[0].value[i];
+                        App.data.color[index*3] = color[i*3];
+                        App.data.color[index*3 + 1] = color[i*3 + 1];
+                        App.data.color[index*3 + 2] = color[i*3 + 2];
+                    }
+                    //App.staticBufferGeometryPointCloud.geometry.attributes.color.needsUpdate = true;
+                    color = null;
+                }
+                break;
+            default :
+                break;
+        }
+    }
+    document.getElementById('fileLoadingProgress').value += 50/App.nbFiles;
+    callback();
 }

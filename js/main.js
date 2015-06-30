@@ -121,7 +121,7 @@ function loadData(){
 
         App.staticBufferGeometry.computeBoundingSphere();
 
-        App.staticBufferGeometry.addDrawCall(0, 2097152, 0);
+        App.staticBufferGeometry.addDrawCall(0, App.parameters.nbPoint, 0);
         //App.staticBufferGeometry.addDrawCall(2097152/2, 2097152/2, 2097152/2);
 
         console.log(App.staticBufferGeometry.drawcalls);
@@ -169,7 +169,7 @@ function loadData(){
 
         App.animationBufferGeometry.drawcalls.push({
             start: 0,
-            count: 2097152,
+            count: App.parameters.nbPoint,
             index: 0
         });
 
@@ -271,8 +271,8 @@ function setStaticShaderMode(){
 
 document.getElementById('blocker').style.display = 'none';
 
-App.addScript(name, script);
-App.addScript(name2, script2);
+App.addScript(name, script, true);
+App.addScript(name2, script2, false);
 
 setupScene();
 setupcamera();

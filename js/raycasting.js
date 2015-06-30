@@ -128,7 +128,7 @@ function whitify(color, index){
  */
 function getMousePointCloudIntersection(mouse)
 {
-    var magic_size = Gui.gui.__controllers[0].__min/2;//Why ? --> this value is small enough to be accurate - without intersecting too many particles, and big enough to catch something on screen.
+    //var magic_size = Gui.gui.__controllers[0].__min/2;//Why ? --> this value is small enough to be accurate - without intersecting too many particles, and big enough to catch something on screen.
     var size = App.uniforms.size.value/(2*400);//This one works, but is also a bit magical.
     var point = null;
     if(App.pointCloud != null)

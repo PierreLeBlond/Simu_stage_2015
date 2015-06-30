@@ -79,7 +79,7 @@ var script2 = function(file){
             //Separating the different informations in the
             info = data[i+2].trim().split('  ');
 
-            index[i] = info[1];
+            index[i] = i;//parseInt(info[1]);
             //Setting the position in the buffer
             vertices[i*3]=parseFloat(info[2]);      //x
             vertices[i*3+1]=parseFloat(info[3]);    //y
@@ -94,7 +94,7 @@ var script2 = function(file){
             colors[i*3+2]=-Math.log10((oldest/10+parseFloat(info[5]))/(oldest/10+oldest));
         }
 
-        return [{name:"index", value:index}, {name:"position", value:vertices}/*, {name:"color", value:colors}*/];
+        return [{name:"index", value:index}, {name:"position", value:vertices}, {name:"color", value:colors}];
 
         /*geometry.addAttribute('position' , new THREE.BufferAttribute( vertices, 3 ));
         geometry.addAttribute('color' , new THREE.BufferAttribute( colors, 3 ));

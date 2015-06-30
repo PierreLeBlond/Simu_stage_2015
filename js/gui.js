@@ -10,6 +10,8 @@ Gui = {};
  */
 function setupGUI(){
 
+    document.getElementById('fileLoadingProgress').style.display = 'none';
+
     //Adding the fps displayer
     Gui.stats = new Stats();
     Gui.stats.setMode(0); // 0: fps, 1: ms
@@ -22,72 +24,76 @@ function setupGUI(){
     //Using dat-gui to give the user some tools to work with
     Gui.gui = new dat.GUI();
 
-    var parameters = {
-        "speed" : App.parameters.speed,
-        "nbPoint" : App.parameters.nbPoint,
-        "frustum culling" : App.FRUSTUMCULLING,
-        "raycasting" : App.RAYCASTING,
-        "CPUCalcul" : App.CPUCALCUL,
-        "colorPicking" : App.COLORPICKING,
-        "setfog" : App.FOG,
-        "nbDrawCalls" : App.parameters.nbCalls
+    Gui.parameters = {
+        "speed"             : App.parameters.speed,
+        "nbPoint"           : App.parameters.nbPoint,
+        "frustum culling"   : App.FRUSTUMCULLING,
+        "raycasting"        : App.RAYCASTING,
+        "CPUCalcul"         : App.CPUCALCUL,
+        "colorPicking"      : App.COLORPICKING,
+        "setfog"            : App.FOG,
+        "nbDrawCalls"       : App.parameters.nbCalls,
+        "idScript"          : App.idScript
     };
 
     //TODO remove listen() calls, cause we don't need to check for changing values every frames, and we know when, understood ?
+
+
+    Gui.userFolder = Gui.gui.addFolder('User options');
+
     //camera speed of the firstPersonControls
-    var pCameraSpeed = Gui.gui.add(Camera.fpControls, 'moveSpeed').min(0.0001).max(1.000).step(0.01).listen().name("camera speed");
+    var pCameraSpeed = Gui.userFolder.add(Camera.fpControls, 'moveSpeed').min(0.0001).max(1.000).step(0.01).listen().name("camera speed");
     pCameraSpeed.onFinishChange(function(value){
         Camera.fpControls.moveSpeed = value;
     });
 
     //size of the points of the pointcloud
-    Gui.gui.add(App.uniforms.size, 'value', 0.0001, 1).name("point size").listen();
+    Gui.userFolder.add(App.uniforms.size, 'value', 0.0001, 1).name("point size").listen();
 
-
-    Gui.gui.add(parameters, 'nbPoint', 1, 2097152).name("number of point").onFinishChange(function(value){
-        App.parameters.nbPoint = value;
-        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
-        var v = parameters.nbPoint/App.parameters.nbCalls;
-        for(var i = 0;i < App.parameters.nbCalls;i++){
-            App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
+    //time
+    Gui.userFolder.add(App.uniforms.t, 'value', 0.00001, 1).name("time").listen().onFinishChange(function(){
+        if(!App.PLAY){//If we jump in time while disabling animation, let's compute again the position !
+            //timedChunckComputePositions();
+            computePositions();
         }
     });
 
-    Gui.gui.add(parameters, 'nbDrawCalls', 1, 100).step(1).name("number of calls").onFinishChange(function(value){
+    //speed of the animation
+    Gui.userFolder.add(Gui.parameters, 'speed', 0.00001, 1).name("speed").onFinishChange(function(value){
+        speed = value;
+    });
+
+    //Script
+    Gui.script =  Gui.userFolder.add(Gui.parameters, 'idScript', {Deparis : 0, Schaaff : 1}).name("script").onFinishChange(function(value){
+        App.idScript = value;
+    });
+
+
+    Gui.devFolder = Gui.gui.addFolder('dev options');
+
+
+    Gui.devFolder.add(Gui.parameters, 'nbDrawCalls', 1, 100).step(1).name("number of calls").onFinishChange(function(value){
         App.parameters.nbCalls = value;
         App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
-        var v = parameters.nbPoint/App.parameters.nbCalls;
+        var v = App.parameters.nbPoint/App.parameters.nbCalls;
         for(var i =0;i < App.parameters.nbCalls;i++){
             App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
         }
     });
 
-
-
-    //time
-    Gui.gui.add(App.uniforms.t, 'value', 0.00001, 1).name("time").listen().onFinishChange(function(){
-       if(!App.PLAY){//If we jump in time while disabling animation, let's compute again the position !
-           //timedChunckComputePositions();
-           computePositions();
-       }
-    });
-
-    //speed of the animation
-    Gui.gui.add(parameters, 'speed', 0.00001, 1).name("speed").onFinishChange(function(value){
-        speed = value;
-    });
-
-
-    //enable raycasting
-    Gui.gui.add(parameters, 'raycasting').name("Raycasting").onChange(function(value){
-        if(!value)
-            disableMouseEventHandling();
-        else
-            enableMouseEventHandling();
-    }).listen();
+    //TODO make removing element from gui working
+    /*Gui.nbPoint =  Gui.devFolder.add(Gui.parameters, 'nbPoint', 0, 0).name("number of point").onFinishChange(function(value){
+        App.parameters.nbPoint = value;
+        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+        var nbCalls = App.parameters.nbCalls;
+        var v = App.parameters.nbPoint/nbCalls;
+        for(var i = 0;i < nbCalls;i++){
+            App.staticBufferGeometry.addDrawCall(i*v, v, i*v);
+        }
+    });*/
 
     //enable fog
-    Gui.gui.add(parameters, 'setfog').name("Fog").onChange(function(value){
+    Gui.devFolder.add(Gui.parameters, 'setfog').name("Fog").onChange(function(value){
         App.FOG = value;
         if(value){
             if(App.PLAY){
@@ -104,32 +110,42 @@ function setupGUI(){
         }
     });
 
-
-
-    /*var pColorPicking = Gui.gui.add(parameters, 'colorPicking').name("Color Picking");
-    pColorPicking.onChange(function(value){
-        App.COLORPICKING = value;
-        if(App.COLORPICKING){
-            App.renderer.domElement.addEventListener( "mousedown", getColorPickingPointCloudIntersectionIndex, false);
-            App.renderer.domElement.addEventListener( "mousemove", getColorPickingPointCloudIntersectionIndex, false);
-        }else{
-            App.renderer.domElement.removeEventListener( "mousedown", getColorPickingPointCloudIntersectionIndex, false);
-            App.renderer.domElement.removeEventListener( "mousemove", getColorPickingPointCloudIntersectionIndex, false);
-        };
-    });*/
-
-    var pFog = Gui.gui.add(App.uniforms.fog, 'value').min(0.1).max(10.0).step(0.1).name("fog");
-    pFog.onChange(function(value){
+    Gui.devFolder.add(App.uniforms.fog, 'value').min(0.1).max(10.0).step(0.1).name("fog").onChange(function(value){
         App.uniforms.fog.value=value;
     });
 
-    var pFogDistance = Gui.gui.add(App.uniforms.fogDistance, 'value').min(0.1).max(10.0).step(0.1).name("fog distance");
-    pFogDistance.onChange(function(value){
+    Gui.devFolder.add(App.uniforms.fogDistance, 'value').min(0.1).max(10.0).step(0.1).name("fog distance").onChange(function(value){
         App.uniforms.fogDistance.value=value;
     });
 
+    //enable raycasting
+    Gui.devFolder.add(Gui.parameters, 'raycasting').name("Raycasting").onChange(function(value){
+        if(!value)
+            disableMouseEventHandling();
+        else
+            enableMouseEventHandling();
+    }).listen();
+
+
+
+
+
+    /*var pColorPicking = Gui.gui.add(parameters, 'colorPicking').name("Color Picking");
+     pColorPicking.onChange(function(value){
+     App.COLORPICKING = value;
+     if(App.COLORPICKING){
+     App.renderer.domElement.addEventListener( "mousedown", getColorPickingPointCloudIntersectionIndex, false);
+     App.renderer.domElement.addEventListener( "mousemove", getColorPickingPointCloudIntersectionIndex, false);
+     }else{
+     App.renderer.domElement.removeEventListener( "mousedown", getColorPickingPointCloudIntersectionIndex, false);
+     App.renderer.domElement.removeEventListener( "mousemove", getColorPickingPointCloudIntersectionIndex, false);
+     };
+     });*/
+
+
+
     //enable frustum culling - useless when using one point cloud
-    Gui.gui.add(parameters, 'frustum culling').onChange(function(value){
+    Gui.devFolder.add(Gui.parameters, 'frustum culling').onChange(function(value){
         App.pointCloud.frustumCulled = value;
     });
 }
