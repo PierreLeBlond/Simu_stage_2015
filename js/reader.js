@@ -319,30 +319,13 @@ function loadBinaryFile()
     function onReadyStateChange()
     {
         if(xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0))
-        {                                  // When the file content is received
-            var str = xhr.responseText;                             // Store it as a string
-            var ch, st, sh, bytes = [];
+        {
 
-            for (var i = 0; i < str.length; i++)
-            {
-                ch = str.charCodeAt(i);                               // Read each character
-                st = [];
-                                                              // Initialize a stack
-                do
-                {
-                    sh = (ch & 0xFFFF > 0x7F00) ? 16 : 8;
-                    st.unshift(ch & 0xFF);                              // Stack the last byte of the character
-                    ch = ch >> sh;                                      // And read the previous one (or the one before if ch > 128)
-                }
-                while (ch);                                           // As long as it's possible
-                bytes = bytes.concat(st);                             // Add the stack to the bytes array
-            }
-
-            callback(bytes);                                        // Call the callback function with bytes as parameter
         }
     }
 
     xhr.open("GET", file, true);
+
     xhr.send(null);
 
 }
