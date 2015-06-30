@@ -17,7 +17,7 @@ App.DisplayType = {
     MULTIVIEW : 2,
     OCULUS : 3,
     CARDBOARD : 4
-}
+};
 
 /* Used to remember the current display */
 App.currentDisplay = App.SIMPLEVIEW;
@@ -25,7 +25,7 @@ App.currentDisplay = App.SIMPLEVIEW;
 /*Used to enable and disable controls out and in menu */
 App.controlsEnabled = true;
 
-App.type                = App.FileType.BIN;
+App.type                = App.FileType.STRING;
 
 App.RAYCASTING          = true;//Enable raycasting for object picking
 App.CPUCALCUL           = false;//Disable position computing on CPU side rather than within the shader

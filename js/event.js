@@ -95,7 +95,7 @@ function onWindowResize() {
     Camera.camera.updateProjectionMatrix();
 
     App.renderer.setSize( App.width, App.height );
-    App.colorPickingRenderer.setSize(App.width, App.height);
+    //App.colorPickingRenderer.setSize(App.width, App.height);
 
 }
 
