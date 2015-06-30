@@ -3,7 +3,7 @@
  */
 
 var name = "Deparis script";
-var script = function(file){
+var script = function(result){
     /*
      The data contains a header with two values.
      One Int : that is the number of elements in the file
@@ -19,7 +19,7 @@ var script = function(file){
 
      So if you wanna access this data don't forget to specify +2 to avoid picking the header infos
      */
-    var array = new Float32Array(file.result);
+    var array = new Float32Array(result);
 
     var nbElements = (array.length-2)/10;
 
@@ -34,17 +34,15 @@ var script = function(file){
         position[i*3+2]=array[4+i*10];
     }
 
-    file = null;
     array = null;
 
     return [{name : "index", value : index}, {name : "position", value : position}];
 };
 
 var name2 = "Schaaff script";
-var script2 = function(file){
-    if (file.readyState == FileReader.DONE) {
+var script2 = function(result){
 
-        var data = file.result.split('\n');
+        var data = result.split('\n');
 
         var lines = data.length-3; //because of an empty line at the end of the data + two useless
         //var geometry = new THREE.BufferGeometry();
@@ -126,7 +124,5 @@ var script2 = function(file){
             console.log("Temps écoulé " + x);
         }
     }*/
-}
-    file = null;
 
 };

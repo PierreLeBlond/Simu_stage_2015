@@ -47,7 +47,19 @@ function render() {
     //getColorPickingPointCloudIntersectionIndex();
 
     App.renderer.render( App.scene, Camera.camera );
-    Camera.controls.update(App.clock.getDelta());
+    if(App.CAMERAISFREE) {
+        Camera.controls.update(App.clock.getDelta());
+    }else{
+        Camera.time += 1/60;
+        if(Camera.time < 1.0) {
+            Camera.camera.position.set(Camera.origin.x + Camera.time * Camera.objectif.x,
+                Camera.origin.y + Camera.time * Camera.objectif.y,
+                Camera.origin.z + Camera.time * Camera.objectif.z);
+        }else{
+            console.log(Camera.camera.position);
+            App.CAMERAISFREE = true;
+        }
+    }
 }
 
 /**
