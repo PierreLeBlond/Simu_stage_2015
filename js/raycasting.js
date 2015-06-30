@@ -184,7 +184,11 @@ function zoomMacro(event)
             var y = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3+1];
             var z = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3+2];
 
-            Camera.camera.position.set(x,y,z);
+            Camera.origin = new THREE.Vector3(Camera.camera.position.x, Camera.camera.position.y,Camera.camera.position.z);
+            Camera.objectif = new THREE.Vector3(x - Camera.origin.x, y - Camera.origin.y, z - Camera.origin.z);
+            console.log(Camera.objectif);
+            Camera.time = 0.0;
+            App.CAMERAISFREE = false;
 
             //Camera.controls.moveSpeed = padding * 10;
             //App.animatedShaderMaterial.size = padding;

@@ -191,7 +191,7 @@ function readAdd(file, callback) {
         document.getElementById('fileLoadingProgress').value += 50/App.nbFiles;
         //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
-            var data = App.scripts[App.idScript].script(file);
+            var data = App.scripts[App.idScript].script(file.result);
             callback(null, data);
         }else{
             callback(null, null);
