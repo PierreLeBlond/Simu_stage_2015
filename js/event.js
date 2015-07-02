@@ -95,7 +95,10 @@ function onWindowResize() {
     Camera.camera.updateProjectionMatrix();
 
     App.renderer.setSize( App.width, App.height );
-
+    if ( App.currentDisplay == App.DisplayType.CARDBOARD )
+    {
+        Camera.effect.setSize( App.width, App.height );
+    }
     //App.colorPickingRenderer.setSize(App.width, App.height);
 
 }

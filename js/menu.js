@@ -59,6 +59,8 @@ function initSimpleView()
         setupcamera();
         setupGUI();
 
+        initEventhandling();
+
         if (App.autoLoadData)
         {
             loadBinaryFiles(App.startFiles);
@@ -118,6 +120,8 @@ function initMultiView()
         setupScene();
         setupcamera();
         setupGUI();
+
+        initEventhandling();
 
         if (App.autoLoadData)
         {
@@ -185,6 +189,8 @@ function initCardboard()
         setupScene();
         setupcamera();
         setupGUI();
+
+        initEventhandling();
 
         if (App.autoLoadData)
         {
@@ -276,7 +282,7 @@ function render2() {
     Camera.controls.update(App.clock.getDelta());
 }
 
-document.getElementById('timeline').addEventListener('click', function() { document.getElementById('blocker').style.display = 'initial'; App.controlsEnabled = false; }, false);
+//document.getElementById('timeline').addEventListener('click', function() { document.getElementById('blocker').style.display = 'initial'; App.controlsEnabled = false; }, false);
 
 /* Fonction permettant le passage en mode plein écran */
 

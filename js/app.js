@@ -20,7 +20,7 @@ App.DisplayType = {
 };
 
 /* Used to remember the current display */
-App.currentDisplay = App.SIMPLEVIEW;
+App.currentDisplay = App.DisplayType.UNKNOWN;
 
 /*Used to enable and disable controls out and in menu */
 App.controlsEnabled = true;

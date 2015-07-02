@@ -307,16 +307,13 @@ document.getElementById('blocker').style.display = 'none';
 App.addScript(name, script, true);
 App.addScript(name2, script2, false);
 
-setupScene();
-setupcamera();
-setupGUI();
-
-if (App.autoLoadData)
+if (isMobile.any())
 {
-    loadBinaryFiles(App.startFiles);
+    initCardboard();
 }
+else
+{
+    initFileReading();
 
-initFileReading();
-initEventhandling();
-
-render();
+    initSimpleView();
+}
