@@ -79,6 +79,11 @@ function onEveryLoadEnd(err, results){
     async.forEach(results, populateBuffer, function(){
         App.timer.stop("populating buffer");
 
+        var newPos = createOctreeFromPos(App.data.currentPositionArray);
+        for(var i = 0; i < newPos.length;i++){
+            App.data.currentPositionArray[i] = newPos[i];
+        }
+
         App.timer.start();
         loadData();
         App.timer.stop("Load Data");

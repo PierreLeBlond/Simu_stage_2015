@@ -3,7 +3,7 @@
  */
 
 Camera = {};
-Camera.defaultSpeed = 0.1;
+Camera.defaultSpeed = 0.75;
 Camera.animationVector = null;
 
 /**

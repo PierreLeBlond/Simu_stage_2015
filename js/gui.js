@@ -60,7 +60,7 @@ function setupGUI(){
 
     //speed of the animation
     Gui.userFolder.add(Gui.parameters, 'speed', 0.00001, 1).name("speed").onFinishChange(function(value){
-        speed = value;
+        App.parameters.speed = value;
     });
 
     //Script

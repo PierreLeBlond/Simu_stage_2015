@@ -27,6 +27,7 @@ function render() {
             }else{
                 App.uniforms.t.value = 1.0;
                 computePositions();//Let's go back to static mode
+                enableMouseEventHandling();
                 App.PLAY = false;
             }
         }
@@ -207,16 +208,36 @@ function loadData(){
  * @description Compute within the CPU the current position of each particle - takes between 10 and 20 ms
  */
 function computePositions(){
+    var progressBar = document.getElementById('fileLoadingProgress');
+    progressBar.value = 0;
     App.timer.start();
+    progressBar.style.display = 'block';
     var length = App.data.currentPositionArray.length / 3;
-    for(var i = 0; i < length;i++) {
+    var i;
+    for(i = 0; i < length;i++) {
         App.data.currentPositionArray[i * 3] = App.data.departureArray[i * 3] + App.uniforms.t.value * App.data.directionArray[i * 3];
         App.data.currentPositionArray[i * 3 + 1] = App.data.departureArray[i * 3 + 1] + App.uniforms.t.value * App.data.directionArray[i * 3 + 1];
         App.data.currentPositionArray[i * 3 + 2] = App.data.departureArray[i * 3 + 2] + App.uniforms.t.value * App.data.directionArray[i * 3 + 2];
     }
+
+    progressBar.value = 10;
+
+    var newPos = createOctreeFromPos(App.data.currentPositionArray);
+
+    progressBar.value = 80;
+    length = newPos.length;
+    for(i = 0; i < length;i++){
+     App.data.currentPositionArray[i] = newPos[i];
+     }
+    newPos = null;
+
+    progressBar.value = 90;
+
     App.staticBufferGeometry.attributes.position.needsUpdate = true;
     setStaticShaderMode();
+    progressBar.value = 100;
     App.timer.stop("recomputing position");
+    progressBar.style.display = 'none';
 }
 
 /**

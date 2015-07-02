@@ -29,12 +29,12 @@ function setupScene()
         departureArray:             null,
         currentPositionArray:       null,
         directionArray:             null,
-        color:                      null,
+        color:                      null
         //colorIndex:                 new Float32Array(2097152*3)
     };
 
     App.parameters = {
-        speed:          0.1,
+        speed:          0.75,
         nbPoint:        0,
         nbSnapShot:     0,
         posSnapShot:    -1,   //Give a hint about which and which snapshot we are currently between. -1 stand for only one snapshot
@@ -43,7 +43,7 @@ function setupScene()
 
     App.uniforms = {
         t:              { type: 'f', value: 0.001},
-        size:           { type: 'f', value: 0.1},
+        size:           { type: 'f', value: 0.5},
         fog:            { type: 'f', value: 1.1},
         fogDistance:    { type: 'f', value: 3.4},
         map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
@@ -109,6 +109,9 @@ function setupScene()
     var axisHelper = new THREE.AxisHelper(1);
     App.scene.add( axisHelper );
     axisHelper.frustumCulled = true;
+
+    /*App.arrowHelper = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 0, 0), 1, 0xffff00);
+    App.scene.add(App.arrowHelper);*/
 
     //Adding colorPicker info on top of window
     /*App.colorPickingRenderer = new THREE.WebGLRenderer({premultipliedAlpha: false});
