@@ -314,10 +314,12 @@ function populateBuffer(data, callback){
     callback();
 }
 
-function loadBinaryFile()
+function loadBinaryFile(file, callback)
 {
 
-    var file = "data/Deparis_data_binaire/part_start/part.00000.p00000";
+    App.timer.start();
+
+    var result = undefined;
 
     var xhr = new XMLHttpRequest();
 
@@ -330,8 +332,13 @@ function loadBinaryFile()
             if (xhr.response)
             {
                 var ab = xhr.response;
-                var data = App.scripts[App.idScript].script(ab);
-                onEveryLoadEnd(null, [data]);
+                data = App.scripts[App.idScript].script(ab);
+                callback(null, data);
+            }
+            else
+            {
+                console.log("Un fichier n'a pas été chargé correctement !");
+                callback(null, null);
             }
         }
     }
@@ -342,4 +349,21 @@ function loadBinaryFile()
 
     xhr.send(null);
 
+}
+
+function loadBinaryFiles(files)
+{
+    async.map(files, loadBinaryFile, onEveryLoadEnd);
+}
+
+App.startFiles = [];
+
+for (var i = 0; i < 128; i++)
+{
+    if (i < 10)
+        App.startFiles[i] = "data/Deparis_data_binaire/part_start/part.00000.p0000" + i;
+    else if (i < 100)
+        App.startFiles[i] = "data/Deparis_data_binaire/part_start/part.00000.p000" + i;
+    else
+        App.startFiles[i] = "data/Deparis_data_binaire/part_start/part.00000.p00" + i;
 }

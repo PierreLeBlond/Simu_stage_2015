@@ -292,7 +292,7 @@ setupGUI();
 
 if (App.autoLoadData)
 {
-    loadBinaryFile();
+    loadBinaryFiles(App.startFiles);
 }
 
 initFileReading();
