@@ -80,6 +80,9 @@ function onEveryLoadEnd(err, results){
         App.timer.stop("populating buffer");
 
         var newPos = createOctreeFromPos(App.data.currentPositionArray);
+
+        displayBox(App.octree);
+
         for(var i = 0; i < newPos.length;i++){
             App.data.currentPositionArray[i] = newPos[i];
         }
