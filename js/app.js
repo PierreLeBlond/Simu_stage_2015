@@ -30,12 +30,13 @@ App.type                = App.FileType.STRING;
 App.RAYCASTING          = true;//Enable raycasting for object picking
 App.CPUCALCUL           = false;//Disable position computing on CPU side rather than within the shader
 App.COLORPICKING        = false;//Disable color picking for object picking
-App.FOG                 = true;//Enable fog
+App.FOG                 = false;//Enable fog
 App.FRUSTUMCULLING      = true;
 App.PLAY                = false;//Disable animation mode
 App.ANIMATION           = false;
 App.CAMERAISFREE        = true;
 //App.FIRST               = true;
 
+App.nbIter              = 3;
 
 App.autoLoadData = true;

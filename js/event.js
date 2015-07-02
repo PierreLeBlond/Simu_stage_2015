@@ -30,23 +30,23 @@ function stopIntersectionSearch(event){
 }
 
 function mouseIsDown(event){
-    App.renderer.domElement.removeEventListener("mousemove", stopIntersectionSearch(), false);
+    App.renderer.domElement.removeEventListener("mousemove", getIntersection(), false);
     selectPoint(event);
 }
 
 function mouseIsUp(event){
-    App.renderer.domElement.addEventListener("mousemove", stopIntersectionSearch(), false);
+    App.renderer.domElement.addEventListener("mousemove", getIntersection(), false);
 }
 
 function enableMouseEventHandling() {
-    App.renderer.domElement.addEventListener("mousemove", stopIntersectionSearch, false);
+    App.renderer.domElement.addEventListener("mousemove", getIntersection, false);
     App.renderer.domElement.addEventListener("mousedown", mouseIsDown, false);
     App.renderer.domElement.addEventListener("mouseup", mouseIsUp, false);
     App.renderer.domElement.addEventListener("dblclick", zoomMacro, false);
 }
 
 function disableMouseEventHandling(){
-    App.renderer.domElement.removeEventListener("mousemove", stopIntersectionSearch, false);
+    App.renderer.domElement.removeEventListener("mousemove", getIntersection, false);
     App.renderer.domElement.removeEventListener("mousedown", mouseIsDown, false);
     App.renderer.domElement.removeEventListener("mouseup", mouseIsUp, false);
     App.renderer.domElement.removeEventListener("dblclick", zoomMacro, false);
