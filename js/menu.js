@@ -59,6 +59,11 @@ function initSimpleView()
         setupcamera();
         setupGUI();
 
+        if (App.autoLoadData)
+        {
+            loadBinaryFiles(App.startFiles);
+        }
+
         /* Activation des contrôles */
 
         App.controlsEnabled = true;
@@ -113,6 +118,11 @@ function initMultiView()
         setupScene();
         setupcamera();
         setupGUI();
+
+        if (App.autoLoadData)
+        {
+            loadBinaryFiles(App.startFiles);
+        }
 
         /* Activation des contrôles */
 
@@ -176,6 +186,11 @@ function initCardboard()
         setupcamera();
         setupGUI();
 
+        if (App.autoLoadData)
+        {
+            loadBinaryFiles(App.startFiles);
+        }
+
         /* Initialisation de l'effet stéréo */
 
         Camera.effect = new THREE.StereoEffect(App.renderer);
@@ -196,7 +211,7 @@ function initCardboard()
             Camera.controls.connect();                                                             // Initialisation
             Camera.controls.update();                                                              // Mise à jour
 
-            //App.renderer.domElement.addEventListener('click', fullscreen, false);                           // Passage en mode plein écran pour les mobiles
+            App.renderer.domElement.addEventListener('click', fullscreen, false);                           // Passage en mode plein écran pour les mobiles
 
             window.removeEventListener('deviceorientation', setOrientationControls, true);  // Suppression de l'événement
 
@@ -210,7 +225,7 @@ function initCardboard()
 
         /* Lancement de la boucle de rendu */
 
-        render2();
+        render3();
 
     }
 
@@ -259,4 +274,78 @@ function render2() {
 
     Camera.effect.render( App.scene, Camera.camera );
     Camera.controls.update(App.clock.getDelta());
+}
+
+document.getElementById('timeline').addEventListener('click', function() { document.getElementById('blocker').style.display = 'initial'; App.controlsEnabled = false; }, false);
+
+/* Fonction permettant le passage en mode plein écran */
+
+function fullscreen()
+{
+
+    if (screenfull.enabled)
+    {
+        screenfull.request(document.body);
+    }
+    else
+    {
+        alert("Impossible de passer en mode plein écran.");
+    }
+}
+
+function render3() {
+    App.requestId = requestAnimationFrame(function (){
+        render3();
+    });
+
+    if(App.ANIMATION && App.PLAY) {
+        if (App.uniforms.t.value < 1.0) {
+            App.uniforms.t.value += App.parameters.speed/100;
+        } else {
+            if(App.parameters.posSnapShot + 2 < App.parameters.nbSnapShot) {
+                App.uniforms.t.value = 0.0;
+                App.parameters.posSnapShot++;
+                App.data.departureArray = App.data.positionsArray[App.parameters.posSnapShot];
+                App.data.directionArray = App.data.directionsArray[App.parameters.posSnapShot];
+                App.animationBufferGeometry.attributes.position = new THREE.BufferAttribute(App.data.departureArray, 3);
+                App.animationBufferGeometry.attributes.position.needsUpdate = true;
+                App.animationBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(App.data.directionArray, 3);
+                App.animationBufferGeometryPointCloud.geometry.attributes.endPosition.needsUpdate = true;
+            }else{
+                App.uniforms.t.value = 1.0;
+                computePositions();//Let's go back to static mode
+                enableMouseEventHandling();
+                App.PLAY = false;
+            }
+        }
+    }
+
+    //Display information about selected particles - take an average of 1ms
+    if(App.selection != null){
+        showSelectedInfo(App.selection);
+    }
+    if(App.intersection != null){
+        showIntersectedInfo(App.intersection);
+    }
+
+    Gui.stats.update();
+    showDebugInfo();
+
+    //App.colorPickingRenderer.render(App.colorPickerSprite, Camera.camera);
+    //getColorPickingPointCloudIntersectionIndex();
+
+    Camera.effect.render( App.scene, Camera.camera );
+    if(App.CAMERAISFREE) {
+        Camera.controls.update(App.clock.getDelta());
+    }else{
+        Camera.time += 1/60;
+        if(Camera.time < 1.0) {
+            Camera.camera.position.set(Camera.origin.x + Camera.time * Camera.objectif.x,
+                Camera.origin.y + Camera.time * Camera.objectif.y,
+                Camera.origin.z + Camera.time * Camera.objectif.z);
+        }else{
+            console.log(Camera.camera.position);
+            App.CAMERAISFREE = true;
+        }
+    }
 }

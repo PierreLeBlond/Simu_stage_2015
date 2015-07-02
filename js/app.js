@@ -39,4 +39,4 @@ App.CAMERAISFREE        = true;
 
 App.nbIter              = 3;
 
-App.autoLoadData = true;
+App.autoLoadData = false;
