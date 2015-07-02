@@ -4,7 +4,7 @@
 
 App.scripts = [];
 App.idScript = 0;
-
+App.nbFiles = 1;
 /**
  * @description Add a new script for loading file
  * @param name
@@ -120,6 +120,7 @@ function initFileReading() {
             document.getElementById('fileLoadingProgress').style.display = 'block';
 
                     async.map(files, readAdd, onEveryLoadEnd);
+
 
                     /*for(var numFile = 0; numFile < nbFiles; numFile++)
                     {
@@ -330,30 +331,20 @@ function loadBinaryFile()
     function onReadyStateChange()
     {
         if(xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 0))
-        {                                  // When the file content is received
-            var str = xhr.responseText;                             // Store it as a string
-            var ch, st, sh, bytes = [];
-
-            for (var i = 0; i < str.length; i++)
+        {
+            if (xhr.response)
             {
-                ch = str.charCodeAt(i);                               // Read each character
-                st = [];
-                                                              // Initialize a stack
-                do
-                {
-                    sh = (ch & 0xFFFF > 0x7F00) ? 16 : 8;
-                    st.unshift(ch & 0xFF);                              // Stack the last byte of the character
-                    ch = ch >> sh;                                      // And read the previous one (or the one before if ch > 128)
-                }
-                while (ch);                                           // As long as it's possible
-                bytes = bytes.concat(st);                             // Add the stack to the bytes array
+                var ab = xhr.response;
+                var data = App.scripts[App.idScript].script(ab);
+                onEveryLoadEnd(null, [data]);
             }
-
-            callback(bytes);                                        // Call the callback function with bytes as parameter
         }
     }
 
     xhr.open("GET", file, true);
+
+    xhr.responseType = 'arraybuffer';
+
     xhr.send(null);
 
 }
