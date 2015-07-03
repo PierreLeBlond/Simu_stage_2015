@@ -316,13 +316,13 @@ document.getElementById('blocker').style.display = 'none';
 App.addScript(name, script, true);
 App.addScript(name2, script2, false);
 
+initFileReading();
+
 if (isMobile.any())
 {
     initCardboard();
 }
 else
 {
-    initFileReading();
-
     initSimpleView();
 }
