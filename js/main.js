@@ -47,6 +47,15 @@ function render() {
     //App.colorPickingRenderer.render(App.colorPickerSprite, Camera.camera);
     //getColorPickingPointCloudIntersectionIndex();
 
+    if(App.pointCloud != null) {
+        App.drawCalls = [];
+        cullFromFrustum(App.octree);
+        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+        for (var i = 0; i < App.drawCalls.length; i++) {
+            App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start / 3, App.drawCalls[i].count / 3, App.drawCalls[i].start / 3);
+        }
+    }
+
     App.renderer.render( App.scene, Camera.camera );
     if(App.CAMERAISFREE) {
         Camera.controls.update(App.clock.getDelta());

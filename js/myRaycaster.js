@@ -76,6 +76,51 @@ App.drawCalls = [];
 //Frustum culling
 //TODO Transform box vertices to clip space, test against clip-space planes
 
+function cullFromFrustum(octree){
+
+    function testVertice(pos){
+        var result = pos.project(Camera.camera);
+
+        if(-1 <= result.x && result.x <= 1 && -1 <= result.y && result.y <= 1 && 0 <= result.z && result.z <= 1){
+            return 1;
+        }
+        return 0;
+    }
+
+    var box = octree.box;
+    var xMin = box.xMin;
+    var yMin = box.yMin;
+    var zMin = box.zMin;
+    var xMax = box.xMax;
+    var yMax = box.yMax;
+    var zMax = box.zMax;
+
+    var test = 0;
+
+    test += testVertice(new THREE.Vector3(xMin, yMin, zMin));
+    test += testVertice(new THREE.Vector3(xMax, yMin, zMax));
+    test += testVertice(new THREE.Vector3(xMin, yMax, zMin));
+    test += testVertice(new THREE.Vector3(xMax, yMax, zMax));
+    test += testVertice(new THREE.Vector3(xMin, yMax, zMax));
+    test += testVertice(new THREE.Vector3(xMax, yMin, zMin));
+    test += testVertice(new THREE.Vector3(xMin, yMin, zMax));
+    test += testVertice(new THREE.Vector3(xMax, yMax, zMin));
+
+
+    if(test > 0 && test < 8){//partially inside
+        if(octree.hasChild) {
+            for (var i = 0; i < octree.child.length; i++) {
+                cullFromFrustum(octree.child[i]);
+            }
+        }else{
+            App.drawCalls.push({start : octree.start, count : octree.count});
+        }
+    }else if(test == 8){
+        App.drawCalls.push({start : octree.start, count : octree.count});
+    }
+
+}
+
 function getIntersection(event){
 
     //App.timer.start();
@@ -113,31 +158,55 @@ function getIntersection(event){
 
         getIntersectedOctans(Camera.camera.position, raycaster.ray.direction);
 
+
+
+        var i;
+
         App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
-        for(var i = 0; i < App.drawCalls.length;i++){
-            App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start/3, App.drawCalls[i].count/3, App.drawCalls[i].start/3);
+        if(App.RAYCASTINGCULLING) {
+            for (i = 0; i < App.drawCalls.length; i++) {
+                App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start / 3, App.drawCalls[i].count / 3, App.drawCalls[i].start / 3);
+            }
         }
 
+        var target = null;
 
-        /*if(intersectBox(Camera.camera, node.box)) {
-         if (node.hasChild) {
-         var idOfIntersectedChildren = 0;
-         //TODO get intersected children
-         return getIntersection(node.child[idOfIntersectedChildren])
-         }else{
-         return null;
-         }
-         }*/
+        var j = 0;
+
+        while(j < App.drawCalls.length && target == null){
+            for(i = App.drawCalls[j].start/3; i < App.drawCalls[j].start/3 + App.drawCalls[j].count/3;i++){
+                var x = App.data.currentPositionArray[3*i];
+                var y = App.data.currentPositionArray[3*i + 1];
+                var z = App.data.currentPositionArray[3*i + 2];
+                var a = raycaster.ray.direction.x;
+                var b = raycaster.ray.direction.y;
+                var c = raycaster.ray.direction.z;
+
+                var d = -a*x - b*y - c*z;
+
+                var md = (Math.pow(a*Camera.camera.position.x + b*Camera.camera.position.y + c*Camera.camera.position.z + d, 2))/(a*a + b*b + c*c);
+                var h = Math.abs((Camera.camera.position.x - x)*(Camera.camera.position.x - x) + (Camera.camera.position.y - y)*(Camera.camera.position.y - y) + (Camera.camera.position.z - z)*(Camera.camera.position.z - z));
+                if(Math.sqrt(h - md) < App.uniforms.size.value/8000){ //It's a kind of magic, maaaaagic !
+                    if(target == null){
+                        target = {index : i, distance: Math.sqrt(h)};
+                    }else if(Math.sqrt(h) < target.distance){
+                        target.index = i;
+                        target.distance = Math.sqrt(h);
+                    }
+                }
+            }
+            j++;
+        }
+
+        if(target != null) {
+            redify(App.staticBufferGeometryPointCloud.geometry.attributes.color, target.index);
+            /*console.log(target.distance);*/
+        }
     }
-    //App.timer.stop("compute raycasting");
 }
 
-function getIntersectedSiblings(){
-
-}
-
-//TODO don't only test the first octan, but the other one as well
-//TODO don't test again all 6 faces, as we know which faces is met
+//TODO Test when camera is inside the cube
+//TODO Try to sort callback
 function getIntersectedOctans(origin, ray){
 
     function getIntersectedOctanWithFace(octree, octan, face){
@@ -200,10 +269,6 @@ function getIntersectedOctans(origin, ray){
         //if yes, continue
         if(inter) {
             var i;
-            var octanToFace = App.octanToFace[octan - 1][face - 1];
-            for (i = 0; i < octanToFace.length; i++) {
-                getIntersectedOctanWithFace(octree, octanToFace[i].octan, octanToFace[i].face);
-            }
             if(octreeChild.hasChild){
                 var faceToOctan = App.faceToOctan[face - 1];
                 for(i = 0; i < faceToOctan.length;i++){
@@ -211,6 +276,10 @@ function getIntersectedOctans(origin, ray){
                 }
             }else{
                 App.drawCalls.push({start : octreeChild.start, count : octreeChild.count});
+            }
+            var octanToFace = App.octanToFace[octan - 1][face - 1];
+            for (i = 0; i < octanToFace.length; i++) {
+                getIntersectedOctanWithFace(octree, octanToFace[i].octan, octanToFace[i].face);
             }
         }
     }
@@ -378,7 +447,7 @@ function createOctreeFromPos(positions){
         octree.count = array.length;
 
         //if(iter < App.nbIter) {
-        if(octree.count/3 > 1000){
+        if(octree.count/3 > 10000){
             octree.hasChild = true;
 
             var i;

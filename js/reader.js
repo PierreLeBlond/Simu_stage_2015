@@ -81,7 +81,7 @@ function onEveryLoadEnd(err, results){
 
         var newPos = createOctreeFromPos(App.data.currentPositionArray);
 
-        displayBox(App.octree);
+        //displayBox(App.octree);
 
         for(var i = 0; i < newPos.length;i++){
             App.data.currentPositionArray[i] = newPos[i];
