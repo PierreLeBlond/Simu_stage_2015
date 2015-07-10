@@ -19,12 +19,6 @@ progress {
     bottom:60px;
 }
 
-#loader {
-    color:white;
-    position: fixed;
-    left: calc(50% - 132px);
-}
-
 #tools {
     position: fixed;
     width: 110px;
@@ -46,6 +40,14 @@ progress {
     bottom : 10px;
     color: white;
     background : black;
+}
+
+#info {
+    position: fixed;
+    background: black;
+    color: white;
+    left: 5px;
+    top:40%;
 }
 
 #info_intersected {

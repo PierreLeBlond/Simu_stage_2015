@@ -73,19 +73,196 @@ App.octanToFace = [
 
 App.drawCalls = [];
 
-//Frustum culling
-//TODO Transform box vertices to clip space, test against clip-space planes
-
-function cullFromFrustum(octree){
-
-    function testVertice(pos){
-        var result = pos.project(Camera.camera);
-
-        if(-1 <= result.x && result.x <= 1 && -1 <= result.y && result.y <= 1 && 0 <= result.z && result.z <= 1){
-            return 1;
-        }
-        return 0;
+/**
+ *
+ */
+function showInfo(index){
+    var el = document.getElementById('info');
+    var infos = App.data.info;
+    var result = [];
+    result.push("position : x = ");
+    result.push(App.data.currentPositionArray[index*3]);
+    result.push(",y = ");
+    result.push(App.data.currentPositionArray[index*3 + 1]);
+    result.push(",z = ");
+    result.push(App.data.currentPositionArray[index*3 + 2]);
+    result.push("\n");
+    for(var i = 0; i < infos.length;i++){
+        result.push(infos[i].name);
+        result.push(" : ");
+        result.push(infos[i].value[index]);
+        result.push("\n");
     }
+    el.innerHTML = result.join('');
+}
+
+/**
+ * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>, Modification by Pierre Lespingal
+ * @description Change the color of the selected ( left mouse ) or deselected ( right mouse ) point
+ * @param {event} event
+ */
+function selectPoint(event) {
+
+    if(App.RAYCASTING) {
+        if (App.pointCloud != null) {
+            var mouse = new THREE.Vector2(
+                ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
+                -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
+            );
+
+            if (App.RAYCASTINGTYPE == App.RaycastingType.HOMEMADE) {
+                App.intersection = getIntersection(mouse);
+            } else if (App.RAYCASTINGTYPE == App.RaycastingType.THREEJS) {
+                App.intersection = getMousePointCloudIntersection(mouse);
+            }
+
+            if (App.intersection != null) {
+                console.log("touché !");
+                switch (event.button) {
+                    case 0 :
+                        if (App.selection != null) {
+                            whitify(App.pointCloud.geometry.attributes.color, App.selection.index);
+                        }
+
+                        greenify(App.pointCloud.geometry.attributes.color, App.intersection.index);
+
+                        showInfo(App.intersection.index);
+
+                        App.selection = App.intersection;
+
+                        break;
+                    case 2 :
+                        if (App.selection.index != null && App.intersection.index == App.selection.index) {
+                            whitify(App.pointCloud.geometry.attributes.color, App.intersection.index);
+
+                            App.selection = null;
+                        }
+                        break;
+                    default :
+                        break;
+                }
+            }
+        }
+    }
+}
+
+/**
+ * @author Pierre Lespingal
+ * @description highlight the point under the mouse
+ * @param event
+ */
+function checkForPointUnderMouse(event){
+
+    if(App.RAYCASTING) {
+
+        if (App.pointCloud != null) {
+            //event.preventDefault();
+            var mouse = new THREE.Vector2(
+                ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
+                -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
+            );
+
+
+            var intersection = null;
+            if (App.RAYCASTINGTYPE == App.RaycastingType.HOMEMADE) {
+                intersection = getIntersection(mouse);
+            } else if (App.RAYCASTINGTYPE == App.RaycastingType.THREEJS) {
+                intersection = getMousePointCloudIntersection(mouse);
+            }
+
+            if (App.intersection != null && (intersection == null || App.intersection != intersection) && (App.selection == null || App.intersection != App.selection)) {
+                whitify(App.pointCloud.geometry.attributes.color, App.intersection.index);
+
+            }
+            if (intersection != null && (App.selection == null || intersection.index != App.selection.index)) {
+
+                App.intersection = intersection;
+
+                redify(App.pointCloud.geometry.attributes.color, App.intersection.index);
+
+            }
+
+
+        }
+    }
+}
+
+/**
+ * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr> - modified by Pierre Lespingal
+ * @description Zoom on the point that was clicked by the user and reduce the size of the points to see the positions with more accuracy.
+ * TODO improve size of point, put offset on camera position
+ */
+function zoomMacro(event)
+{
+    if(App.pointCloud != null)
+    {
+        //event.preventDefault();
+        var mouse = new THREE.Vector2(
+            ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
+            - ( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
+        );
+        if(App.RAYCASTINGTYPE == App.RaycastingType.HOMEMADE) {
+            App.intersection = getIntersection(mouse);
+        }else if(App.RAYCASTINGTYPE == App.RaycastingType.THREEJS){
+            App.intersection = getMousePointCloudIntersection(mouse);
+        }
+        var size = App.uniforms.size;
+
+        if(App.intersection != null)
+        {
+            var x = App.pointCloud.geometry.attributes.position.array[App.intersection.index*3];
+            var y = App.pointCloud.geometry.attributes.position.array[App.intersection.index*3+1];
+            var z = App.pointCloud.geometry.attributes.position.array[App.intersection.index*3+2];
+
+            Camera.origin = new THREE.Vector3(Camera.camera.position.x, Camera.camera.position.y,Camera.camera.position.z);
+            Camera.objectif = new THREE.Vector3(x - Camera.origin.x, y - Camera.origin.y, z - Camera.origin.z);
+            console.log(Camera.objectif);
+            Camera.time = 0.0;
+            App.CAMERAISFREE = false;
+
+            //Camera.controls.moveSpeed = padding * 10;
+            //App.animatedShaderMaterial.size = padding;
+            //App.uniforms.size = padding;
+
+        }
+
+    }
+}
+
+function redify(color, index){
+    color.array[index * 3] = 1.0;
+    color.array[index * 3 + 1] = 0.0;
+    color.array[index * 3 + 2] = 0.0;
+    color.needsUpdate = true;
+}
+
+function greenify(color, index){
+    color.array[index * 3] = 0.0;
+    color.array[index * 3 + 1] = 1.0;
+    color.array[index * 3 + 2] = 0.0;
+    color.needsUpdate = true;
+}
+
+function whitify(color, index){
+    color.array[index * 3] = 1.0;
+    color.array[index * 3 + 1] = 1.0;
+    color.array[index * 3 + 2] = 1.0;
+    color.needsUpdate = true;
+}
+
+
+function testVertice(pos){
+    var result = pos.project(Camera.camera);
+
+    if(-1 <= result.x && result.x <= 1 && -1 <= result.y && result.y <= 1 && -1 <= result.z && result.z <= 1){
+        return 1;
+    }
+    return 0;
+}
+
+//Frustum culling
+//TODO improve algo
+function cullFromFrustum(octree){
 
     var box = octree.box;
     var xMin = box.xMin;
@@ -96,6 +273,12 @@ function cullFromFrustum(octree){
     var zMax = box.zMax;
 
     var test = 0;
+
+    /*for(var i = 0; i < 6; i++){
+
+
+
+    }*/
 
     test += testVertice(new THREE.Vector3(xMin, yMin, zMin));
     test += testVertice(new THREE.Vector3(xMax, yMin, zMax));
@@ -121,92 +304,78 @@ function cullFromFrustum(octree){
 
 }
 
-function getIntersection(event){
+function getIntersection(mouse){
+
+    var target = null;
 
     //App.timer.start();
-    if(App.pointCloud) {
-        var mouse = new THREE.Vector2(
-            ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
-            -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
-        );
+    /*if(App.pointCloud) {
+     var mouse = new THREE.Vector2(
+     ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
+     -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
+     );*/
 
 
-        var raycaster = new THREE.Raycaster();
-        raycaster.ray.origin.copy(Camera.camera.position);
-        raycaster.ray.direction.set( mouse.x, mouse.y, 0.5 ).unproject( Camera.camera ).sub( Camera.camera.position ).normalize();
-
-        /*var ray_clip = new THREE.Vector4(mouse.x, mouse.y, 1.0, 1.0);
-
-
-         var Iproj = new THREE.Matrix4();
-         Iproj.getInverse(Camera.camera.projectionMatrix);
-         var ray_eye = ray_clip.applyMatrix4(Iproj);
-
-         ray_eye.z = 1.0;
-         ray_eye.w = 1.0;
-
-         var IWor = new THREE.Matrix4();
-         IWor.getInverse(Camera.camera.matrixWorldInverse);
-         var ray_wor = ray_eye.applyMatrix4(IWor);
-
-         ray_wor = ray_wor.normalize();*/
-
-        /*App.scene.remove(App.arrowHelper);
-         App.arrowHelper = new THREE.ArrowHelper(raycaster.ray.direction, Camera.camera.position, 10, 0xffff00);
-         App.scene.add(App.arrowHelper);*/
+    var raycaster = new THREE.Raycaster();
+    //raycaster.ray.origin.copy(Camera.camera.position);
+    //raycaster.ray.direction.set( mouse.x, mouse.y, 0.5 ).unproject( Camera.camera ).sub( Camera.camera.position ).normalize();
+    raycaster.setFromCamera(mouse, Camera.camera);
 
 
-        getIntersectedOctans(Camera.camera.position, raycaster.ray.direction);
+    App.scene.updateMatrixWorld();
 
 
+    getIntersectedOctans(Camera.camera.position, raycaster.ray.direction);
 
-        var i;
 
-        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
-        if(App.RAYCASTINGCULLING) {
-            for (i = 0; i < App.drawCalls.length; i++) {
-                App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start / 3, App.drawCalls[i].count / 3, App.drawCalls[i].start / 3);
-            }
+    var i;
+
+    App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+    if(App.RAYCASTINGCULLING) {
+        for (i = 0; i < App.drawCalls.length; i++) {
+            App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start, App.drawCalls[i].count, App.drawCalls[i].start);
         }
+    }
 
-        var target = null;
 
-        var j = 0;
+    var j = 0;
 
-        while(j < App.drawCalls.length && target == null){
-            for(i = App.drawCalls[j].start/3; i < App.drawCalls[j].start/3 + App.drawCalls[j].count/3;i++){
-                var x = App.data.currentPositionArray[3*i];
-                var y = App.data.currentPositionArray[3*i + 1];
-                var z = App.data.currentPositionArray[3*i + 2];
-                var a = raycaster.ray.direction.x;
-                var b = raycaster.ray.direction.y;
-                var c = raycaster.ray.direction.z;
+    while(j < App.drawCalls.length && target == null){
+        var start = App.drawCalls[j].start/3;
+        var end = App.drawCalls[j].count/3 + start;
+        for(i = start; i < end;i++) {
+            var x = App.data.currentPositionArray[3 * i];
+            var y = App.data.currentPositionArray[3 * i + 1];
+            var z = App.data.currentPositionArray[3 * i + 2];
+            var a = raycaster.ray.direction.x;
+            var b = raycaster.ray.direction.y;
+            var c = raycaster.ray.direction.z;
+            var cx = Camera.camera.position.x;
+            var cy = Camera.camera.position.y;
+            var cz = Camera.camera.position.z;
 
-                var d = -a*x - b*y - c*z;
+            if ((x - cx) * (a - cx) + (y - cy) * (b - cy) + (z - cz) * (c - cz) > 0) { //We don't want particles behind us, the sneaky ones
 
-                var md = (Math.pow(a*Camera.camera.position.x + b*Camera.camera.position.y + c*Camera.camera.position.z + d, 2))/(a*a + b*b + c*c);
-                var h = Math.abs((Camera.camera.position.x - x)*(Camera.camera.position.x - x) + (Camera.camera.position.y - y)*(Camera.camera.position.y - y) + (Camera.camera.position.z - z)*(Camera.camera.position.z - z));
-                if(Math.sqrt(h - md) < App.uniforms.size.value/8000){ //It's a kind of magic, maaaaagic !
-                    if(target == null){
-                        target = {index : i, distance: Math.sqrt(h)};
-                    }else if(Math.sqrt(h) < target.distance){
+                var d = -a * x - b * y - c * z;
+
+                var md = (Math.pow(a * cx + b * cy + c * cz + d, 2)) / (a * a + b * b + c * c);
+                var h = Math.abs((cx - x) * (cx - x) + (cy - y) * (cy - y) + (cz - z) * (cz - z));
+                if (Math.sqrt(h - md) < App.uniforms.size.value / 4000) { //It's a kind of magic, maaaaagic !
+                    if (target == null) {
+                        target = {index: i, distance: Math.sqrt(h)};
+                    } else if (Math.sqrt(h) < target.distance) {
                         target.index = i;
                         target.distance = Math.sqrt(h);
                     }
                 }
             }
-            j++;
         }
-
-        if(target != null) {
-            redify(App.staticBufferGeometryPointCloud.geometry.attributes.color, target.index);
-            /*console.log(target.distance);*/
-        }
+        j++;
     }
+    return target;
 }
 
-//TODO Test when camera is inside the cube
-//TODO Try to sort callback
+//TODO When camera is inside the cube, we also pick the otans behind us
 function getIntersectedOctans(origin, ray){
 
     function getIntersectedOctanWithFace(octree, octan, face){
@@ -428,178 +597,38 @@ function flatten(array){
     return flattened;
 }
 
-function createOctreeFromPos(positions){
-    App.octree = null;
-    App.octree = new App.Octree();
-
-    /**
-     * @description
-     * @param array array of point
-     * @param octree Octree object
-     * @param start position in parent's array
-     * @param iter current iteration of the algorithm
-     * @param box xmin, xmax, ymin, etc
-     */
-    function fillOctree(array, octree, start, iter, box){
-
-        octree.box = box;
-        octree.start = start;
-        octree.count = array.length;
-
-        //if(iter < App.nbIter) {
-        if(octree.count/3 > 10000){
-            octree.hasChild = true;
-
-            var i;
-            for(i = 0; i < 8;i++){
-                octree.child.push(new App.Octree());
-            }
-
-            var tab1 = [];
-            var tab2 = [];
-            var tab3 = [];
-            var tab4 = [];
-            var tab5 = [];
-            var tab6 = [];
-            var tab7 = [];
-            var tab8 = []; //TODO get rid of this insanity
-
-            var xMin = box.xMin;
-            var xMax = box.xMax;
-            var yMin = box.yMin;
-            var yMax = box.yMax;
-            var zMin = box.zMin;
-            var zMax = box.zMax;
-
-            var xMid = (xMin + xMax) / 2;
-            var yMid = (yMin + yMax) / 2;
-            var zMid = (zMin + zMax) / 2;
-
-            var x = 0;
-            var y = 0;
-            var z = 0;
-
-            //    y
-            //     |
-            //     8----4
-            // 7----3   |
-            // |    |   |
-            // |   6|- -2__x
-            // 5----1
-            ///
-            //z
-            var length = array.length / 3;
-            for (i = 0; i < length; i++) {
-                x = array[3 * i];
-                y = array[3 * i + 1];
-                z = array[3 * i + 2];
-                if (x < xMid) {
-                    if (y < yMid) {
-                        if (z < zMid) {
-                            tab6.push(x);
-                            tab6.push(y);
-                            tab6.push(z);
-                        } else {
-                            tab5.push(x);
-                            tab5.push(y);
-                            tab5.push(z);
-                        }
-                    } else {
-                        if (z < zMid) {
-                            tab8.push(x);
-                            tab8.push(y);
-                            tab8.push(z);
-                        } else {
-                            tab7.push(x);
-                            tab7.push(y);
-                            tab7.push(z);
-                        }
-                    }
-                } else {
-                    if (y < yMid) {
-                        if (z < zMid) {
-                            tab2.push(x);
-                            tab2.push(y);
-                            tab2.push(z);
-                        } else {
-                            tab1.push(x);
-                            tab1.push(y);
-                            tab1.push(z);
-                        }
-                    } else {
-                        if (z < zMid) {
-                            tab4.push(x);
-                            tab4.push(y);
-                            tab4.push(z);
-                        } else {
-                            tab3.push(x);
-                            tab3.push(y);
-                            tab3.push(z);
-                        }
-                    }
-                }
-            }
-
-            //TODO we can do better than that, no ? Also, async is your friend
-            var offset = 0;
-            var result1 = fillOctree(tab1, octree.child[0], start + offset, iter+1, {xMin:xMid, xMax:xMax, yMin:yMin, yMax:yMid,zMin:zMid, zMax:zMax});
-            offset += tab1.length;
-            var result2 = fillOctree(tab2, octree.child[1], start + offset, iter+1, {xMin:xMid, xMax:xMax, yMin:yMin, yMax:yMid,zMin:zMin, zMax:zMid});
-            offset += tab2.length;
-            var result3 = fillOctree(tab3, octree.child[2], start + offset, iter+1, {xMin:xMid, xMax:xMax, yMin:yMid, yMax:yMax,zMin:zMid, zMax:zMax});
-            offset += tab3.length;
-            var result4 = fillOctree(tab4, octree.child[3], start + offset, iter+1, {xMin:xMid, xMax:xMax, yMin:yMid, yMax:yMax,zMin:zMin, zMax:zMid});
-            offset += tab4.length;
-            var result5 = fillOctree(tab5, octree.child[4], start + offset, iter+1, {xMin:xMin, xMax:xMid, yMin:yMin, yMax:yMid,zMin:zMid, zMax:zMax});
-            offset += tab5.length;
-            var result6 = fillOctree(tab6, octree.child[5], start + offset, iter+1, {xMin:xMin, xMax:xMid, yMin:yMin, yMax:yMid,zMin:zMin, zMax:zMid});
-            offset += tab6.length;
-            var result7 = fillOctree(tab7, octree.child[6], start + offset, iter+1, {xMin:xMin, xMax:xMid, yMin:yMid, yMax:yMax,zMin:zMid, zMax:zMax});
-            offset += tab7.length;
-            var result8 = fillOctree(tab8, octree.child[7], start + offset, iter+1, {xMin:xMin, xMax:xMid, yMin:yMid, yMax:yMax,zMin:zMin, zMax:zMid});
-
-            //get tab and merge, return result
-            return flatten([result1, result2,result3,result4,result5,result6,result7,result8]);
-
-        }else{
-            return array;
-        }
-    }
-
-    return fillOctree(positions, App.octree, 0, 0, {xMin:0.0, xMax:1.0, yMin:0.0, yMax:1.0,zMin:0.0, zMax:1.0});
-
-}
-
 function displayBox(octree) {
-    box = octree.box;
 
-    var xMin = box.xMin;
-    var xMax = box.xMax;
-    var yMin = box.yMin;
-    var yMax = box.yMax;
-    var zMin = box.zMin;
-    var zMax = box.zMax;
-
-    var xMid = (xMin + xMax) / 2;
-    var yMid = (yMin + yMax) / 2;
-    var zMid = (zMin + zMax) / 2;
-
-    var geometry = new THREE.BoxGeometry(xMax - xMin, yMax - yMin, zMax - zMin);
-    var material = new THREE.MeshBasicMaterial({color: 0xff0000});
-    var cube = new THREE.Mesh(geometry, material);
-
-
-    var boxHelper = new THREE.BoxHelper(cube);
-    boxHelper.position.x = xMid;
-    boxHelper.position.y = yMid;
-    boxHelper.position.z = zMid;
-    boxHelper.updateMatrix();
-
-    App.scene.add(boxHelper);
 
     if(octree.hasChild){
         for(var i = 0; i < octree.child.length; i++){
             displayBox(octree.child[i]);
         }
+    }else{
+        var box = octree.box;
+
+        var xMin = box.xMin;
+        var xMax = box.xMax;
+        var yMin = box.yMin;
+        var yMax = box.yMax;
+        var zMin = box.zMin;
+        var zMax = box.zMax;
+
+        var xMid = (xMin + xMax) / 2;
+        var yMid = (yMin + yMax) / 2;
+        var zMid = (zMin + zMax) / 2;
+
+        var geometry = new THREE.BoxGeometry(xMax - xMin, yMax - yMin, zMax - zMin);
+        var material = new THREE.MeshBasicMaterial({color: 0xff0000});
+        var cube = new THREE.Mesh(geometry, material);
+
+
+        var boxHelper = new THREE.BoxHelper(cube);
+        boxHelper.position.x = xMid;
+        boxHelper.position.y = yMid;
+        boxHelper.position.z = zMid;
+        boxHelper.updateMatrix();
+
+        App.scene.add(boxHelper);
     }
 }

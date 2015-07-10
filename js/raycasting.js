@@ -3,103 +3,6 @@
  */
 
 /**
- * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>, Modification by Pierre Lespingal
- * @description Change the color of the selected ( left mouse ) or deselected ( right mouse ) point
- * @param {event} event
- */
-function selectPoint(event) {
-
-    if (App.pointCloud != null) {
-        //event.preventDefault();
-        var mouse = new THREE.Vector2(
-            ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
-            -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
-        );
-
-        App.intersection = getMousePointCloudIntersection(mouse);
-
-        if (App.intersection != null) {
-            console.log("touché !");
-            switch (event.button) {
-                case 0 :
-                    if(App.selection != null){
-                        whitify(App.selection.object.geometry.attributes.color, App.selection.index);
-                    }
-
-                    greenify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-
-                    App.selection = App.intersection;
-
-                    break;
-                case 2 :
-                    if(App.selection.index != null && App.intersection.index == App.selection.index){
-                        whitify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-
-                        App.selection = null;
-                    }
-                    break;
-                default :
-                    break;
-            }
-        }
-    }
-}
-
-/**
- * @author Pierre Lespingal
- * @description highlight the point under the mouse
- * @param event
- */
-function checkForPointUnderMouse(event){
-
-    if(App.pointCloud != null) {
-        //event.preventDefault();
-        var mouse = new THREE.Vector2(
-            ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
-            -( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
-        );
-
-
-        intersection = getMousePointCloudIntersection(mouse);
-
-        if(App.intersection != null && (intersection == null || App.intersection != intersection) && (App.selection == null || App.intersection != App.selection)){
-            whitify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-
-        }
-        if(intersection != null && (App.selection == null || intersection.index != App.selection.index)){
-
-            App.intersection = intersection;
-
-            redify(App.intersection.object.geometry.attributes.color, App.intersection.index);
-
-        }
-
-
-    }
-}
-
-function redify(color, index){
-    color.array[index * 3] = 1.0;
-    color.array[index * 3 + 1] = 0.0;
-    color.array[index * 3 + 2] = 0.0;
-    color.needsUpdate = true;
-}
-
-function greenify(color, index){
-    color.array[index * 3] = 0.0;
-    color.array[index * 3 + 1] = 1.0;
-    color.array[index * 3 + 2] = 0.0;
-    color.needsUpdate = true;
-}
-
-function whitify(color, index){
-    color.array[index * 3] = 1.0;
-    color.array[index * 3 + 1] = 1.0;
-    color.array[index * 3 + 2] = 1.0;
-    color.needsUpdate = true;
-}
-
-/**
  * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
  * @description Show the infos about the point on the screen
  *
@@ -161,43 +64,7 @@ function getMousePointCloudIntersection(mouse)
     return point;
 }
 
-/**
- * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr> - modified by Pierre Lespingal
- * @description Zoom on the point that was clicked by the user and reduce the size of the points to see the positions with more accuracy.
- *
- */
-function zoomMacro(event)
-{
-    if(App.pointCloud != null)
-    {
-        //event.preventDefault();
-        var mouse = new THREE.Vector2(
-            ( event.clientX / App.renderer.domElement.clientWidth ) * 2 - 1,
-            - ( event.clientY / App.renderer.domElement.clientHeight ) * 2 + 1
-        );
-        App.intersection = getMousePointCloudIntersection(mouse);
-        var size = App.uniforms.size;
 
-        if(App.intersection != null)
-        {
-            var x = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3];
-            var y = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3+1];
-            var z = App.intersection.object.geometry.attributes.position.array[App.intersection.index*3+2];
-
-            Camera.origin = new THREE.Vector3(Camera.camera.position.x, Camera.camera.position.y,Camera.camera.position.z);
-            Camera.objectif = new THREE.Vector3(x - Camera.origin.x, y - Camera.origin.y, z - Camera.origin.z);
-            console.log(Camera.objectif);
-            Camera.time = 0.0;
-            App.CAMERAISFREE = false;
-
-            //Camera.controls.moveSpeed = padding * 10;
-            //App.animatedShaderMaterial.size = padding;
-            //App.uniforms.size = padding;
-
-        }
-
-    }
-}
 
 /**
  * @author Pierre Lespingal

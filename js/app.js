@@ -19,6 +19,14 @@ App.DisplayType = {
     CARDBOARD : 4
 };
 
+App.RaycastingType = {
+    NONE : 0,
+    HOMEMADE : 1,
+    THREEJS : 2
+};
+
+App.RAYCASTINGTYPE = App.RaycastingType.HOMEMADE;
+
 /* Used to remember the current display */
 App.currentDisplay = App.DisplayType.UNKNOWN;
 
@@ -31,13 +39,13 @@ App.RAYCASTING          = true;//Enable raycasting for object picking
 App.CPUCALCUL           = false;//Disable position computing on CPU side rather than within the shader
 App.COLORPICKING        = false;//Disable color picking for object picking
 App.FOG                 = false;//Enable fog
-App.FRUSTUMCULLING      = true;
+App.FRUSTUMCULLING      = false;
 App.PLAY                = false;//Disable animation mode
 App.ANIMATION           = false;
 App.CAMERAISFREE        = true;
 App.RAYCASTINGCULLING   = false;
-//App.FIRST               = true;
+App.WIREFRAME           = true;
 
-App.nbIter              = 3;
+App.nbIter              = 2;
 
 App.autoLoadData = false;

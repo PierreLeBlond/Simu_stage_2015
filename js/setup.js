@@ -28,8 +28,10 @@ function setupScene()
         directionsArray:            [],
         departureArray:             null,
         currentPositionArray:       null,
+        indexArray:                 null,
         directionArray:             null,
-        color:                      null
+        color:                      null,
+        info:                       []
         //colorIndex:                 new Float32Array(2097152*3)
     };
 
@@ -135,6 +137,8 @@ function setupScene()
     Camera.camera.rotation.order = 'ZYX'; //to fit with FPScontrols - But doesn't fit with raycaster !
     Camera.camera.position.set(0.5,0.5,0.5);
 
+    Camera.frustum = new THREE.Frustum();
+    Camera.frustum.setFromMatrix(Camera.camera.projectionMatrix.multiply(Camera.camera.matrixWorldInverse));
     //
     /*App.colorPickerTarget = new THREE.WebGLRenderTarget(App.width, App.height);
     App.colorPickerTarget.generateMipmaps = false;*/

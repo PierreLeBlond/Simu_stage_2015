@@ -5,6 +5,7 @@
 	<title>Data modeling</title>
 	<link rel="stylesheet" href="index.css">
 	<link rel="stylesheet" href="css/timeline.css">
+	<link rel="stylesheet" href="css/data.css">
 	<script type="text/javascript" src="lib/stats.min.js"></script>
 	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
 
@@ -52,11 +53,29 @@
 
 </div>
 
-<div id="loader">
-	<input type="file" accept="*" id="files" name="file" multiple />
+<div id="data_manager">
+	<div id="loader">
+		<input type="file" accept="*" id="files" name="file" multiple style="display:none;"/>
+	</div>
+	<table >
+		<tr>
+			<td>Data 1</td>
+		</tr>
+		<tr>
+			<td>
+			<input id="browse_button" type="image" alt="Select. File" src="resources/icons/Floppy_disk_storage_24.png"/>
+			<input id="add_button" type="image" alt="Add data" src="resources/icons/Plus_sign_24.png"/>
+			</td>
+		</tr>
+	</table>
 </div>
+
+
 <progress id="fileLoadingProgress" value="0" max="100"></progress>
 <div id="info_wrapper">
+	<div id="info">
+
+	</div>
 	<div id="info_intersected">
 
 	</div>

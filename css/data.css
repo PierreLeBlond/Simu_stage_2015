@@ -1,0 +1,18 @@
+#data_manager {
+    left:2%;
+    top:10%;
+    position: fixed;
+    width : 10%;
+    background: #2fa1d6;
+    border: solid 2px #806787;
+    padding: 2px;
+}
+
+#loader {
+    color:white;
+    width:100%;
+}
+
+#browse_button {
+
+}
