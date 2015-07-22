@@ -150,91 +150,170 @@ function initOculus()
 function initCardboard()
 {
 
-    if ( App.currentDisplay == App.DisplayType.CARDBOARD )
+    if (isMobile.any())
     {
+        if (App.currentDisplay == App.DisplayType.CARDBOARD) {
 
-        /* Disparition du menu */
+            /* Disparition du menu */
 
-        document.getElementById('blocker').style.display = 'none';
+            document.getElementById('blocker').style.display = 'none';
 
-        /* Activation des contrôles */
+            /* Activation des contrôles */
 
-        App.controlsEnabled = true;
+            App.controlsEnabled = true;
 
-    }
-    else {
-
-        /* Interruption de la boucle de rendu en cours s'il y a lieu */
-
-        if (App.currentDisplay !== App.DisplayType.UNKNOWN) {
-            cancelAnimationFrame(App.requestId);
-            document.body.removeChild( App.renderer.domElement );
-            document.body.removeChild( Gui.stats.domElement );
-            //document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
-            Gui.gui.destroy();
-            Camera.fpControls = undefined;
-            Camera.controls = undefined;
         }
-
-        /* Enregistrement du choix */
-
-        App.currentDisplay = App.DisplayType.CARDBOARD;
-
-        /* Disparition du menu */
-
-        document.getElementById('blocker').style.display = 'none';
-
-        /* Initialisation de la scène */
-
-        setupScene();
-        setupcamera();
-        setupGUI();
-
-        initEventhandling();
-
-        if (App.autoLoadData)
+        else
         {
-            loadBinaryFiles(App.startFiles);
-        }
+            /* Interruption de la boucle de rendu en cours s'il y a lieu */
 
-        /* Initialisation de l'effet stéréo */
+            if (App.currentDisplay !== App.DisplayType.UNKNOWN) {
+                cancelAnimationFrame(App.requestId);
+                document.body.removeChild(App.renderer.domElement);
+                document.body.removeChild(Gui.stats.domElement);
 
-        Camera.effect = new THREE.StereoEffect(App.renderer);
-        Camera.effect.setSize(App.width, App.height);
-        Camera.effect.eyeSeparation = 0.01;
-
-        /* Initialisation du contrôle par orientation du mobile */
-
-        function setOrientationControls(e)
-        {
-
-            if (!e.alpha)
-            {
-                return;
+                Camera.fpControls = undefined;
+                Camera.controls = undefined;
             }
 
-            Camera.controls = new THREE.DeviceOrientationControls(Camera.camera, true);                   // Contrôles par orientation du mobile
-            Camera.controls.connect();                                                             // Initialisation
-            Camera.controls.update();                                                              // Mise à jour
+            /* Enregistrement du choix */
 
-            App.renderer.domElement.addEventListener('click', fullscreen, false);                           // Passage en mode plein écran pour les mobiles
+            App.currentDisplay = App.DisplayType.CARDBOARD;
 
-            window.removeEventListener('deviceorientation', setOrientationControls, true);  // Suppression de l'événement
+            /* Disparition du menu */
+
+            document.getElementById('blocker').style.display = 'none';
+
+            /* Initialisation de la scène */
+
+            setupScene();
+            setupcamera();
+
+            initEventhandling();
+
+            if (App.autoLoadData) {
+                loadBinaryFiles(App.startFiles);
+            }
+
+            /* Initialisation de l'effet stéréo */
+
+            Camera.effect = new THREE.StereoEffect(App.renderer);
+            Camera.effect.setSize(App.width, App.height);
+            Camera.effect.eyeSeparation = 0.01;
+
+            /* Initialisation du contrôle par orientation du mobile */
+
+            function setOrientationControls(e) {
+
+                if (!e.alpha) {
+                    return;
+                }
+
+                Camera.controls = new THREE.DeviceOrientationControls(Camera.camera, true);                   // Contrôles par orientation du mobile
+                Camera.controls.connect();                                                             // Initialisation
+                Camera.controls.update();                                                              // Mise à jour
+
+                App.renderer.domElement.addEventListener('click', fullscreen, false);                           // Passage en mode plein écran pour les mobiles
+
+                window.removeEventListener('deviceorientation', setOrientationControls, true);  // Suppression de l'événement
+
+            }
+
+            window.addEventListener('deviceorientation', setOrientationControls, true);         // Mise en place des contrôles pour mobile si détection de mobile compatible
+
+            /* Activation des contrôles */
+
+            App.controlsEnabled = true;
+
+            /* Lancement de la boucle de rendu */
+
+            render3();
+        }
+    }
+    else
+    {
+
+        if (App.currentDisplay == App.DisplayType.CARDBOARD) {
+
+            /* Disparition du menu */
+
+            document.getElementById('blocker').style.display = 'none';
+
+            /* Activation des contrôles */
+
+            App.controlsEnabled = true;
 
         }
+        else {
 
-        window.addEventListener('deviceorientation', setOrientationControls, true);         // Mise en place des contrôles pour mobile si détection de mobile compatible
+            /* Interruption de la boucle de rendu en cours s'il y a lieu */
 
-        /* Activation des contrôles */
+            if (App.currentDisplay !== App.DisplayType.UNKNOWN) {
+                cancelAnimationFrame(App.requestId);
+                document.body.removeChild(App.renderer.domElement);
+                document.body.removeChild(Gui.stats.domElement);
+                //document.getElementById('colorPickingTexture').removeChild(App.colorPickingRenderer.domElement);
+                Gui.gui.destroy();
+                Camera.fpControls = undefined;
+                Camera.controls = undefined;
+            }
 
-        App.controlsEnabled = true;
+            /* Enregistrement du choix */
 
-        /* Lancement de la boucle de rendu */
+            App.currentDisplay = App.DisplayType.CARDBOARD;
 
-        render3();
+            /* Disparition du menu */
 
+            document.getElementById('blocker').style.display = 'none';
+
+            /* Initialisation de la scène */
+
+            setupScene();
+            setupcamera();
+            setupGUI();
+
+            initEventhandling();
+
+            if (App.autoLoadData) {
+                loadBinaryFiles(App.startFiles);
+            }
+
+            /* Initialisation de l'effet stéréo */
+
+            Camera.effect = new THREE.StereoEffect(App.renderer);
+            Camera.effect.setSize(App.width, App.height);
+            Camera.effect.eyeSeparation = 0.01;
+
+            /* Initialisation du contrôle par orientation du mobile */
+
+            function setOrientationControls(e) {
+
+                if (!e.alpha) {
+                    return;
+                }
+
+                Camera.controls = new THREE.DeviceOrientationControls(Camera.camera, true);                   // Contrôles par orientation du mobile
+                Camera.controls.connect();                                                             // Initialisation
+                Camera.controls.update();                                                              // Mise à jour
+
+                App.renderer.domElement.addEventListener('click', fullscreen, false);                           // Passage en mode plein écran pour les mobiles
+
+                window.removeEventListener('deviceorientation', setOrientationControls, true);  // Suppression de l'événement
+
+            }
+
+            window.addEventListener('deviceorientation', setOrientationControls, true);         // Mise en place des contrôles pour mobile si détection de mobile compatible
+
+            /* Activation des contrôles */
+
+            App.controlsEnabled = true;
+
+            /* Lancement de la boucle de rendu */
+
+            render3();
+
+        }
     }
-
 }
 
 function render2() {

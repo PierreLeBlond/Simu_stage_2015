@@ -311,8 +311,6 @@ function setStaticShaderMode(){
     App.scene.add(App.pointCloud);
 }
 
-document.getElementById('blocker').style.display = 'none';
-
 App.addScript(name, script, true);
 App.addScript(name2, script2, false);
 
