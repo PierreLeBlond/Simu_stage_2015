@@ -3,14 +3,10 @@
  */
 
 /**
- * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
- * @description Function that is used to refresh the renderer
+ * @description compute animation related to objects and camera
  */
-function render() {
-    App.requestId = requestAnimationFrame(function (){
-        render();
-    });
-
+function animate(){
+    //Handle particules animation
     if(App.ANIMATION && App.PLAY) {
         if (App.uniforms.t.value < 1.0) {
             App.uniforms.t.value += App.parameters.speed/100;
@@ -37,26 +33,12 @@ function render() {
     if(App.selection != null){
         showSelectedInfo(App.selection);
     }
-    if(App.intersection != null){
+
+    /*if(App.intersection != null){
         showIntersectedInfo(App.intersection);
-    }
+    }*/
 
-    Gui.stats.update();
-    showDebugInfo();
-
-    //App.colorPickingRenderer.render(App.colorPickerSprite, Camera.camera);
-    //getColorPickingPointCloudIntersectionIndex();
-
-    if(App.pointCloud != null) {
-        App.drawCalls = [];
-        cullFromFrustum(App.octree);
-        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
-        for (var i = 0; i < App.drawCalls.length; i++) {
-            App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start / 3, App.drawCalls[i].count / 3, App.drawCalls[i].start / 3);
-        }
-    }
-
-    App.renderer.render( App.scene, Camera.camera );
+    //update camera
     if(App.CAMERAISFREE) {
         Camera.controls.update(App.clock.getDelta());
     }else{
@@ -73,32 +55,46 @@ function render() {
 }
 
 /**
- * @author Pierre Lespingal
- * @description Display infos about the particle currently under the mouse
- * @param el
+ * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
+ * @description Function that is used to refresh the renderer
  */
-function showSelectedInfo(el){
-    var vec3 = new THREE.Vector3(App.data.currentPositionArray[el.index*3], App.data.currentPositionArray[el.index*3 + 1], App.data.currentPositionArray[el.index*3 + 2]);
-    var vec2 = worldToScreen(vec3);
-    var div = document.getElementById('info_selected');
-    div.style.top = vec2.y + 'px';
-    div.style.left = vec2.x + 'px';
-    div.innerHTML = vec3.distanceTo(Camera.camera.position);
+function render() {
+
+    animate();
+
+    App.requestId = requestAnimationFrame(function (){
+        render();
+    });
+
+    //Update GUI & debug info
+    Gui.stats.update();
+    showDebugInfo();
+
+    //App.colorPickingRenderer.render(App.colorPickerSprite, Camera.camera);
+    //getColorPickingPointCloudIntersectionIndex();
+
+    var Mat = Camera.camera.projectionMatrix.clone();
+    Camera.frustum.setFromMatrix(Mat.multiply(Camera.camera.matrixWorldInverse));
+    //Frustum culling
+    if(App.FRUSTUMCULLING && App.pointCloud != null) {
+        App.drawCalls = [];
+        Camera.camera.updateProjectionMatrix();
+        Camera.camera.updateMatrixWorld();
+
+        cullFromFrustum(App.octree);
+        App.staticBufferGeometry.offsets = App.staticBufferGeometry.drawcalls = [];
+        for (var i = 0; i < App.drawCalls.length; i++) {
+            App.staticBufferGeometry.addDrawCall(App.drawCalls[i].start, App.drawCalls[i].count, App.drawCalls[i].start);
+        }
+    }
+
+    //render the scene
+    App.renderer.render( App.scene, Camera.camera );
+
+
 }
 
-/**
- * @author Pierre Lespingal
- * @description Display infos about the selected particle
- * @param el
- */
-function showIntersectedInfo(el){
-    var vec3 = new THREE.Vector3(App.data.currentPositionArray[el.index*3], App.data.currentPositionArray[el.index*3 + 1], App.data.currentPositionArray[el.index*3 + 2]);
-    var vec2 = worldToScreen(vec3);
-    var div = document.getElementById('info_intersected');
-    div.style.top = vec2.y + 'px';
-    div.style.left = vec2.x + 'px';
-    div.innerHTML = vec3.distanceTo(Camera.camera.position);
-}
+
 
 /**
  * @author Pierre lespingal
@@ -133,7 +129,7 @@ App.clearPointCloud = function(){
 function loadData(){
 
     if(App.parameters.nbSnapShot == 0) {    //If it's the first time, let's set things up for static shadering
-        var i = 0;
+        var i;
 
         //
         App.staticBufferGeometry = new THREE.BufferGeometry();
@@ -143,7 +139,7 @@ function loadData(){
 
         App.staticBufferGeometry.computeBoundingSphere();
 
-        App.staticBufferGeometry.addDrawCall(0, App.parameters.nbPoint, 0);
+        //App.staticBufferGeometry.addDrawCall(0, App.parameters.nbPoint, 0);
         //App.staticBufferGeometry.addDrawCall(2097152/2, 2097152/2, 2097152/2);
 
         console.log(App.staticBufferGeometry.drawcalls);
@@ -153,6 +149,17 @@ function loadData(){
         }else{
             App.staticBufferGeometryPointCloud = new THREE.PointCloud(App.staticBufferGeometry, App.staticShaderMaterial);
         }
+
+        var j = 0;
+        for (i = 0; i < App.parameters.nbPoint; i++) {
+            if(j > 2000000) {
+                App.staticBufferGeometry.addDrawCall(i - j, j, i - j);
+                j = 0;
+            }else{
+                j++;
+            }
+        }
+        App.staticBufferGeometry.addDrawCall(i - j, j, i - j);
 
         //computePositions();
 
@@ -214,13 +221,17 @@ function loadData(){
 
 /**
  * @author Pierre Lespingal
- * @description Compute within the CPU the current position of each particle - takes between 10 and 20 ms
+ * @description Compute within the CPU the current position of each particle, and recompute the octree
  */
 function computePositions(){
-    var progressBar = document.getElementById('fileLoadingProgress');
-    progressBar.value = 0;
+    document.body.style.cursor = 'progress';
+    document.getElementById('fileLoadingProgress').value = 0;
+    document.getElementById('fileLoadingProgress').style.display = 'block';
+
+
     App.timer.start();
-    progressBar.style.display = 'block';
+
+    //linear interpolation between two snapshots
     var length = App.data.currentPositionArray.length / 3;
     var i;
     for(i = 0; i < length;i++) {
@@ -229,24 +240,63 @@ function computePositions(){
         App.data.currentPositionArray[i * 3 + 2] = App.data.departureArray[i * 3 + 2] + App.uniforms.t.value * App.data.directionArray[i * 3 + 2];
     }
 
-    progressBar.value = 10;
+    App.timer.stop("compute position");
 
-    var newPos = createOctreeFromPos(App.data.currentPositionArray);
+    document.getElementById('fileLoadingProgress').value = 50;
 
-    progressBar.value = 80;
-    length = newPos.length;
-    for(i = 0; i < length;i++){
-     App.data.currentPositionArray[i] = newPos[i];
-     }
-    newPos = null;
+    //Use of WW to compute the octree
+    if(typeof(w) == "undefined"){
+        App.timer.start();
+        console.log("creating worker.js");
+        var w = new Worker("js/octreeWorker.js");
+        console.log("posting message");
+        w.postMessage({position:App.data.currentPositionArray, index:App.data.indexArray});
+        w.onmessage = function(event){
 
-    progressBar.value = 90;
+            //App.data.currentPositionArray = event.data.position;
+            App.data.indexArray = event.data.index;
+            App.octree = event.data.octree;
 
-    App.staticBufferGeometry.attributes.position.needsUpdate = true;
+            w.terminate();
+            w = null;
+
+            App.timer.stop("Computing octree");
+            document.getElementById('fileLoadingProgress').value = 90;
+
+            onComputePositionsFinish();
+
+        }
+    }
+
+}
+
+/**
+ * @description Called when the new position and the octree are both computed
+ * @detail redo the scene and display the new elements
+ */
+function onComputePositionsFinish(){
+    App.timer.start();
+
+    if(App.WIREFRAME){
+        for(var i = 0; i < App.scene.children.length; i++)
+            App.scene.remove(App.scene.children[i]);
+        var axisHelper = new THREE.AxisHelper(1);
+        App.scene.add( axisHelper );
+        App.scene.add(App.pointCloud);
+        displayBox(App.octree);
+    }
+
+    App.timer.stop("display wireframe");
+
+    //App.staticBufferGeometryPointCloud.geometry.attributes.position = new THREE.BufferAttribute(App.data.currentPositionArray, 3);
+    App.staticBufferGeometryPointCloud.geometry.attributes.position.needsUpdate = true;
+    App.pointCloud.geometry.attributes.position.needsUpdate = true;
     setStaticShaderMode();
-    progressBar.value = 100;
-    App.timer.stop("recomputing position");
-    progressBar.style.display = 'none';
+
+    document.getElementById('fileLoadingProgress').value = 100;
+    document.getElementById('fileLoadingProgress').style.display = 'none';
+    document.body.style.cursor = 'crosshair';
+
 }
 
 /**
@@ -259,7 +309,6 @@ function timedChunckComputePositions(){
     App.timer.start();
     var tick = function(){
         var start = new Date().getTime();
-        //var time = App.uniforms.t.value - lastTime;
         for(;i < App.data.currentPositionArray.length / 3 && (new Date().getTime()) - start < 50;i++){
             App.data.currentPositionArray[i * 3] = App.data.positionsArray[App.parameters.posSnapShot][i * 3] + App.uniforms.t.value * App.data.directionsArray[App.parameters.posSnapShot][i * 3];
             App.data.currentPositionArray[i * 3 + 1] = App.data.positionsArray[App.parameters.posSnapShot][i * 3 + 1] + App.uniforms.t.value * App.data.directionsArray[App.parameters.posSnapShot][i * 3 + 1];
@@ -313,6 +362,7 @@ function setStaticShaderMode(){
 
 App.addScript(name, script, true);
 App.addScript(name2, script2, false);
+App.addScript(nameBis, scriptBis, true);
 
 initFileReading();
 

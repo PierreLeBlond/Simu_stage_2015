@@ -1,3 +1,46 @@
+
+
+
+function setupApp(){
+    App.timer = new App.Timer();
+    App.clock = new THREE.Clock();
+    App.width = window.innerWidth;
+    App.height = window.innerHeight;
+
+    App.currentData = -1;
+    App.currentSnapshot = -1;
+    App.renderableClouds = [];
+    App.currentRenderableCloud = null;
+
+    App.parameters = {
+        speed:          0.75,
+        t:              0
+    };
+
+    App.scene = new THREE.Scene();
+
+    var axisHelper = new THREE.AxisHelper(1);
+    App.scene.add( axisHelper );
+    axisHelper.frustumCulled = true;
+
+    //RENDERER PROPERTIES
+    App.renderer = new THREE.WebGLRenderer({ stencil: false, precision: "lowp", premultipliedAlpha: false});//Let's make thing easier for the renderer
+    //App.renderer.autoClear = false; //TODO fix perf issue on firefox, profiler is pointing on renderer.clear, but it doesn't make any sense.
+    App.renderer.setSize(App.width, App.height);
+    document.body.appendChild( App.renderer.domElement );
+
+    //CAMERA PROPERTIES
+    //PerspectiveCamera(fov, aspect, near, far)
+    Camera.camera = new THREE.PerspectiveCamera( 75, App.width / App.height, 0.00001, 200 );
+    Camera.camera.rotation.order = 'ZYX'; //to fit with FPScontrols - But doesn't fit with raycaster !
+    Camera.camera.position.set(0.5,0.5,0.5);
+
+    Camera.frustum = new THREE.Frustum();
+    Camera.frustum.setFromMatrix(Camera.camera.projectionMatrix.multiply(Camera.camera.matrixWorldInverse));
+}
+
+
+
 /**
  * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
  * Creation of the scene, renderer, camera.
@@ -28,8 +71,10 @@ function setupScene()
         directionsArray:            [],
         departureArray:             null,
         currentPositionArray:       null,
+        indexArray:                 null,
         directionArray:             null,
-        color:                      null
+        color:                      null,
+        info:                       []
         //colorIndex:                 new Float32Array(2097152*3)
     };
 
@@ -135,6 +180,8 @@ function setupScene()
     Camera.camera.rotation.order = 'ZYX'; //to fit with FPScontrols - But doesn't fit with raycaster !
     Camera.camera.position.set(0.5,0.5,0.5);
 
+    Camera.frustum = new THREE.Frustum();
+    Camera.frustum.setFromMatrix(Camera.camera.projectionMatrix.multiply(Camera.camera.matrixWorldInverse));
     //
     /*App.colorPickerTarget = new THREE.WebGLRenderTarget(App.width, App.height);
     App.colorPickerTarget.generateMipmaps = false;*/

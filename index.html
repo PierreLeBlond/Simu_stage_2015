@@ -5,6 +5,7 @@
 	<title>Data modeling</title>
 	<link rel="stylesheet" href="index.css">
 	<link rel="stylesheet" href="css/timeline.css">
+	<link rel="stylesheet" href="css/data.css">
 	<script type="text/javascript" src="lib/stats.min.js"></script>
 	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
 
@@ -22,6 +23,10 @@
 
 </head>
 <body>
+
+<div id="container">
+
+</div>
 
 <!-- Menu -->
 
@@ -52,11 +57,32 @@
 
 </div>
 
-<div id="loader">
-	<input type="file" accept="*" id="files" name="file" multiple />
+<div id="data_manager">
+	<div id="loader">
+		<input type="file" accept="*" id="files" name="file" multiple style="display:none;"/>
+	</div>
+	<table id="data_table">
+		<thead>
+		<tr id="data_head">
+			<th></th>
+		<th><input id="add_column_button" type="image" alt="Add data" src="resources/icons/Add_icon_16.png"/></th>
+		</tr>
+		</thead>
+		<tr>
+			<td>
+				<input id="add_row_button" type="image" alt="Add data" src="resources/icons/Add_icon_16.png"/>
+			</td>
+			<td></td>
+		</tr>
+	</table>
 </div>
+
+
 <progress id="fileLoadingProgress" value="0" max="100"></progress>
 <div id="info_wrapper">
+	<div id="info">
+
+	</div>
 	<div id="info_intersected">
 
 	</div>
@@ -231,11 +257,11 @@
 </div> -->
 
 <!-- TOOLS -->
-<div id="tools">
+<!--<div id="tools">
 	<img src="resources/icons/fps_controls.png" onclick="useFPSControls()" title="Fly Camera"/>
 	<img src="resources/icons/orbit_controls.png" onclick="useOrbitControls()" title="Orbit Controls"/>
 	<img src="resources/icons/focus.png" onclick="controls.reset()" title="focus on pointcloud"/>
-</div>
+</div>-->
 
 <div id="debugInfo">
 
@@ -245,7 +271,7 @@
 
 </body>
 
-<script type="text/javascript" src="js/app.js"></script>
+<!--<script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
 <script type="text/javascript" src="js/shader.js"></script>
 <script type="text/javascript" src="js/colorPicking.js"></script>
@@ -258,7 +284,17 @@
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/event.js"></script>
 <script type="text/javascript" src="js/menu.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/main.js"></script>-->
+
+<script src="js/Class/Simu.js"></script>
+<script type="text/javascript" src="js/Class/util.js"></script>
+<script type="text/javascript" src="js/Class/Script.js"></script>
+<script type="text/javascript" src="js/Class/Shader.js"></script>
+<script src="js/Class/Snapshot.js"></script>
+<script src="js/Class/Data.js"></script>
+<script src="js/Class/RenderableData.js"></script>
+<script src="js/Class/View.js"></script>
+<script src="js/Class/app.js"></script>
 
 
 

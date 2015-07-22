@@ -2,34 +2,6 @@
  * Created by lespingal on 12/06/15.
  */
 
-App.scripts = [];
-App.idScript = 0;
-App.nbFiles = 1;
-/**
- * @description Add a new script for loading file
- * @param name
- * @param script
- */
-App.addScript = function(name, script, binary){
-    var myScript = new App.Script();
-    App.scripts.push(myScript);
-    myScript.name = name;
-    myScript.script = script;
-    myScript.binary = binary;
-
-};
-
-/**
- *
- * @constructor
- * @description Class managing a script with its name
- */
-App.Script = function(){
-    this.name = "";
-    this.script = function(file){console.log("default script, usage : function(file), return [{name:\"index\", value:X}, {name:\"position\", value:Y}, {name:\"color\", value:Z}, ...]")};
-    this.binary = true;
-};
-
 /**
  * @description merge the results of loaded files and populate the buffers
  * @param err error
@@ -40,6 +12,7 @@ function onEveryLoadEnd(err, results){
     for(var i = 0;i < results.length;i++){
         size += results[i][0].value.length;
     }
+    console.log("size : " + size);
 
     if(App.parameters.nbSnapShot == 0) {
         App.parameters.nbPoint = size;
@@ -60,13 +33,24 @@ function onEveryLoadEnd(err, results){
 
         App.data.color = new Float32Array(size * 3);
         App.data.currentPositionArray = new Float32Array(size * 3);
+        App.data.indexArray = new Float32Array(size);
         App.data.positionsArray.push(new Float32Array(size * 3));
 
+        //prepare info buffers
+        for(i = 0;i < results[0].length;i++){
+            var name = results[0][i].name;
+           if(name != "position" && name != "color" && name != "index"){
+               App.data.info.push({"name":name, "value":new Float32Array(size)});
+           }
+        }
+
+
         var length = App.data.color.length / 3;
-        for (var i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             App.data.color[3 * i] = 1.0;
             App.data.color[3 * i + 1] = 1.0;
             App.data.color[3 * i + 2] = 1.0;
+            App.data.indexArray[i] = i;
             /*App.data.colorIndex[3 * i] = i;
              App.data.colorIndex[3 * i + 1] = i >> 8;
              App.data.colorIndex[3 * i + 2] = i >> 16;*/
@@ -79,20 +63,44 @@ function onEveryLoadEnd(err, results){
     async.forEach(results, populateBuffer, function(){
         App.timer.stop("populating buffer");
 
-        var newPos = createOctreeFromPos(App.data.currentPositionArray);
+        if(App.parameters.nbSnapShot == 0) {
 
-        //displayBox(App.octree);
+            if (typeof(w) == "undefined") {
+                App.timer.start();
+                var w = new Worker("js/octreeWorker.js");
+                w.postMessage({
+                    position: App.data.currentPositionArray,
+                    index: App.data.indexArray
+                });
+                w.onmessage = function (event) {
 
-        for(var i = 0; i < newPos.length;i++){
-            App.data.currentPositionArray[i] = newPos[i];
+                    App.timer.stop("finish octree");
+                    App.data.indexArray = event.data.index;
+                    App.octree = event.data.octree;
+
+                    if (App.WIREFRAME) {
+                        displayBox(App.octree);
+                    }
+
+                    App.timer.start();
+                    loadData();
+                    App.timer.stop("Load Data");
+                    App.parameters.nbSnapShot++;
+                    App.parameters.posSnapShot = 0;
+                    document.getElementById('fileLoadingProgress').style.display = 'none';
+
+                    w.terminate();
+                    w = null;
+                }
+            }
+        }else{
+            App.timer.start();
+            loadData();
+            App.timer.stop("Load Data");
+            App.parameters.nbSnapShot++;
+            App.parameters.posSnapShot = 0;
+            document.getElementById('fileLoadingProgress').style.display = 'none';
         }
-
-        App.timer.start();
-        loadData();
-        App.timer.stop("Load Data");
-        App.parameters.nbSnapShot++;
-        App.parameters.posSnapShot = 0;
-        document.getElementById('fileLoadingProgress').style.display = 'none';
     });
 
 }
@@ -108,6 +116,9 @@ function onEveryLoadEnd(err, results){
 function initFileReading() {
     // Checking for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+        var data = null;
+
         /**
          * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
          *
@@ -122,24 +133,13 @@ function initFileReading() {
             document.getElementById('fileLoadingProgress').value = 0;
             document.getElementById('fileLoadingProgress').style.display = 'block';
 
-                    async.map(files, readAdd, onEveryLoadEnd);
-
-
-                    /*for(var numFile = 0; numFile < nbFiles; numFile++)
-                    {
-                        readAdd(files[numFile]);
-                    }
-                     App.timer.stop("populating buffer");
-
-                     App.timer.start();
-                     loadData();
-                     App.timer.stop("Load Data");
-                     App.parameters.nbSnapShot++;
-                     App.parameters.posSnapShot = 0;*/
+            async.map(files, readAdd, onEveryLoadEnd);
 
         }
         //Setting the event change on the file input to launch the function handleFileSelect
         document.getElementById('files').addEventListener('change', handleFileSelect, false);
+        document.getElementById('browse_button').addEventListener('click', function(){
+            document.getElementById('files').click();}, false);
 
     } else {
         alert('The File APIs are not fully supported in this browser.');
@@ -225,14 +225,16 @@ function populateBuffer(data, callback){
     var j;
     for(j = 1;j < data.length;j++){
         var index;
+        var value;
+        var indexes = data[0].value;
+        var length = indexes.length;
         switch(data[j].name){
             case "position" :
                 var position = data[j].value;
-                var length = data[0].value.length;
                 if(App.parameters.nbSnapShot == 0){
                     for(i = 0; i < length;i++)
                     {
-                        index = data[0].value[i];
+                        index = indexes[i];
                         App.data.positionsArray[0][index*3]=App.data.currentPositionArray[index*3]=position[3*i];
                         App.data.positionsArray[0][index*3 + 1]=App.data.currentPositionArray[index*3 + 1]=position[3*i + 1];
                         App.data.positionsArray[0][index*3 + 2]=App.data.currentPositionArray[index*3 + 2]=position[3*i + 2];
@@ -242,7 +244,7 @@ function populateBuffer(data, callback){
                 {
                     for(i = 0; i < length;i++)
                     {
-                        index = data[0].value[i];
+                        index = indexes[i];
 
                         var x = position[3*i];
                         var y = position[3*i+1];
@@ -294,27 +296,40 @@ function populateBuffer(data, callback){
                         App.data.directionsArray[App.parameters.nbSnapShot - 1][index*3+2]= dz;
 
                         App.data.positionsArray[App.parameters.nbSnapShot][index*3]= x;
-                        App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 1]= y;
-                        App.data.positionsArray[App.parameters.nbSnapShot][index*3 + 2]= z;
+                        App.data.positionsArray[App.parameters.nbSnapShot][index*3+1]= y;
+                        App.data.positionsArray[App.parameters.nbSnapShot][index*3+2]= z;
                     }
                 }
                 position = null;    //let's free some memory as fast as possible, shall we ?
                 break;
             case "color" :
                 if(App.parameters.nbSnapShot == 0) {
-                    var color = data[j].value;
-                    length = color.length/3;
+                    value = data[j].value;
+                    var color = App.data.color;
                     for (i = 0; i < length; i++) {
                         index = data[0].value[i];
-                        App.data.color[index*3] = color[i*3];
-                        App.data.color[index*3 + 1] = color[i*3 + 1];
-                        App.data.color[index*3 + 2] = color[i*3 + 2];
+                        color[index*3] = value[i*3];
+                        color[index*3 + 1] = value[i*3 + 1];
+                        color[index*3 + 2] = value[i*3 + 2];
                     }
                     //App.staticBufferGeometryPointCloud.geometry.attributes.color.needsUpdate = true;
-                    color = null;
+                    value = null;
                 }
                 break;
             default :
+                if(App.parameters.nbSnapShot == 0){
+                    value = data[j].value;
+                    var name = data[j].name;
+                    for(i = 0;i < App.data.info.length;i++){
+                        if(name == App.data.info[i].name){
+                            var info = App.data.info[i].value;
+                        }
+                    }
+                    for(i = 0; i < length;i++){//TODO handle case with multiple value for only one index
+                        index = indexes[i];
+                        info[index] = value[i];
+                    }
+                }
                 break;
         }
     }
@@ -369,9 +384,9 @@ App.startFiles = [];
 for (var i = 0; i < 128; i++)
 {
     if (i < 10)
-        App.startFiles[i] = "data/Deparis_data_binaire/part_start/part.00000.p0000" + i;
+        App.startFiles[i] = "data/Deparis_data_binaire/part_end/part.00010.p0000" + i;
     else if (i < 100)
-        App.startFiles[i] = "data/Deparis_data_binaire/part_start/part.00000.p000" + i;
+        App.startFiles[i] = "data/Deparis_data_binaire/part_end/part.00010.p000" + i;
     else
-        App.startFiles[i] = "data/Deparis_data_binaire/part_start/part.00000.p00" + i;
+        App.startFiles[i] = "data/Deparis_data_binaire/part_end/part.00010.p00" + i;
 }

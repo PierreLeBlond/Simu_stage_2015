@@ -64,7 +64,7 @@ function setupGUI(){
     });
 
     //Script
-    Gui.script =  Gui.userFolder.add(Gui.parameters, 'idScript', {Deparis : 0, Schaaff : 1}).name("script").onFinishChange(function(value){
+    Gui.script =  Gui.userFolder.add(Gui.parameters, 'idScript', {Deparis : 0, Schaaff : 1, DeparisStar : 2}).name("script").onFinishChange(function(value){
         App.idScript = value;
     });
 
@@ -146,7 +146,7 @@ function setupGUI(){
 
     //enable frustum culling - useless when using one point cloud
     Gui.devFolder.add(Gui.parameters, 'frustum culling').onChange(function(value){
-        App.pointCloud.frustumCulled = value;
+        App.FRUSTUMCULLING = value;
     });
 }
 
@@ -158,4 +158,32 @@ function showDebugInfo(){
     var el = document.getElementById('debugInfo');
     var info = App.renderer.info.render;
     el.innerHTML = ["Call :", info.calls, " | vertices : ", info.vertices, " | faces : ", info.faces, " | points : ", info.points].join('');//More efficient than string concatenation
+}
+
+/**
+ * @author Pierre Lespingal
+ * @description Display infos about the particle currently under the mouse
+ * @param el
+ */
+function showSelectedInfo(el){
+    var vec3 = new THREE.Vector3(App.data.currentPositionArray[el.index*3], App.data.currentPositionArray[el.index*3 + 1], App.data.currentPositionArray[el.index*3 + 2]);
+    var vec2 = worldToScreen(vec3);
+    var div = document.getElementById('info_selected');
+    div.style.top = vec2.y + 'px';
+    div.style.left = vec2.x + 'px';
+    div.innerHTML = vec3.distanceTo(Camera.camera.position);
+}
+
+/**
+ * @author Pierre Lespingal
+ * @description Display infos about the selected particle
+ * @param el
+ */
+function showIntersectedInfo(el){
+    var vec3 = new THREE.Vector3(App.data.currentPositionArray[el.index*3], App.data.currentPositionArray[el.index*3 + 1], App.data.currentPositionArray[el.index*3 + 2]);
+    var vec2 = worldToScreen(vec3);
+    var div = document.getElementById('info_intersected');
+    div.style.top = vec2.y + 'px';
+    div.style.left = vec2.x + 'px';
+    div.innerHTML = vec3.distanceTo(Camera.camera.position);
 }

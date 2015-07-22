@@ -1,34 +1,31 @@
 /**
- * Created by lespingal on 26/06/15.
+ * Created by lespingal on 15/07/15.
  */
 
-App.scripts = [];
-App.idScript = 0;
-App.nbFiles = 1;
-
-/**
- * @description Add a new script for loading file
- * @param name
- * @param script
- */
-App.addScript = function(name, script, binary){
-    var myScript = new App.Script();
-    App.scripts.push(myScript);
-    myScript.name = name;
-    myScript.script = script;
-    myScript.binary = binary;
-
-};
+SIMU = SIMU || {};
 
 /**
  *
  * @constructor
  * @description Class managing a script with its name
  */
-App.Script = function(){
+SIMU.Script = function(){
     this.name = "";
     this.script = function(file){console.log("default script, usage : function(file), return [{name:\"index\", value:X}, {name:\"position\", value:Y}, {name:\"color\", value:Z}, ...]")};
     this.binary = true;
+};
+
+/**
+ * @description Add a new script for loading file
+ * @param name
+ * @param script
+ */
+SIMU.addScript = function(name, script, binary){
+    var myScript = new SIMU.Script();
+    SIMU.scripts.push(myScript);
+    myScript.name = name;
+    myScript.script = script;
+    myScript.binary = binary;
 };
 
 var name = "Deparis script";
@@ -50,7 +47,7 @@ var script = function(result){
      */
     var array = new Float32Array(result);
 
-        var nbElements = (array.length-2)/10;
+    var nbElements = (array.length-2)/10;
 
     var position = new Float32Array(nbElements*3);
 
@@ -66,16 +63,16 @@ var script = function(result){
 
     for(var i = 0; i<nbElements;i++)
     {
-            index[i] = array[8 + i * 10];
-            position[i * 3] = array[2 + i * 10];
-            position[i * 3 + 1] = array[3 + i * 10];
-            position[i * 3 + 2] = array[4 + i * 10];
-            speed[i * 3] = array[5 + i * 10];
-            speed[i * 3 + 1] = array[6 + i * 10];
-            speed[i * 3 + 2] = array[7 + i * 10];
-            masse[i] = array[9 + i * 10];
-            epot[i] = array[10 + i * 10];
-            ekin[i] = array[11 + i * 10];
+        index[i] = array[8 + i * 10];
+        position[i * 3] = array[2 + i * 10];
+        position[i * 3 + 1] = array[3 + i * 10];
+        position[i * 3 + 2] = array[4 + i * 10];
+        speed[i * 3] = array[5 + i * 10];
+        speed[i * 3 + 1] = array[6 + i * 10];
+        speed[i * 3 + 2] = array[7 + i * 10];
+        masse[i] = array[9 + i * 10];
+        epot[i] = array[10 + i * 10];
+        ekin[i] = array[11 + i * 10];
 
     }
 
