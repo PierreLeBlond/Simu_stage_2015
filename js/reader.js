@@ -2,35 +2,6 @@
  * Created by lespingal on 12/06/15.
  */
 
-App.scripts = [];
-App.idScript = 0;
-App.nbFiles = 1;
-
-/**
- * @description Add a new script for loading file
- * @param name
- * @param script
- */
-App.addScript = function(name, script, binary){
-    var myScript = new App.Script();
-    App.scripts.push(myScript);
-    myScript.name = name;
-    myScript.script = script;
-    myScript.binary = binary;
-
-};
-
-/**
- *
- * @constructor
- * @description Class managing a script with its name
- */
-App.Script = function(){
-    this.name = "";
-    this.script = function(file){console.log("default script, usage : function(file), return [{name:\"index\", value:X}, {name:\"position\", value:Y}, {name:\"color\", value:Z}, ...]")};
-    this.binary = true;
-};
-
 /**
  * @description merge the results of loaded files and populate the buffers
  * @param err error
@@ -145,6 +116,9 @@ function onEveryLoadEnd(err, results){
 function initFileReading() {
     // Checking for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
+
+        var data = null;
+
         /**
          * @author Arnaud Steinmetz <s.arnaud67@hotmail.fr>
          *
@@ -159,12 +133,13 @@ function initFileReading() {
             document.getElementById('fileLoadingProgress').value = 0;
             document.getElementById('fileLoadingProgress').style.display = 'block';
 
-                    async.map(files, readAdd, onEveryLoadEnd);
+            async.map(files, readAdd, onEveryLoadEnd);
 
         }
         //Setting the event change on the file input to launch the function handleFileSelect
         document.getElementById('files').addEventListener('change', handleFileSelect, false);
-        document.getElementById('browse_button').addEventListener('click', function(){document.getElementById('files').click();}, false);
+        document.getElementById('browse_button').addEventListener('click', function(){
+            document.getElementById('files').click();}, false);
 
     } else {
         alert('The File APIs are not fully supported in this browser.');

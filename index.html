@@ -24,6 +24,10 @@
 </head>
 <body>
 
+<div id="container">
+
+</div>
+
 <!-- Menu -->
 
 <div id="blocker">
@@ -57,15 +61,18 @@
 	<div id="loader">
 		<input type="file" accept="*" id="files" name="file" multiple style="display:none;"/>
 	</div>
-	<table >
-		<tr>
-			<td>Data 1</td>
+	<table id="data_table">
+		<thead>
+		<tr id="data_head">
+			<th></th>
+		<th><input id="add_column_button" type="image" alt="Add data" src="resources/icons/Add_icon_16.png"/></th>
 		</tr>
+		</thead>
 		<tr>
 			<td>
-			<input id="browse_button" type="image" alt="Select. File" src="resources/icons/Floppy_disk_storage_24.png"/>
-			<input id="add_button" type="image" alt="Add data" src="resources/icons/Plus_sign_24.png"/>
+				<input id="add_row_button" type="image" alt="Add data" src="resources/icons/Add_icon_16.png"/>
 			</td>
+			<td></td>
 		</tr>
 	</table>
 </div>
@@ -250,11 +257,11 @@
 </div> -->
 
 <!-- TOOLS -->
-<div id="tools">
+<!--<div id="tools">
 	<img src="resources/icons/fps_controls.png" onclick="useFPSControls()" title="Fly Camera"/>
 	<img src="resources/icons/orbit_controls.png" onclick="useOrbitControls()" title="Orbit Controls"/>
 	<img src="resources/icons/focus.png" onclick="controls.reset()" title="focus on pointcloud"/>
-</div>
+</div>-->
 
 <div id="debugInfo">
 
@@ -264,7 +271,7 @@
 
 </body>
 
-<script type="text/javascript" src="js/app.js"></script>
+<!--<script type="text/javascript" src="js/app.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
 <script type="text/javascript" src="js/shader.js"></script>
 <script type="text/javascript" src="js/colorPicking.js"></script>
@@ -277,7 +284,17 @@
 <script type="text/javascript" src="js/util.js"></script>
 <script type="text/javascript" src="js/event.js"></script>
 <script type="text/javascript" src="js/menu.js"></script>
-<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/main.js"></script>-->
+
+<script src="js/Class/Simu.js"></script>
+<script type="text/javascript" src="js/Class/util.js"></script>
+<script type="text/javascript" src="js/Class/Script.js"></script>
+<script type="text/javascript" src="js/Class/Shader.js"></script>
+<script src="js/Class/Snapshot.js"></script>
+<script src="js/Class/Data.js"></script>
+<script src="js/Class/RenderableData.js"></script>
+<script src="js/Class/View.js"></script>
+<script src="js/Class/app.js"></script>
 
 
 

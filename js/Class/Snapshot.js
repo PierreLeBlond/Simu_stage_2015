@@ -1,12 +1,16 @@
 /**
  * Created by lespingal on 10/07/15.
  */
+var SIMU = SIMU || {};
 
 /**
  *
  * @constructor
  */
-App.Snapshot = function(){
+SIMU.Snapshot = function(){
+    this.isReady        = false;
+    this.directionIsSet = false;
+
     this.position       = null;
     this.direction      = null;
     this.index          = null;
@@ -17,37 +21,22 @@ App.Snapshot = function(){
     this.info           = [];
 };
 
-/**
- * @description
- */
-App.Snapshot.prototype.createOctree = function(){
-
-    if (typeof(w) == "undefined") {
-        App.timer.start();
-        var w = new Worker("js/octreeWorker.js");
-        w.postMessage({
-            position: this.position,
-            index: this.index
-        });
-        w.onmessage = function (event) {
-
-            App.timer.stop("finish octree");
-            App.data.indexArray = event.data.index;
-            App.octree = event.data.octree;
-
-            if (App.WIREFRAME) {
-                displayBox(App.octree);
-            }
-
-            App.timer.start();
-            loadData();
-            App.timer.stop("Load Data");
-            App.parameters.nbSnapShot++;
-            App.parameters.posSnapShot = 0;
-            document.getElementById('fileLoadingProgress').style.display = 'none';
-
-            w.terminate();
-            w = null;
-        }
+SIMU.Snapshot.prototype.showInfo = function(index){
+    var el = document.getElementById('info');
+    var infos = this.info;
+    var result = [];
+    result.push("position : x = ");
+    result.push(this.position[index*3]);
+    result.push(",y = ");
+    result.push(this.position[index*3 + 1]);
+    result.push(",z = ");
+    result.push(this.position[index*3 + 2]);
+    result.push("\n");
+    for(var i = 0; i < infos.length;i++){
+        result.push(infos[i].name);
+        result.push(" : ");
+        result.push(infos[i].value[index]);
+        result.push("\n");
     }
+    el.innerHTML = result.join('');
 };

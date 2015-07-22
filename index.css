@@ -17,6 +17,7 @@ progress {
     height:10px;
     left:40%;
     bottom:60px;
+    z-index:1;
 }
 
 #tools {
@@ -135,4 +136,8 @@ progress {
 
 .choices:hover {
     font-size: 30px;
+}
+
+.info {
+    white-space: pre-wrap;
 }
