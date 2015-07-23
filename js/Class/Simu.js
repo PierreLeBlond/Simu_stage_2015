@@ -12,6 +12,7 @@ var SIMU = SIMU || {};
  * @constructor
  */
 SIMU.Simu = function(){
+    //Global parameters of the App
     this.parameters             = {
         "t"                   : 0.00001,
         "position"            : 0,
@@ -23,6 +24,7 @@ SIMU.Simu = function(){
         "octreeprecision"     : 0
     };
 
+    //General info about data
     this.info                   = {
         "nbSnapShot"          : 0,
         "nbData"              : 0
@@ -32,17 +34,11 @@ SIMU.Simu = function(){
     this.currentDataId          = -1;
     this.currentSnapshotId      = -1;
 
+    //Views
     this.views                  = [];
     this.currentView            = null;
 
     this.controls               = null;
-
-//name space for file type
-    this.FileType               = {
-        SKYBOT : 0,
-        BIN : 1,
-        STRING : 2
-    };
 
     /* List of different types of display, useful to remember the current display */
     this.DisplayType            = {
@@ -53,15 +49,7 @@ SIMU.Simu = function(){
         CARDBOARD : 4
     };
 
-    this.RaycastingType         = {
-        NONE : 0,
-        HOMEMADE : 1,
-        THREEJS : 2
-    };
-
     this.globalCamera           = null;
-
-    this.RAYCASTINGTYPE         = this.RaycastingType.HOMEMADE;
 
     /* Used to remember the current display */
     this.currentDisplay         = this.DisplayType.UNKNOWN;
@@ -69,10 +57,9 @@ SIMU.Simu = function(){
     /*Used to enable and disable controls out and in menu */
     this.controlsEnabled        = true;
 
-    this.type                   = this.FileType.STRING;
-
     this.scripts                = [];
 
+    //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
 
 };
@@ -463,7 +450,7 @@ SIMU.Simu.prototype.onWindowResize = function(){
 SIMU.Simu.prototype.onKeyDown = function(event){
     switch(event.keyCode){
         case 80 ://p
-            if(this.currentSnapshotId > 0 && this.currentSnapshotId < this.nbSnapShot) {
+            if(this.currentSnapshotId >= 0 && this.currentSnapshotId < this.info.nbSnapShot - 1) {
                 if (this.parameters.play) {
                     this.parameters.play = false;
                     var i;
