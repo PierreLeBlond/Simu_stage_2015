@@ -25,8 +25,7 @@ SIMU.Simu = function(){
 
     this.info                   = {
         "nbSnapShot"          : 0,
-        "nbData"              : 0,
-        "posSnapShot"         : 0
+        "nbData"              : 0
     };
 
     this.datas                  = [];
@@ -75,6 +74,8 @@ SIMU.Simu = function(){
     this.scripts                = [];
 
     this.menu                   = null;
+
+    this.lastFileEvent          = null;
 
 };
 
@@ -137,8 +138,14 @@ SIMU.Simu.prototype.setupGui = function(){
 
     var animationFolder = this.gui.addFolder('Animation');
 
-    animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(function(){
+    animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(function(value){
         var i;
+        for (i = 0; i < that.views.length; i++) {
+            that.views[i].setTime(value);
+        }
+        for (i = 0; i < that.datas.length; i++) {
+            that.datas[i].setTime(value);
+        }
         if(!that.parameters.play){
             for (i = 0; i < that.datas.length; i++) {
                 that.datas[i].computePositions();
@@ -154,7 +161,7 @@ SIMU.Simu.prototype.setupGui = function(){
     var scriptFolder = this.gui.addFolder('Script');
     scriptFolder.add(this.parameters, 'idScript', {Deparis : 0, Schaaff : 1, DeparisStar : 2}).name("script").onFinishChange(function(value){
         for(var i = 0; i < that.datas.length;i++){
-            that.data[i].setScript(that.scripts[i]);
+            that.datas[i].setScript(that.scripts[value]);
         }
     });
 
@@ -212,6 +219,9 @@ SIMU.Simu.prototype.animate = function(){
         for (i = 0; i < this.views.length; i++) {
             this.views[i].setTime(this.parameters.t);
         }
+        for (i = 0; i < this.datas.length; i++) {
+            this.datas[i].setTime(this.parameters.t);
+        }
     }
 };
 
@@ -259,11 +269,21 @@ SIMU.Simu.prototype.addSnapshot = function(){
     this.info.nbSnapShot++;
 };
 
+SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
+    var array = document.getElementsByClassName("snap_head_active");
+    for(var i = 0; i < array.length;i++){
+        array[i].className = "snap_head";
+    }
+    array = document.getElementsByClassName("snap_head");
+    array[id].className = "snap_head_active";
+};
+
 SIMU.Simu.prototype.setCurrentDataId = function(id){
     var i;
 
+
     if(this.currentDataId != -1) {
-        document.getElementById('files').removeEventListener('change', this.datas[this.currentDataId].handleFileSelect.bind(this.datas[this.currentDataId]), false);
+        document.getElementById('files').removeEventListener('change', this.lastFileEvent, false);
     }
 
     this.currentDataId = id;
@@ -271,40 +291,38 @@ SIMU.Simu.prototype.setCurrentDataId = function(id){
         this.views[i].setCurrentRenderableDataId(this.currentDataId);
     }
 
-    document.getElementById('files').addEventListener('change', this.datas[this.currentDataId].handleFileSelect.bind(this.datas[this.currentDataId]), false);
+    this.lastFileEvent = this.datas[this.currentDataId].handleFileSelect.bind(this.datas[this.currentDataId]);
+    var event = document.getElementById('files').addEventListener('change', this.lastFileEvent, false);
+    console.log(event);
 };
 
 SIMU.Simu.prototype.changeCurrentData = function(event){
-    var i;
+    this.setUICurrentSnapshot(event.target.id);
+    this.setCurrentDataId(event.target.id);
+};
 
+SIMU.Simu.prototype.setUICurrentData = function(id){
     var array = document.getElementsByClassName("data_head_active");
-    for(i = 0; i < array.length;i++){
+    for(var i = 0; i < array.length;i++){
         array[i].className = "data_head";
     }
-    event.target.className = "data_head_active";
-
-    this.setCurrentDataId(event.target.id);
+    array = document.getElementsByClassName("data_head");
+    array[id].className = "data_head_active";
 };
 
 SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
     var i;
     this.currentSnapshotId = id;
     for(i = 0; i < this.datas.length;i++){
-        //this.datas[i].setCurrentSnapshotId(SIMU.currentSnapshotId);
-        this.datas[i].changeSnapshot(SIMU.currentSnapshotId);
+        this.datas[i].changeSnapshot(this.currentSnapshotId);
     }
     for(i = 0; i < this.views.length;i++){
-        this.views[i].setCurrentRenderableSnapshotId(SIMU.currentSnapshotId);
+        this.views[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
     }
 };
 
 SIMU.Simu.prototype.changeCurrentSnapshot = function(event){
-    var i;
-    var array = document.getElementsByClassName("snap_head_active");
-    for(i = 0; i < array.length;i++){
-        array[i].className = "snap_head";
-    }
-    event.target.className = "snap_head_active";
+    this.setUICurrentSnapshot(event.target.id);
     this.setCurrentSnapshotId(event.target.id);
 };
 
@@ -322,11 +340,7 @@ SIMU.Simu.prototype.addColumn = function(){
 
     var id = parseInt(node.id, 10)+1;
     node.innerHTML = "Data " + id;
-    var array = document.getElementsByClassName("data_head_active");
-    for(i = 0; i < array.length;i++){
-        array[i].className = "data_head";
-    }
-    node.className = "data_head_active";
+    node.className = "data_head";
     node.addEventListener('click', this.changeCurrentData.bind(this), false);
     head.insertBefore(node, head.lastElementChild);
 
@@ -339,7 +353,10 @@ SIMU.Simu.prototype.addColumn = function(){
 
     //Set new data as current
     this.addData();
-    this.currentDataId = this.info.nbData - 1;
+    //this.currentDataId = this.info.nbData - 1;
+    this.setUICurrentData(this.info.nbData - 1);
+    this.setCurrentDataId(this.info.nbData - 1);
+
     for(i = 0; i < this.views.length;i++){
         this.views[i].setCurrentRenderableDataId(this.currentDataId);
     }
@@ -359,13 +376,8 @@ SIMU.Simu.prototype.addRow = function(){
         tr.appendChild(node);
         node = document.createElement("td");
         node.innerHTML = "Snap " + id;
-        console.log(id);
         node.id = id - 1;
-        var array = document.getElementsByClassName("snap_head_active");
-        for(i = 0; i < array.length;i++){
-            array[i].className = "snap_head";
-        }
-        node.className = "snap_head_active";
+        node.className = "snap_head";
         node.addEventListener('click', this.changeCurrentSnapshot.bind(this), false);
         tr.insertBefore(node, tr.lastElementChild);
         for (var i = 1; i < this.info.nbData + 1; i++) {
@@ -379,7 +391,9 @@ SIMU.Simu.prototype.addRow = function(){
         this.addSnapshot();
 
         //Set new Snap as current
-        this.currentSnapshotId = id - 1;
+        this.setUICurrentSnapshot(id - 1);
+        this.setCurrentSnapshotId(id - 1);
+        //this.currentSnapshotId = id - 1;
         for(i = 0; i < this.datas.length;i++){
             this.datas[i].changeSnapshot(this.currentSnapshotId);
         }
@@ -398,7 +412,7 @@ SIMU.Simu.prototype.focus = function(event){
     var id = event.target.parentElement.id;
 
     if(id != ""){
-        for (var i = 0; i < SIMU.views.length; i++) {
+        for (var i = 0; i < this.views.length; i++) {
             if(!this.views[i].parameters.linkcamera) {
                 this.views[i].camera.controls.enabled = false;
             }
@@ -416,23 +430,11 @@ SIMU.Simu.prototype.browse = function(event){
 
     var id = el.id.split("_");
 
-    var i;
+    this.setUICurrentData(id[1] - 1);
+    this.setCurrentDataId(id[1] - 1);
 
-    var array = document.getElementsByClassName("data_head_active");
-    for(i = 0; i < array.length;i++){
-        array[i].className = "data_head";
-    }
-    array = document.getElementsByClassName("data_head");
-    array[id[1]-1].className = "data_head_active";
-    this.setCurrentDataId(id[1]-1);
-
-    array = document.getElementsByClassName("snap_head_active");
-    for(i = 0; i < array.length;i++){
-        array[i].className = "snap_head";
-    }
-    array = document.getElementsByClassName("snap_head");
-    array[id[0]-1].className = "snap_head_active";
-    this.setCurrentSnapshotId(id[0]-1);
+    this.setUICurrentSnapshot(id[0] - 1);
+    this.setCurrentSnapshotId(id[0] - 1);
 
     document.getElementById('files').click(event);
 
