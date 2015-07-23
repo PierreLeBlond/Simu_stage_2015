@@ -26,6 +26,12 @@ SIMU.Data = function(){
     this.color                      = null;
 
     this.currentOctree              = null;
+
+    this.t                          = 0;
+};
+
+SIMU.Data.prototype.setTime = function(t){
+    this.t = t;
 };
 
 SIMU.Data.prototype.setScript = function(script){
@@ -53,9 +59,9 @@ SIMU.Data.prototype.computePositions = function(){
     var i;
     if(this.snapshots[this.currentSnapshotId].directionIsSet) {
         for (i = 0; i < length; i++) {
-            this.currentPositionArray[i * 3] = this.currentDeparture[i * 3] + SIMU.parameters.t * this.currentDirection[i * 3];
-            this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + SIMU.parameters.t * this.currentDirection[i * 3 + 1];
-            this.currentPositionArray[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + SIMU.parameters.t * this.currentDirection[i * 3 + 2];
+            this.currentPositionArray[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
+            this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
+            this.currentPositionArray[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
         }
     }else{
         for (i = 0; i < length; i++) {
@@ -220,11 +226,11 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         snap.info[j].max = snap.info[j].value[0];
                     }
 
-                    for(var i = 0; i < position.length / 3; i++){
+                    for(var i = 0; i < size; i++){
                         position[3*i] = snap.position[3*snap.index[i]];
                         position[3*i + 1] = snap.position[3*snap.index[i] + 1];
                         position[3*i + 2] = snap.position[3*snap.index[i] + 2];
-                        for(j = 0; j < snap.info.length;j++){
+                        for(j = 0; j < snap.info.length;j++){//TODO index info buffer as well
                             if(snap.info[j].min > snap.info[j].value[i]){
                                 snap.info[j].min = snap.info[j].value[i];
                             }
@@ -242,7 +248,6 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     //If next snapshot is already available
                     if(that.currentSnapshotId + 1 < that.nbSnapShot && that.snapshots[that.currentSnapshotId + 1].isReady){
                         var nextSnapshot = that.snapshots[that.currentSnapshotId + 1];
-                        console.log("coucou");
                         for(i = 0; i < size;i++) {
                             snap.direction[3*nextSnapshot.index[i]] = nextSnapshot.position[3*i] - snap.position[3*nextSnapshot.index[i]];
                             snap.direction[3*nextSnapshot.index[i]+1] = nextSnapshot.position[3*i+1] - snap.position[3*nextSnapshot.index[i]+1];
