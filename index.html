@@ -5,6 +5,7 @@
 	<title>Data modeling</title>
 	<link rel="stylesheet" href="index.css">
 	<link rel="stylesheet" href="css/timeline.css">
+	<link rel="stylesheet" href="css/menu.css">
 	<link rel="stylesheet" href="css/data.css">
 	<script type="text/javascript" src="lib/stats.min.js"></script>
 	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
@@ -27,6 +28,12 @@
 <div id="container">
 
 </div>
+
+<!-- Détection des couleurs par la caméra -->
+
+<video id="color-detection-video" style="display: none;" muted autoplay></video>
+
+<canvas id="color-detection-canvas" style="display:none;"></canvas>
 
 <!-- Menu -->
 
@@ -56,6 +63,21 @@
 	</div>
 
 </div>
+
+<ul id="timeline">
+
+	<div id="cursor" class="draggable">
+		<div id="cursor-head">
+			<div id="cursor-hair-top-left" class="cursor-hair"></div>
+			<div id="cursor-hair-top-right" class="cursor-hair"></div>
+			<div id="cursor-hair-bottom-left" class="cursor-hair"></div>
+			<div id="cursor-hair-bottom-right" class="cursor-hair"></div>
+		</div>
+	</div>
+
+</ul>
+
+<button id="addSnap" style="position: absolute; top: 50%; width: 10%; left: 45%">Add</button>
 
 <div id="data_manager">
 	<div id="loader">
@@ -294,9 +316,7 @@
 <script src="js/Class/Data.js"></script>
 <script src="js/Class/RenderableData.js"></script>
 <script src="js/Class/View.js"></script>
+<script src="js/Class/menu.js"></script>
 <script src="js/Class/app.js"></script>
-
-
-
 
 </html>

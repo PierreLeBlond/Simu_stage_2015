@@ -74,6 +74,8 @@ SIMU.Simu = function(){
 
     this.scripts                = [];
 
+    this.menu                   = null;
+
 };
 
 SIMU.Simu.prototype.addScript = function(name, script, binary){
@@ -87,8 +89,8 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
 /**
  * @description Setup the different views, enable file reading
  */
-SIMU.Simu.prototype.setupSimu = function(){
-    document.getElementById('blocker').style.display = 'none';
+SIMU.Simu.prototype.setupSimu = function()
+{
 
     this.globalCamera = new THREE.PerspectiveCamera(75, (window.innerWidth/2) / window.innerHeight, 0.00001, 200);
     this.globalCamera.rotation.order  = 'ZYX';
@@ -116,6 +118,10 @@ SIMU.Simu.prototype.setupSimu = function(){
     this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
     this.globalCamera.controls.moveSpeed = 0.5;
     this.globalCamera.controls.enabled = false;
+
+    this.menu = new SIMU.Menu();
+    this.menu.initialize();
+    //this.menu.initSimpleView;
 };
 
 /**
