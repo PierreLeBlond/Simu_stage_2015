@@ -12,6 +12,7 @@ var SIMU = SIMU || {};
  * @constructor
  */
 SIMU.Simu = function(){
+    //Global parameters of the App
     this.parameters             = {
         "t"                   : 0.00001,
         "position"            : 0,
@@ -23,6 +24,7 @@ SIMU.Simu = function(){
         "octreeprecision"     : 0
     };
 
+    //General info about data
     this.info                   = {
         "nbSnapShot"          : 0,
         "nbData"              : 0
@@ -32,17 +34,11 @@ SIMU.Simu = function(){
     this.currentDataId          = -1;
     this.currentSnapshotId      = -1;
 
+    //Views
     this.views                  = [];
     this.currentView            = null;
 
     this.controls               = null;
-
-//name space for file type
-    this.FileType               = {
-        SKYBOT : 0,
-        BIN : 1,
-        STRING : 2
-    };
 
     /* List of different types of display, useful to remember the current display */
     this.DisplayType            = {
@@ -53,15 +49,7 @@ SIMU.Simu = function(){
         CARDBOARD : 4
     };
 
-    this.RaycastingType         = {
-        NONE : 0,
-        HOMEMADE : 1,
-        THREEJS : 2
-    };
-
     this.globalCamera           = null;
-
-    this.RAYCASTINGTYPE         = this.RaycastingType.HOMEMADE;
 
     /* Used to remember the current display */
     this.currentDisplay         = this.DisplayType.UNKNOWN;
@@ -69,18 +57,23 @@ SIMU.Simu = function(){
     /*Used to enable and disable controls out and in menu */
     this.controlsEnabled        = true;
 
-    this.type                   = this.FileType.STRING;
-
     this.scripts                = [];
 
     this.menu                   = null;
     this.viewManager            = null;
     this.timeline               = null;
 
+    //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
 
 };
 
+/**
+ * @description Add a script
+ * @param {string} name Name of the script
+ * @param {function} script The script logic
+ * @param {boolean} binary Do the script work with binary file or string formatted file ?
+ */
 SIMU.Simu.prototype.addScript = function(name, script, binary){
     var newScript = new SIMU.Script();
     this.scripts.push(newScript);
@@ -100,6 +93,9 @@ SIMU.Simu.prototype.setupSimu = function()
     this.globalCamera.position.set(0.5, 0.5, 0.5);
     this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
+    /*document.getElementById('container').style.width = window.innerWidth + "px";
+    document.getElementById('container').style.height = window.innerHeight + "px";*/
+
     this.views.push(new SIMU.View(window));
     this.views.push(new SIMU.View(window));
     this.currentView = this.views[0];
@@ -112,7 +108,7 @@ SIMU.Simu.prototype.setupSimu = function()
 
     this.currentView = this.views[1];
     this.currentView.domElement.id = 1;
-    this.currentView.setupView(window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight);
+    this.currentView.setupView(0, 0, window.innerWidth/2, window.innerHeight);
     this.currentView.setupGui();
     document.getElementById('container').appendChild(this.currentView.domElement);
     this.currentView.setGlobalCamera(this.globalCamera);
@@ -434,9 +430,7 @@ SIMU.Simu.prototype.focus = function(event){
 
     if(id != ""){
         for (var i = 0; i < this.views.length; i++) {
-            if(!this.views[i].parameters.linkcamera) {
                 this.views[i].camera.controls.enabled = false;
-            }
         }
         this.views[id].camera.controls.enabled = true;
     }
@@ -479,10 +473,14 @@ SIMU.Simu.prototype.setupEvents = function(){
 
 SIMU.Simu.prototype.onWindowResize = function(){
     var length = this.views.length;
+    document.getElementById('container').style.width = window.innerWidth + "px";
+    document.getElementById('container').style.height = window.innerHeight + "px";
+    this.globalCamera.aspect = (window.innerWidth / 2)/window.innerHeight;
+    this.globalCamera.updateProjectionMatrix();
     for(var i = 0; i < length;i++){
         this.views[i].resize(length > 1 ? window.innerWidth / 2: window.innerWidth,
             length > 2 ? window.innerHeight / 2: window.innerHeight,
-            window.innerWidth / 2 * (i%2),
+            0/*window.innerWidth / 2 * (i%2)*/,
             window.innerHeight / 2 * Math.floor((i/2)));
     }
 };
@@ -490,7 +488,7 @@ SIMU.Simu.prototype.onWindowResize = function(){
 SIMU.Simu.prototype.onKeyDown = function(event){
     switch(event.keyCode){
         case 80 ://p
-            if(this.currentSnapshotId > 0 && this.currentSnapshotId < this.nbSnapShot) {
+            if(this.currentSnapshotId >= 0 && this.currentSnapshotId < this.info.nbSnapShot - 1) {
                 if (this.parameters.play) {
                     this.parameters.play = false;
                     var i;

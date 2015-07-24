@@ -89,7 +89,7 @@ SIMU.RenderableData = function(){
 };
 
 SIMU.RenderableData.prototype.setData = function(data){
-        this.data = data;
+    this.data = data;
 
     this.staticBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPositionArray, 3));
     this.staticBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
@@ -165,6 +165,7 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
         var zMax = box.zMax;
 
         var test = 0;
+        var isInside = false;
 
         /*for(var i = 0; i < 6; i++){
 
@@ -180,17 +181,23 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             return 0;
         }
 
-        test += testVertice(new THREE.Vector3(xMin, yMin, zMin));
-        test += testVertice(new THREE.Vector3(xMax, yMin, zMax));
-        test += testVertice(new THREE.Vector3(xMin, yMax, zMin));
-        test += testVertice(new THREE.Vector3(xMax, yMax, zMax));
-        test += testVertice(new THREE.Vector3(xMin, yMax, zMax));
-        test += testVertice(new THREE.Vector3(xMax, yMin, zMin));
-        test += testVertice(new THREE.Vector3(xMin, yMin, zMax));
-        test += testVertice(new THREE.Vector3(xMax, yMax, zMin));
+        //First test if camera is inside the box
+        if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
+            isInside = true;
+        }else{
+            test += testVertice(new THREE.Vector3(xMin, yMin, zMin));
+            test += testVertice(new THREE.Vector3(xMax, yMin, zMax));
+            test += testVertice(new THREE.Vector3(xMin, yMax, zMin));
+            test += testVertice(new THREE.Vector3(xMax, yMax, zMax));
+            test += testVertice(new THREE.Vector3(xMin, yMax, zMax));
+            test += testVertice(new THREE.Vector3(xMax, yMin, zMin));
+            test += testVertice(new THREE.Vector3(xMin, yMin, zMax));
+            test += testVertice(new THREE.Vector3(xMax, yMax, zMin));
+        }
 
 
-        if(test > 0 && test < 8){//partially inside
+
+        if(isInside || (test > 0 && test < 8)){//partially inside
             if(octree.hasChild) {
                 for (var i = 0; i < octree.child.length; i++) {
                     cullFromFrustum(octree.child[i]);
@@ -262,7 +269,7 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
     }else{
         return null;
     }
- };
+};
 
 
 SIMU.RenderableData.prototype.getIntersectedOctans = function(origin, ray){
