@@ -145,6 +145,12 @@ SIMU.Menu.prototype.initSimpleView = function()
 
         this.hideMenu();
 
+        /* Création d'un objet SimpleViewManager */
+
+        this.simpleViewManager = new SimpleViewManager();
+
+        this.simpleViewManager.initialize();
+
         /* Initialisation de la scène */
 
         // TODO : Initialisation de la scène

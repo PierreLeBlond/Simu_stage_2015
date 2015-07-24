@@ -74,6 +74,8 @@ SIMU.Simu = function(){
     this.scripts                = [];
 
     this.menu                   = null;
+    this.viewManager            = null;
+    this.timeline               = null;
 
     this.lastFileEvent          = null;
 
@@ -122,7 +124,26 @@ SIMU.Simu.prototype.setupSimu = function()
 
     this.menu = new SIMU.Menu();
     this.menu.initialize();
-    //this.menu.initSimpleView;
+
+    this.timeline = new SIMU.Timeline();
+    this.timeline.addSnapEventOnHTML('click', 'addSnap');
+/*
+    switch(this.currentDisplay)
+    {
+        case this.DisplayType.UNKNOWN:
+            break;
+        case this.DisplayType.SIMPLEVIEW:
+            this.viewManager = new SimpleViewManager();
+            break;
+        case this.DisplayType.MULTIVIEW:
+            break;
+        case this.DisplayType.OCULUS:
+            break;
+        case this.DisplayType.CARDBOARD:
+            break;
+        default:
+            break;
+    }*/
 };
 
 /**
