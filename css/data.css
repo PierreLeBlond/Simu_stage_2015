@@ -5,7 +5,7 @@
     /*width : 10%;*/
     background: black;
     padding: 2px;
-    z-index: 1000000;
+    z-index: 10;
     color: white;
     font-size: small;
 }

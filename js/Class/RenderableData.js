@@ -133,6 +133,7 @@ SIMU.RenderableData.prototype.resetData = function(){
 };
 
 SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
+    this.pointCloud = null;
     if(SIMU.FOG){
         this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedFogShaderMaterial);
     }else{
@@ -141,6 +142,7 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
 };
 
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
+    this.pointCloud = null;
     if(SIMU.FOG){
         this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticFogShaderMaterial);
     }else{
