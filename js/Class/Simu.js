@@ -61,6 +61,8 @@ SIMU.Simu = function(){
     this.scripts                = [];
 
     this.menu                   = null;
+    this.viewManager            = null;
+    this.timeline               = null;
 
     //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
@@ -188,6 +190,9 @@ SIMU.Simu.prototype.switchToMultiview = function()
     window.addEventListener( 'resize',this.windowResizeEvent, false );
 
     this.showUI();
+
+    /*this.timeline = new SIMU.Timeline();
+    this.timeline.addSnapEventOnHTML('click', 'addSnap');*/
 };
 
 /**
