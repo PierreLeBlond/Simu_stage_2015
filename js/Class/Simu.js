@@ -49,6 +49,7 @@ SIMU.Simu = function(){
         CARDBOARD : 4
     };
 
+    //This camera is used to have different views with the same point of view
     this.globalCamera           = null;
 
     /* Used to remember the current display */
@@ -63,6 +64,7 @@ SIMU.Simu = function(){
 
     //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
+    this.windowResizeEvent      = null;
 
 };
 
@@ -81,44 +83,111 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
 };
 
 /**
- * @description Setup the different views, enable file reading
+ * @description Setup the menu and the global camera
  */
-SIMU.Simu.prototype.setupSimu = function()
-{
+SIMU.Simu.prototype.setupSimu = function(){
+    this.menu = new SIMU.Menu();
+    this.menu.initialize();
 
-    this.globalCamera = new THREE.PerspectiveCamera(75, (window.innerWidth/2) / window.innerHeight, 0.00001, 200);
+    this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
+    this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
+
+    this.globalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 200);
     this.globalCamera.rotation.order  = 'ZYX';
     this.globalCamera.position.set(0.5, 0.5, 0.5);
     this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
-
-    /*document.getElementById('container').style.width = window.innerWidth + "px";
-    document.getElementById('container').style.height = window.innerHeight + "px";*/
-
-    this.views.push(new SIMU.View(window));
-    this.views.push(new SIMU.View(window));
-    this.currentView = this.views[0];
-    this.currentView.domElement.id = 0;
-    this.currentView.setupView(0, 0, window.innerWidth/2, window.innerHeight);
-    this.currentView.setupGui();
-    document.getElementById('container').appendChild(this.currentView.domElement);
-    this.currentView.setGlobalCamera(this.globalCamera);
-    this.currentView.render();
-
-    this.currentView = this.views[1];
-    this.currentView.domElement.id = 1;
-    this.currentView.setupView(0, 0, window.innerWidth/2, window.innerHeight);
-    this.currentView.setupGui();
-    document.getElementById('container').appendChild(this.currentView.domElement);
-    this.currentView.setGlobalCamera(this.globalCamera);
-    this.currentView.render();
 
     this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
     this.globalCamera.controls.moveSpeed = 0.5;
     this.globalCamera.controls.enabled = false;
 
-    this.menu = new SIMU.Menu();
-    this.menu.initialize();
-    //this.menu.initSimpleView;
+    this.menu.displayMenu();
+};
+
+/**
+ * @description Enter simple view mode
+ */
+SIMU.Simu.prototype.switchToSingleview = function(){
+
+    this.menu.hideMenu();
+
+    document.getElementById('container').innerHTML = "";
+
+    this.globalCamera.aspect = window.innerWidth / window.innerHeight;
+    this.globalCamera.updateProjectionMatrix();
+
+    if(this.views.length == 0){
+        var view = new SIMU.View();
+        view.setupView(0, 0, window.innerWidth, window.innerHeight);
+        view.setupScene();
+        view.setupGui();
+        this.views.push(view);
+    }
+    this.currentView = this.views[0];
+    this.currentView.domElement.id = 0;
+    document.getElementById('container').appendChild(this.currentView.domElement);
+    this.currentView.isShown = true;
+    this.currentView.resize(window.innerWidth, window.innerHeight, 0, 0);
+    this.currentView.setGlobalCamera(this.globalCamera);
+    this.currentView.render();
+
+    if(this.windowResizeEvent){
+        window.removeEventListener('resize', this.windowResizeEvent, false);
+    }
+    this.windowResizeEvent = this.onSingleviewWindowResize.bind(this);
+    window.addEventListener( 'resize',this.windowResizeEvent, false );
+
+    this.showUI();
+};
+
+/**
+ * @description Enter multiple view mode, two view in this case and so far
+ */
+SIMU.Simu.prototype.switchToMultiview = function()
+{
+
+    this.menu.hideMenu();
+
+    document.getElementById('container').innerHTML = "";
+
+    this.globalCamera.aspect = (window.innerWidth/2) / window.innerHeight;
+    this.globalCamera.updateProjectionMatrix();
+
+    if(this.views.length == 0){
+        var view = new SIMU.View();
+        view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
+        view.setupScene();
+        view.setupGui();
+        this.views.push(view);
+    }
+    if(this.views.length == 1){
+        view = new SIMU.View();
+        view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
+        view.setupScene();
+        view.setupGui();
+        this.views.push(view);
+    }
+
+    this.currentView = this.views[0];
+    this.currentView.domElement.id = 0;
+    document.getElementById('container').appendChild(this.currentView.domElement);
+    this.currentView.isShown = true;
+    this.currentView.resize((window.innerWidth/2), window.innerHeight, 0, 0);
+    this.currentView.setGlobalCamera(this.globalCamera);
+    this.currentView.render();
+
+    this.currentView = this.views[1];
+    this.currentView.domElement.id = 1;
+    document.getElementById('container').appendChild(this.currentView.domElement);
+    this.currentView.isShown = true;
+    this.currentView.resize((window.innerWidth/2), window.innerHeight, 0, 0);
+    this.currentView.setGlobalCamera(this.globalCamera);
+    this.currentView.render();
+
+    this.windowResizeEvent = this.onMultiviewWindowResize.bind(this);
+    window.addEventListener( 'resize',this.windowResizeEvent, false );
+
+    this.showUI();
 };
 
 /**
@@ -170,6 +239,24 @@ SIMU.Simu.prototype.setupGui = function(){
     this.setupEvents();
 
     document.getElementById('fileLoadingProgress').style.display = "none";
+
+    this.hideUI();
+};
+
+/**
+ * Hide the User Interface
+ */
+SIMU.Simu.prototype.hideUI = function(){
+    document.getElementById('data_manager').style.display = "none";
+    this.gui.domElement.style.display = "none";
+};
+
+/**
+ * Show the User Interface
+ */
+SIMU.Simu.prototype.showUI = function(){
+    document.getElementById('data_manager').style.display = "block";
+    this.gui.domElement.style.display = "block";
 };
 
 /**
@@ -180,38 +267,18 @@ SIMU.Simu.prototype.animate = function(){
         if (this.parameters.t < 1.0) {
             this.parameters.t += this.parameters.speed / 100;
         } else {
-            if (this.currentSnapshotId > 0 && this.currentSnapshotId < this.info.nbSnapShot - 1) {//If next snap isn't the last one
-                this.parameters.t = 0.0;
-                this.currentSnapshotId++;
+            this.parameters.t = 0.0001;
+            this.currentSnapshotId++;
 
-                //TODO this kind of code is redundant !
-                document.getElementsByClassName("snap_head_active")[0].className = "snap_head";
-                var array = document.getElementsByClassName("snap_head");
-                array[this.currentSnapshotId].className = "snap_head_active";
-                for (var i = 0; i < this.datas.length; i++) {
-                    this.datas[i].changeSnapshot(this.currentSnapshotId);
-                }
-                for(i = 0; i < this.views.length;i++){
-                    this.views[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
-                }
+            this.setUICurrentSnapshot(this.currentSnapshotId);
+            this.setCurrentSnapshotId(this.currentSnapshotId);
 
-            } else {//else let's jump to last snap and set t at 0
+            if (this.currentSnapshotId >= this.info.nbSnapShot - 1) {
                 this.parameters.play = false;
-                this.parameters.t = 0.0;
-                this.currentSnapshotId++;
-
-                document.getElementsByClassName("snap_head_active")[0].className = "snap_head";
-                array = document.getElementsByClassName("snap_head");
-                array[this.currentSnapshotId].className = "snap_head_active";
-                for (i = 0; i < this.datas.length; i++) {
-                    this.datas[i].changeSnapshot(this.currentSnapshotId);
-                    this.datas[i].computePositions();
-                }
-                for(i = 0; i < this.views.length;i++){
-                    this.views[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
-                }
             }
+
         }
+
         for (i = 0; i < this.views.length; i++) {
             this.views[i].setTime(this.parameters.t);
         }
@@ -234,6 +301,10 @@ SIMU.Simu.prototype.render = function(){
             this.views[i].render();
         }
     }
+};
+
+SIMU.Simu.prototype.stopRender = function(){
+    cancelAnimationFrame(this.requestId);
 };
 
 SIMU.Simu.prototype.addData = function(){
@@ -288,12 +359,11 @@ SIMU.Simu.prototype.setCurrentDataId = function(id){
     }
 
     this.lastFileEvent = this.datas[this.currentDataId].handleFileSelect.bind(this.datas[this.currentDataId]);
-    var event = document.getElementById('files').addEventListener('change', this.lastFileEvent, false);
-    console.log(event);
+    document.getElementById('files').addEventListener('change', this.lastFileEvent, false);
 };
 
 SIMU.Simu.prototype.changeCurrentData = function(event){
-    this.setUICurrentSnapshot(event.target.id);
+    this.setUICurrentData(event.target.id);
     this.setCurrentDataId(event.target.id);
 };
 
@@ -405,19 +475,20 @@ SIMU.Simu.prototype.addRow = function(){
  * @param event
  */
 SIMU.Simu.prototype.focus = function(event){
+    console.log(event.target);
+    //TODO find a better way of retreiving the id than looking for its parent
     var id = event.target.parentElement.id;
 
     if(id != ""){
         for (var i = 0; i < this.views.length; i++) {
                 this.views[i].camera.controls.enabled = false;
         }
-        this.views[id].camera.controls.enabled = true;
+        this.currentView = this.views[id];
+        this.currentView = this.views[id].camera.controls.enabled = true;
     }
 };
 
 SIMU.Simu.prototype.browse = function(event){
-    //TODO disable event on browse to avoid conflict until data is load and push into buffers
-
     document.body.style.cursor = 'progress';
 
     var el = event.target;
@@ -438,7 +509,6 @@ SIMU.Simu.prototype.browse = function(event){
 
 //Events
 SIMU.Simu.prototype.setupEvents = function(){
-    window.addEventListener( 'resize',this.onWindowResize.bind(this), false );
 
     document.getElementById('add_column_button').addEventListener('click', this.addColumn.bind(this), false);
     document.getElementById('add_row_button').addEventListener('click', this.addRow.bind(this), false);
@@ -450,10 +520,18 @@ SIMU.Simu.prototype.setupEvents = function(){
     }
 };
 
-SIMU.Simu.prototype.onWindowResize = function(){
+SIMU.Simu.prototype.onSingleviewWindowResize = function(){
+    /*document.getElementById('container').style.width = window.innerWidth + "px";
+    document.getElementById('container').style.height = window.innerHeight + "px";*/
+    this.globalCamera.aspect = window.innerWidth/window.innerHeight;
+    this.globalCamera.updateProjectionMatrix();
+    this.currentView.resize(window.innerWidth, window.innerHeight, 0, 0);
+};
+
+SIMU.Simu.prototype.onMultiviewWindowResize = function(){
     var length = this.views.length;
-    document.getElementById('container').style.width = window.innerWidth + "px";
-    document.getElementById('container').style.height = window.innerHeight + "px";
+    /*document.getElementById('container').style.width = window.innerWidth + "px";
+    document.getElementById('container').style.height = window.innerHeight + "px";*/
     this.globalCamera.aspect = (window.innerWidth / 2)/window.innerHeight;
     this.globalCamera.updateProjectionMatrix();
     for(var i = 0; i < length;i++){
@@ -485,6 +563,27 @@ SIMU.Simu.prototype.onKeyDown = function(event){
                         this.views[i].setAnimatedShaderMode();
                     }
                 }
+            }
+            break;
+        case 27 :
+            if(this.menu.isDisplayed){
+                for(i = 0; i < this.views.length;i++){
+                    if(this.views[i].isShown){
+                        this.views[i].render();
+                    }
+                }
+                this.menu.hideMenu();
+                this.render();
+
+            }else{
+                for(i = 0; i < this.views.length;i++){
+                    if(this.views[i].isShown){
+                        this.views[i].stopRender();
+                    }
+                }
+                this.stopRender();
+                this.menu.displayMenu();
+
             }
             break;
         default:

@@ -20,6 +20,10 @@ progress {
     z-index:1;
 }
 
+#container {
+    position:absolute;
+}
+
 #tools {
     position: fixed;
     width: 110px;

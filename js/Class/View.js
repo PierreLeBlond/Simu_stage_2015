@@ -16,9 +16,12 @@ SIMU = SIMU || {};
  * @constructor
  */
 SIMU.View = function () {
+    this.isShown                    = false;
 
     this.scene                      = null;
     this.renderer                   = null;
+
+    this.renderId                   = -1;
 
     //UI elements
     this.gui                        = null;
@@ -65,6 +68,15 @@ SIMU.View.prototype.setGlobalCamera = function(camera){
     this.globalCamera = camera;
 };
 
+SIMU.View.prototype.setupScene = function(){
+    this.scene = new THREE.Scene();
+
+    var axisHelper = new THREE.AxisHelper(1);
+    this.scene.add( axisHelper );
+    axisHelper.frustumCulled = true;
+
+};
+
 /**
  * @description Setup the scene, the renderer and the camera
  * @param width
@@ -81,12 +93,6 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         this.width = width;
         this.height = height;
 
-        this.scene = new THREE.Scene();
-
-        var axisHelper = new THREE.AxisHelper(1);
-        this.scene.add( axisHelper );
-        axisHelper.frustumCulled = true;
-
         //RENDERER PROPERTIES
         this.renderer = new THREE.WebGLRenderer({ stencil: false, precision: "lowp", premultipliedAlpha: false});//Let's make thing easier for the renderer
         //App.renderer.autoClear = false; //TODO fix perf issue on firefox, profiler is pointing on renderer.clear, but it doesn't make any sense.
@@ -95,7 +101,7 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
 
         //CAMERA PROPERTIES
         //PerspectiveCamera(fov, aspect, near, far)
-        this.privateCamera = new THREE.PerspectiveCamera( 75, this.width / this.height, 0.00001, 200 );
+        this.privateCamera = new THREE.PerspectiveCamera( 75, this.width  / this.height, 0.00001, 200 );
         this.privateCamera.rotation.order = 'ZYX'; //to fit with FPScontrols
         this.privateCamera.position.set(0.5,0.5,0.5);
         this.privateCamera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -111,7 +117,7 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
 
         //window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
     }else{
-        console.log("Error : Scene does not have a dom element")
+        console.log("Error : View does not have a dom element")
     }
 };
 
@@ -170,7 +176,6 @@ SIMU.View.prototype.setupGui = function(){
             var r = value[0]/255;
             var g = value[1]/255;
             var b = value[2]/255;
-            console.log(r + " " + g + " " + b);
             var color = that.renderableDatas[that.currentRenderableDataId].pointCloud.geometry.attributes.color;
             for(var i = 0; i < color.length/3;i++){
                 color.array[3*i] = r;
@@ -252,13 +257,11 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id){
         for (var i = 0; i < snapInfo.length; i++) {
             info[snapInfo[i].name] = i + 1;
         }
-        console.log(info);
 
         this.gui.__folders.Data.add(this.parameters, 'idInfo', info).onFinishChange(function (value) {
             if(value != 0 && snapInfo[value - 1].min < snapInfo[value - 1].max) {
                 var min = snapInfo[value - 1].min;
                 var max = snapInfo[value - 1].max;
-                console.log(min + "/" + max);
 
                 if (that.currentRenderableDataId >= 0) {
                     var r, g, b;
@@ -279,7 +282,6 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id){
                     r = that.renderableDatas[that.currentRenderableDataId].defaultColor[0]/255;
                     g = that.renderableDatas[that.currentRenderableDataId].defaultColor[1]/255;
                     b = that.renderableDatas[that.currentRenderableDataId].defaultColor[2]/255;
-                    console.log(r + " " + g + " " + b);
                     color = that.renderableDatas[that.currentRenderableDataId].pointCloud.geometry.attributes.color;
                     for(i = 0; i < color.length/3;i++){
                         color.array[3*i] = r;
@@ -289,8 +291,6 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id){
                     color.needsUpdate = true;
                 }
             }
-
-
         })
     }
 };
@@ -317,7 +317,7 @@ SIMU.View.prototype.setCurrentRenderableSnapshotId = function(id){
 };
 
 SIMU.View.prototype.setAnimatedShaderMode = function(){
-    this.parameters.isStatic = true;
+    this.parameters.isStatic = false;
     for(var i = 0; i < this.renderableDatas.length;i++){
         if(this.renderableDatas[i].isActive) {
             this.scene.remove(this.renderableDatas[i].pointCloud);
@@ -328,7 +328,7 @@ SIMU.View.prototype.setAnimatedShaderMode = function(){
 };
 
 SIMU.View.prototype.setStaticShaderMode = function(){
-    this.parameters.isStatic = false;
+    this.parameters.isStatic = true;
     for(var i = 0; i < this.renderableDatas.length;i++){
         if(this.renderableDatas[i].isActive) {
             this.scene.remove(this.renderableDatas[i].pointCloud);
@@ -363,7 +363,7 @@ SIMU.View.prototype.render = function(){
 
     var that = this;
     if(!this.parameters.synchrorendering) {
-        requestAnimationFrame(function () {
+        this.renderId = requestAnimationFrame(function () {
             that.render();
         });
     }
@@ -380,6 +380,10 @@ SIMU.View.prototype.render = function(){
 
     this.showDebuginfo();
     this.stats.update();
+};
+
+SIMU.View.prototype.stopRender = function(){
+    cancelAnimationFrame(this.renderId);
 };
 
 /**

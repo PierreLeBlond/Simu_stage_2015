@@ -41,7 +41,7 @@ SIMU.Menu = function()
     this.blocker = null;
     this.controlsEnabled = true;
     this.isDisplayed = false;
-}
+};
 
 /* Fonction d'initialisation des paramètres du menu */
 
@@ -52,15 +52,15 @@ SIMU.Menu.prototype.initialize = function()
     this.oculus = document.getElementById('oculus');
     this.cardboard = document.getElementById('cardboard');
 
-    this.simpleView.addEventListener('click', this.initSimpleView.bind(this), false);
+    /*this.simpleView.addEventListener('click', this.initSimpleView.bind(this), false);
     this.multiView.addEventListener('click', this.initMultiView.bind(this), false);
     this.oculus.addEventListener('click', this.initOculus.bind(this), false);
-    this.cardboard.addEventListener('click', this.initCardboard.bind(this), false);
+    this.cardboard.addEventListener('click', this.initCardboard.bind(this), false);*/
 
     this.blocker = document.getElementById('blocker');
 
-    window.addEventListener('keydown', this.switchMenu.bind(this), false);
-}
+    //window.addEventListener('keydown', this.switchMenu.bind(this), false);
+};
 
 /* Fonction permettant d'alterner l'affichage du menu
 *
@@ -87,7 +87,7 @@ SIMU.Menu.prototype.switchMenu = function(e)
         default:
             break;
     }
-}
+};
 
 /* Fonction permettant d'afficher le menu et de mettre en pause le rendu */
 
@@ -96,7 +96,7 @@ SIMU.Menu.prototype.displayMenu = function()
     this.blocker.style.display = 'initial';
     this.controlsEnabled = false;
     this.isDisplayed = true;
-}
+};
 
 /* Fonction permettant de cacher le menu et de reprendre le rendu */
 
@@ -105,7 +105,7 @@ SIMU.Menu.prototype.hideMenu = function()
     this.blocker.style.display = 'none';
     this.controlsEnabled = true;
     this.isDisplayed = false;
-}
+};
 
 /* Fonction d'initialisation du mode SimpleView */
 
@@ -177,7 +177,7 @@ SIMU.Menu.prototype.initSimpleView = function()
         */
 
     }
-}
+};
 
 /* Fonction d'initialisation du mode MultiView */
 
@@ -249,18 +249,18 @@ SIMU.Menu.prototype.initMultiView = function()
          */
 
     }
-}
+};
 
 /* Fonction d'initialisation du mode Oculus */
 
 SIMU.Menu.prototype.initOculus = function()
 {
     // TODO : Un équivalent de initSimpleView pour le mode Oculus
-}
+};
 
 /* Fonction d'initialisation du mode Cardboard */
 
 SIMU.Menu.prototype.initCardboard = function()
 {
     // TODO : Un équivalent de initSimpleView pour le mode Cardboard
-}
+};
