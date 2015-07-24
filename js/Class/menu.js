@@ -75,7 +75,7 @@ SIMU.Menu.prototype.switchMenu = function(e)
     switch (evt.keyCode)
     {
         case 27:
-            if ( this.isDisplayed == true )
+            if ( this.isDisplayed )
             {
                 this.hideMenu();
             }
