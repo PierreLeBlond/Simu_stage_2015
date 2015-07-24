@@ -5,6 +5,7 @@
 	<title>Data modeling</title>
 	<link rel="stylesheet" href="index.css">
 	<link rel="stylesheet" href="css/timeline.css">
+	<link rel="stylesheet" href="css/menu.css">
 	<link rel="stylesheet" href="css/data.css">
 	<script type="text/javascript" src="lib/stats.min.js"></script>
 	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
@@ -27,6 +28,12 @@
 <div id="container">
 
 </div>
+
+<!-- Détection des couleurs par la caméra -->
+
+<video id="color-detection-video" style="display: none;" muted autoplay></video>
+
+<canvas id="color-detection-canvas" style="display:none;"></canvas>
 
 <!-- Menu -->
 
@@ -56,6 +63,21 @@
 	</div>
 
 </div>
+
+<ul id="timeline" style="display: none;">
+
+	<div id="cursor" class="draggable">
+		<div id="cursor-head">
+			<div id="cursor-hair-top-left" class="cursor-hair"></div>
+			<div id="cursor-hair-top-right" class="cursor-hair"></div>
+			<div id="cursor-hair-bottom-left" class="cursor-hair"></div>
+			<div id="cursor-hair-bottom-right" class="cursor-hair"></div>
+		</div>
+	</div>
+
+</ul>
+
+<button id="addSnap" style="position: absolute; top: 50%; width: 10%; left: 45%; display: none;">Add</button>
 
 <div id="data_manager">
 	<div id="loader">
@@ -250,19 +272,6 @@
 		}
 </script>
 
-<!-- <div id="timeline">
-	<div id="progressBar">
-		<div id="cursor"></div>
-	</div>
-</div> -->
-
-<!-- TOOLS -->
-<!--<div id="tools">
-	<img src="resources/icons/fps_controls.png" onclick="useFPSControls()" title="Fly Camera"/>
-	<img src="resources/icons/orbit_controls.png" onclick="useOrbitControls()" title="Orbit Controls"/>
-	<img src="resources/icons/focus.png" onclick="controls.reset()" title="focus on pointcloud"/>
-</div>-->
-
 <div id="debugInfo">
 
 </div>
@@ -270,21 +279,6 @@
 <div id="colorPickingTexture"></div>
 
 </body>
-
-<!--<script type="text/javascript" src="js/app.js"></script>
-<script type="text/javascript" src="js/script.js"></script>
-<script type="text/javascript" src="js/shader.js"></script>
-<script type="text/javascript" src="js/colorPicking.js"></script>
-<script type="text/javascript" src="js/reader.js"></script>
-<script type="text/javascript" src="js/raycasting.js"></script>
-<script type="text/javascript" src="js/myRaycaster.js"></script>
-<script type="text/javascript" src="js/camera.js"></script>
-<script type="text/javascript" src="js/gui.js"></script>
-<script type="text/javascript" src="js/setup.js"></script>
-<script type="text/javascript" src="js/util.js"></script>
-<script type="text/javascript" src="js/event.js"></script>
-<script type="text/javascript" src="js/menu.js"></script>
-<script type="text/javascript" src="js/main.js"></script>-->
 
 <script src="js/Class/Simu.js"></script>
 <script type="text/javascript" src="js/Class/util.js"></script>
@@ -294,9 +288,7 @@
 <script src="js/Class/Data.js"></script>
 <script src="js/Class/RenderableData.js"></script>
 <script src="js/Class/View.js"></script>
+<script src="js/Class/menu.js"></script>
 <script src="js/Class/app.js"></script>
-
-
-
 
 </html>

@@ -59,11 +59,19 @@ SIMU.Simu = function(){
 
     this.scripts                = [];
 
+    this.menu                   = null;
+
     //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
 
 };
 
+/**
+ * @description Add a script
+ * @param {string} name Name of the script
+ * @param {function} script The script logic
+ * @param {boolean} binary Do the script work with binary file or string formatted file ?
+ */
 SIMU.Simu.prototype.addScript = function(name, script, binary){
     var newScript = new SIMU.Script();
     this.scripts.push(newScript);
@@ -75,13 +83,16 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
 /**
  * @description Setup the different views, enable file reading
  */
-SIMU.Simu.prototype.setupSimu = function(){
-    document.getElementById('blocker').style.display = 'none';
+SIMU.Simu.prototype.setupSimu = function()
+{
 
     this.globalCamera = new THREE.PerspectiveCamera(75, (window.innerWidth/2) / window.innerHeight, 0.00001, 200);
     this.globalCamera.rotation.order  = 'ZYX';
     this.globalCamera.position.set(0.5, 0.5, 0.5);
     this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
+
+    /*document.getElementById('container').style.width = window.innerWidth + "px";
+    document.getElementById('container').style.height = window.innerHeight + "px";*/
 
     this.views.push(new SIMU.View(window));
     this.views.push(new SIMU.View(window));
@@ -95,7 +106,7 @@ SIMU.Simu.prototype.setupSimu = function(){
 
     this.currentView = this.views[1];
     this.currentView.domElement.id = 1;
-    this.currentView.setupView(window.innerWidth/2, 0, window.innerWidth/2, window.innerHeight);
+    this.currentView.setupView(0, 0, window.innerWidth/2, window.innerHeight);
     this.currentView.setupGui();
     document.getElementById('container').appendChild(this.currentView.domElement);
     this.currentView.setGlobalCamera(this.globalCamera);
@@ -104,6 +115,10 @@ SIMU.Simu.prototype.setupSimu = function(){
     this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
     this.globalCamera.controls.moveSpeed = 0.5;
     this.globalCamera.controls.enabled = false;
+
+    this.menu = new SIMU.Menu();
+    this.menu.initialize();
+    //this.menu.initSimpleView;
 };
 
 /**
@@ -394,9 +409,7 @@ SIMU.Simu.prototype.focus = function(event){
 
     if(id != ""){
         for (var i = 0; i < this.views.length; i++) {
-            if(!this.views[i].parameters.linkcamera) {
                 this.views[i].camera.controls.enabled = false;
-            }
         }
         this.views[id].camera.controls.enabled = true;
     }
@@ -439,10 +452,14 @@ SIMU.Simu.prototype.setupEvents = function(){
 
 SIMU.Simu.prototype.onWindowResize = function(){
     var length = this.views.length;
+    document.getElementById('container').style.width = window.innerWidth + "px";
+    document.getElementById('container').style.height = window.innerHeight + "px";
+    this.globalCamera.aspect = (window.innerWidth / 2)/window.innerHeight;
+    this.globalCamera.updateProjectionMatrix();
     for(var i = 0; i < length;i++){
         this.views[i].resize(length > 1 ? window.innerWidth / 2: window.innerWidth,
             length > 2 ? window.innerHeight / 2: window.innerHeight,
-            window.innerWidth / 2 * (i%2),
+            0/*window.innerWidth / 2 * (i%2)*/,
             window.innerHeight / 2 * Math.floor((i/2)));
     }
 };

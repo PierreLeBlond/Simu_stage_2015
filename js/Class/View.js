@@ -75,7 +75,7 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
     if(this.domElement) {
 
         this.domElement.class = 'view';
-        this.domElement.style.position = 'fixed';
+        this.domElement.style.position = 'relative';
         this.domElement.style.display = 'inline-block';
 
         this.width = width;
@@ -107,8 +107,7 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
 
         //Events listener
         this.domElement.addEventListener('mousedown', this.getMouseIntersection.bind(this), false);
-        /*this.domElement.addEventListener('mousedown', this.getMouseFocus, false);
-        this.domElement.addEventListener('dblclick', this.reachMouseFocus, false);*/
+        this.domElement.addEventListener('dblclick', this.reachMouseFocus.bind(this), false);
 
         //window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
     }else{
@@ -343,12 +342,18 @@ SIMU.View.prototype.setStaticShaderMode = function(){
  * @description process all stuff related to animation
  */
 SIMU.View.prototype.animate = function(){
-    this.camera.controls.update(this.clock.getDelta());
-    /*if(!this.parameters.isStatic){
-        for(var i = 0; i < this.renderableDatas.length;i++){
-            this.renderableDatas[i].uniforms.t = SIMU.parameters.t;
+    if(!this.camera.isNotFree) {
+        this.camera.controls.update(this.clock.getDelta());
+    }else{
+        this.time += 1/60;
+        if(this.time < 1.0) {
+            this.camera.position.set(this.origin.x + this.time * this.objectif.x,
+                this.origin.y + this.time * this.objectif.y,
+                this.origin.z + this.time * this.objectif.z);
+        }else{
+            this.camera.isNotFree = false;
         }
-    }*/
+    }
 };
 
 /**
@@ -467,7 +472,20 @@ SIMU.View.prototype.getMouseIntersection = function(event){
         negate(target.renderableData.pointCloud.geometry.attributes.color, target.index);
         this.showInfo(target);
     }
+    this.target = target;
+};
 
+SIMU.View.prototype.reachMouseFocus = function(){
+    if(this.target) {
+        var x = this.target.renderableData.pointCloud.geometry.attributes.position.array[this.target.index * 3];
+        var y = this.target.renderableData.pointCloud.geometry.attributes.position.array[this.target.index * 3 + 1];
+        var z = this.target.renderableData.pointCloud.geometry.attributes.position.array[this.target.index * 3 + 2];
+
+        this.origin = new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+        this.objectif = new THREE.Vector3(x - this.origin.x, y - this.origin.y, z - this.origin.z);
+        this.time = 0.0;
+        this.camera.isNotFree = true;
+    }
 };
 
 /**

@@ -2,6 +2,8 @@
  * Created by lespingal on 20/07/15.
  */
 
+var SIMU = SIMU || {};
+
 SIMU.faceToOctan = [[5, 6, 7, 8], [1,2,3,4], [1,2,5,6], [3, 4, 7, 8], [2, 4, 6, 8], [1, 3, 5, 7]];
 SIMU.octanToFace = [
     /*octan 1*/[
@@ -75,3 +77,24 @@ function negate(color, index){
     color.array[index * 3 + 2] = 1 - color.array[index * 3 + 2];
     color.needsUpdate = true;
 }
+
+SIMU.isMobile = {
+    Android: function() {
+        return navigator.userAgent.match(/Android/i);
+    },
+    BlackBerry: function() {
+        return navigator.userAgent.match(/BlackBerry/i);
+    },
+    iOS: function() {
+        return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+    },
+    Opera: function() {
+        return navigator.userAgent.match(/Opera Mini/i);
+    },
+    Windows: function() {
+        return navigator.userAgent.match(/IEMobile/i) || navigator.userAgent.match(/WPDesktop/i);
+    },
+    any: function() {
+        return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
+    }
+};
