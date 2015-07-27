@@ -10,9 +10,13 @@ SIMU.RenderableData = function(){
     this.isActive                           = false;
     this.isReady                            = false;//true if the buffer are populated and no error occurred
 
+    this.fogIsEnabled                       = false;
+
     this.drawCalls                          = [];
 
     this.defaultColor                       = [255, 255, 255];
+    this.idTexture                          = 0;
+    this.idBlending                         = 1;
 
     this.animatedAttributes                 = {
         endPosition:    {type: 'v3', value: []},
@@ -26,7 +30,7 @@ SIMU.RenderableData = function(){
     this.uniforms                           = {
         t:              { type: 'f', value: 0.001},
         size:           { type: 'f', value: 0.5},
-        fog:            { type: 'f', value: 1.1},
+        fog:            { type: 'f', value: 0.9},
         fogDistance:    { type: 'f', value: 3.4},
         map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
     };
@@ -134,7 +138,7 @@ SIMU.RenderableData.prototype.resetData = function(){
 
 SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
     this.pointCloud = null;
-    if(SIMU.FOG){
+    if(this.fogIsEnabled){
         this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedFogShaderMaterial);
     }else{
         this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedShaderMaterial);
@@ -143,7 +147,7 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
 
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
     this.pointCloud = null;
-    if(SIMU.FOG){
+    if(this.fogIsEnabled){
         this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticFogShaderMaterial);
     }else{
         this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticShaderMaterial);

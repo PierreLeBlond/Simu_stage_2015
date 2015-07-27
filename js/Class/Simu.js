@@ -5,7 +5,11 @@
  * - A few views to render data
  * - A bunch of data to be rendered
  */
+
+//namespace SIMU
 var SIMU = SIMU || {};
+
+//TODO Both interface logic and data logic are mixed together, which is bad, but not as bad as nazi zombies. Anyway, it'll be good to fix that.
 
 /**
  * @description Constructor of class Simu
@@ -59,6 +63,7 @@ SIMU.Simu = function(){
     this.controlsEnabled        = true;
 
     this.scripts                = [];
+    this.texture                = [];
 
     this.menu                   = null;
     this.viewManager            = null;
@@ -103,6 +108,9 @@ SIMU.Simu.prototype.setupSimu = function(){
     this.globalCamera.controls.moveSpeed = 0.5;
     this.globalCamera.controls.enabled = false;
 
+    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark1.png"));
+    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
+
     this.menu.displayMenu();
 };
 
@@ -123,6 +131,8 @@ SIMU.Simu.prototype.switchToSingleview = function(){
         view.setupView(0, 0, window.innerWidth, window.innerHeight);
         view.setupScene();
         view.setupGui();
+        view.texture = this.texture;
+        view.domElement.addEventListener('click', this.focus.bind(this), false);
         this.views.push(view);
     }
     this.currentView = this.views[0];
@@ -140,6 +150,7 @@ SIMU.Simu.prototype.switchToSingleview = function(){
     window.addEventListener( 'resize',this.windowResizeEvent, false );
 
     this.showUI();
+    this.render();
 };
 
 /**
@@ -160,6 +171,8 @@ SIMU.Simu.prototype.switchToMultiview = function()
         view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
         view.setupScene();
         view.setupGui();
+        view.texture = this.texture;
+        view.domElement.addEventListener('click', this.focus.bind(this), false);
         this.views.push(view);
     }
     if(this.views.length == 1){
@@ -167,6 +180,8 @@ SIMU.Simu.prototype.switchToMultiview = function()
         view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
         view.setupScene();
         view.setupGui();
+        view.texture = this.texture;
+        view.domElement.addEventListener('click', this.focus.bind(this), false);
         this.views.push(view);
     }
 
@@ -190,6 +205,7 @@ SIMU.Simu.prototype.switchToMultiview = function()
     window.addEventListener( 'resize',this.windowResizeEvent, false );
 
     this.showUI();
+    this.render();
 
     /*this.timeline = new SIMU.Timeline();
     this.timeline.addSnapEventOnHTML('click', 'addSnap');*/
@@ -249,7 +265,7 @@ SIMU.Simu.prototype.setupGui = function(){
 };
 
 /**
- * Hide the User Interface
+ * @description Hide the User Interface
  */
 SIMU.Simu.prototype.hideUI = function(){
     document.getElementById('data_manager').style.display = "none";
@@ -257,7 +273,7 @@ SIMU.Simu.prototype.hideUI = function(){
 };
 
 /**
- * Show the User Interface
+ * @description Show the User Interface
  */
 SIMU.Simu.prototype.showUI = function(){
     document.getElementById('data_manager').style.display = "block";
@@ -265,7 +281,7 @@ SIMU.Simu.prototype.showUI = function(){
 };
 
 /**
- * @description handle animation, i.e. move in time
+ * @description handle animation, i.e. movement in time
  */
 SIMU.Simu.prototype.animate = function(){
     if(this.parameters.play) {
@@ -284,7 +300,7 @@ SIMU.Simu.prototype.animate = function(){
 
         }
 
-        for (i = 0; i < this.views.length; i++) {
+        for (var i = 0; i < this.views.length; i++) {
             this.views[i].setTime(this.parameters.t);
         }
         for (i = 0; i < this.datas.length; i++) {
@@ -293,6 +309,9 @@ SIMU.Simu.prototype.animate = function(){
     }
 };
 
+/**
+ * @description Render the views if they are synchro, animate the application
+ */
 SIMU.Simu.prototype.render = function(){
     this.animate();
 
@@ -308,10 +327,17 @@ SIMU.Simu.prototype.render = function(){
     }
 };
 
+/**
+ * @description Stop the rendering
+ */
 SIMU.Simu.prototype.stopRender = function(){
     cancelAnimationFrame(this.requestId);
 };
 
+/**
+ * @description Add empty data object to the application
+ * @detail for each view an associated renderable data will be created
+ */
 SIMU.Simu.prototype.addData = function(){
     //TODO get id data & snap
     var i;
@@ -331,6 +357,9 @@ SIMU.Simu.prototype.addData = function(){
     }
 };
 
+/**
+ * @description Add empty Snapshot for all available data
+ */
 SIMU.Simu.prototype.addSnapshot = function(){
     if(this.info.nbSnapShot == 1){
         this.info.currentSnapshotId = 1;
@@ -341,6 +370,10 @@ SIMU.Simu.prototype.addSnapshot = function(){
     this.info.nbSnapShot++;
 };
 
+/**
+ * @description Modify the User Interface to show the current snapshot given by its id
+ * @param id
+ */
 SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
     var array = document.getElementsByClassName("snap_head_active");
     for(var i = 0; i < array.length;i++){
@@ -350,6 +383,10 @@ SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
     array[id].className = "snap_head_active";
 };
 
+/**
+ * @description Set the current data within the application, i.e. for each views, by its id
+ * @param id
+ */
 SIMU.Simu.prototype.setCurrentDataId = function(id){
     var i;
 
@@ -367,11 +404,19 @@ SIMU.Simu.prototype.setCurrentDataId = function(id){
     document.getElementById('files').addEventListener('change', this.lastFileEvent, false);
 };
 
+/**
+ * @description Handle the event in which we change the current data
+ * @param event
+ */
 SIMU.Simu.prototype.changeCurrentData = function(event){
     this.setUICurrentData(event.target.id);
     this.setCurrentDataId(event.target.id);
 };
 
+/**
+ * @description Modify the User Interface to show the current data given by its id
+ * @param id
+ */
 SIMU.Simu.prototype.setUICurrentData = function(id){
     var array = document.getElementsByClassName("data_head_active");
     for(var i = 0; i < array.length;i++){
@@ -381,6 +426,10 @@ SIMU.Simu.prototype.setUICurrentData = function(id){
     array[id].className = "data_head_active";
 };
 
+/**
+ * @description Set the current snapshot within the application, i.e. for each views, by its id
+ * @param id
+ */
 SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
     var i;
     this.currentSnapshotId = id;
@@ -392,11 +441,18 @@ SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
     }
 };
 
+/**
+ * @description Handle the event in which we change the current snapshot
+ * @param event
+ */
 SIMU.Simu.prototype.changeCurrentSnapshot = function(event){
     this.setUICurrentSnapshot(event.target.id);
     this.setCurrentSnapshotId(event.target.id);
 };
 
+/**
+ * @description Add one column to the data tools, i.e. add one data to each of the views
+ */
 SIMU.Simu.prototype.addColumn = function(){
     var i;
     var table = document.getElementById('data_table');
@@ -424,7 +480,6 @@ SIMU.Simu.prototype.addColumn = function(){
 
     //Set new data as current
     this.addData();
-    //this.currentDataId = this.info.nbData - 1;
     this.setUICurrentData(this.info.nbData - 1);
     this.setCurrentDataId(this.info.nbData - 1);
 
@@ -434,6 +489,9 @@ SIMU.Simu.prototype.addColumn = function(){
 
 };
 
+/**
+ * @description Add a row to the data tools, i.e. add one snapshot to each of the available data
+ */
 SIMU.Simu.prototype.addRow = function(){
     if(this.info.nbData > 0) {
         var table = document.getElementById('data_table');
@@ -480,7 +538,7 @@ SIMU.Simu.prototype.addRow = function(){
  * @param event
  */
 SIMU.Simu.prototype.focus = function(event){
-    console.log(event.target);
+    console.log("coucou");
     //TODO find a better way of retreiving the id than looking for its parent
     var id = event.target.parentElement.id;
 
@@ -489,7 +547,7 @@ SIMU.Simu.prototype.focus = function(event){
                 this.views[i].camera.controls.enabled = false;
         }
         this.currentView = this.views[id];
-        this.currentView = this.views[id].camera.controls.enabled = true;
+        this.currentView.camera.controls.enabled = true;
     }
 };
 
@@ -520,9 +578,9 @@ SIMU.Simu.prototype.setupEvents = function(){
 
     window.addEventListener('keydown', this.onKeyDown.bind(this), false);
 
-    for (var i = 0; i < this.views.length; i++) {
+    /*for (var i = 0; i < this.views.length; i++) {
         this.views[i].domElement.addEventListener('click', this.focus.bind(this), false);
-    }
+    }*/
 };
 
 SIMU.Simu.prototype.onSingleviewWindowResize = function(){
