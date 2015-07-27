@@ -158,13 +158,15 @@ SIMU.View.prototype.setupGui = function(){
     viewFolder.add(this.parameters, 'fog').name("fog").onFinishChange(function(value){
         for (var i = 0; i < that.renderableDatas.length;i++){
             that.renderableDatas[i].fogIsEnabled = value;
-            that.scene.remove(that.renderableDatas[i].pointCloud);
-            if(that.parameters.isStatic){
-                that.renderableDatas[i].enableStaticShaderMode();
-            }else{
-                that.renderableDatas[i].enableAnimatedShaderMode();
+            if(that.renderableDatas[i].isReady) {
+                that.scene.remove(that.renderableDatas[i].pointCloud);
+                if (that.parameters.isStatic) {
+                    that.renderableDatas[i].enableStaticShaderMode();
+                } else {
+                    that.renderableDatas[i].enableAnimatedShaderMode();
+                }
+                that.scene.add(that.renderableDatas[i].pointCloud);
             }
-            that.scene.add(that.renderableDatas[i].pointCloud);
         }
 
     });

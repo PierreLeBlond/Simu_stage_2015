@@ -59,9 +59,6 @@ SIMU.Simu = function(){
     /* Used to remember the current display */
     this.currentDisplay         = this.DisplayType.UNKNOWN;
 
-    /*Used to enable and disable controls out and in menu */
-    this.controlsEnabled        = true;
-
     this.scripts                = [];
     this.texture                = [];
 
