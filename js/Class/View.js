@@ -8,19 +8,21 @@ SIMU = SIMU || {};
  * L'idée et de pouvoir afficher simultanément plusieurs vues des données dans des parties différents de l'écran :
  * - On souhaite comparer différents jeux de données
  * - On souhaite comparer des données à des temps différents
- * - On souhaite comparer des informations différentes sur les données
+ * - On souhaite comparer des informations différentes sur les même données
  */
 
 /**
- * @description constructeur d'une vue, qui comporte une scene et de quoi l'afficher à l'écran
+ * @description constructor SIMU.View
  * @constructor
  */
 SIMU.View = function () {
+    //Is the view shown to the user ?
     this.isShown                    = false;
 
     this.scene                      = null;
     this.renderer                   = null;
 
+    //Store the id of rendering loop to cancel it whenever we want
     this.renderId                   = -1;
 
     //UI elements
@@ -53,14 +55,20 @@ SIMU.View = function () {
         isStatic                    : true,
         synchrorendering            : false,
         color                       : [ 255, 255, 255],
-        idInfo                      : -1
+        idInfo                      : -1,
+        idTexture                   : -1,
+        idBlending                  : -1
     };
+
+    this.texture                    = [];
+    this.blending                   = [THREE.NoBlending, THREE.NormalBlending, THREE.AdditiveBlending, THREE.SubtractiveBlending, THREE.MultiplyBlending];
+    this.infoList                   = null;//Store the dat.gui element with all info within the current renderable data
 
     this.renderableDatas            = [];
     this.currentRenderableDataId    = -1;
     this.currentRenderableSnapshotId= -1;
 
-    this.currentSelection           = null;
+    this.target           = null;
 
 };
 
@@ -144,6 +152,44 @@ SIMU.View.prototype.setupGui = function(){
     this.gui.domElement.style.left = '0px';
     this.gui.domElement.style.bottom = '40px';
 
+
+    var viewFolder = this.gui.addFolder('View');
+
+    viewFolder.add(this.parameters, 'fog').name("fog").onFinishChange(function(value){
+        for (var i = 0; i < that.renderableDatas.length;i++){
+            that.renderableDatas[i].fogIsEnabled = value;
+            if(that.renderableDatas[i].isReady) {
+                that.scene.remove(that.renderableDatas[i].pointCloud);
+                if (that.parameters.isStatic) {
+                    that.renderableDatas[i].enableStaticShaderMode();
+                } else {
+                    that.renderableDatas[i].enableAnimatedShaderMode();
+                }
+                that.scene.add(that.renderableDatas[i].pointCloud);
+            }
+        }
+
+    });
+
+    viewFolder.add(this.parameters, 'linkcamera').name("Link Camera").onFinishChange(function(value){
+        if(value && that.globalCamera){
+            that.camera.controls.enabled = false;
+            that.camera = that.globalCamera;
+            that.camera.controls.enabled = true;
+        }else{
+            that.camera.controls.enabled = false;
+            that.camera = that.privateCamera;
+            that.camera.controls.enabled = true;
+        }
+    });
+
+    viewFolder.add(this.parameters, 'synchrorendering').name("Synchro Rendering").onFinishChange(function(value){
+        if(value){
+        }else{
+            that.render();
+        }
+    });
+
     var dataFolder = this.gui.addFolder('Data');
 
     dataFolder.add(this.parameters, 'active').name("activate data").listen().onFinishChange(function(){
@@ -156,13 +202,19 @@ SIMU.View.prototype.setupGui = function(){
             }
             that.renderableDatas[that.currentRenderableDataId].isActive = true;
             that.scene.add(that.renderableDatas[that.currentRenderableDataId].pointCloud);
+            that.updateUIinfoList();
         }else{
             that.scene.remove(that.renderableDatas[that.currentRenderableDataId].pointCloud);
             that.renderableDatas[that.currentRenderableDataId].isActive = false;
         }
     });
 
-
+    dataFolder.add(this.parameters, 'idTexture', {spark:0, star:1}).listen().onFinishChange(function(value){
+        if(that.currentRenderableDataId >= 0) {
+            that.renderableDatas[that.currentRenderableDataId].idTexture = value;
+            that.renderableDatas[that.currentRenderableDataId].uniforms.map.value = that.texture[value];
+        }
+    });
 
     dataFolder.add(this.parameters, 'pointsize', 0.0001, 3).name("point size").listen().onFinishChange(function(value){
         if(that.currentRenderableDataId >= 0) {
@@ -186,30 +238,23 @@ SIMU.View.prototype.setupGui = function(){
         }
     });
 
-    dataFolder.add(this.parameters, 'fog').name("fog");
+    var blendingType = {none:0,
+                        normal:1,
+                        additive:2,
+                        subtractive:3,
+                        multiply:4};
 
-    var viewFolder = this.gui.addFolder('View');
-
-    viewFolder.add(this.parameters, 'linkcamera').name("Link Camera").onFinishChange(function(value){
-        if(value && that.globalCamera){
-            that.camera.controls.enabled = false;
-            that.camera = that.globalCamera;
-            that.camera.controls.enabled = true;
-        }else{
-            that.camera.controls.enabled = false;
-            that.camera = that.privateCamera;
-            that.camera.controls.enabled = true;
+    dataFolder.add(this.parameters, 'idBlending', blendingType).name('blending').listen().onChange(function(value){
+        if(that.currentRenderableDataId >= 0) {
+            that.renderableDatas[that.currentRenderableDataId].animatedFogShaderMaterial.blending = that.blending[value];
+            that.renderableDatas[that.currentRenderableDataId].animatedShaderMaterial.blending = that.blending[value];
+            that.renderableDatas[that.currentRenderableDataId].staticFogShaderMaterial.blending = that.blending[value];
+            that.renderableDatas[that.currentRenderableDataId].staticShaderMaterial.blending = that.blending[value];
         }
     });
 
 
-
-    viewFolder.add(this.parameters, 'synchrorendering').name("Synchro Rendering").onFinishChange(function(value){
-        if(value){
-        }else{
-            that.render();
-        }
-    });
+    this.infoList = this.gui.__folders.Data.add(this.parameters, 'idInfo', {none:0}).name('info');
 
     this.domElement.appendChild(this.gui.domElement);
 
@@ -238,28 +283,20 @@ SIMU.View.prototype.addRenderableData = function(renderableData)
     this.renderableDatas.push(renderableData);
 };
 
-/**
- * @description set the id of the current renderable data
- * @detail update the ui to match the new current renderable data
- * @param id
- */
-SIMU.View.prototype.setCurrentRenderableDataId = function(id){
+SIMU.View.prototype.updateUIinfoList = function(){
     var that = this;
 
-    this.currentRenderableDataId = id;
-    this.parameters.active = this.renderableDatas[this.currentRenderableDataId].isActive;
-    this.parameters.pointsize = this.renderableDatas[this.currentRenderableDataId].uniforms.size.value;
-    this.parameters.color = this.renderableDatas[this.currentRenderableDataId].defaultColor;
-
-    if(this.renderableDatas[this.currentRenderableDataId].isReady) {
+    if (this.renderableDatas[this.currentRenderableDataId].isReady) {
         var info = {none: 0};
         var snapInfo = this.renderableDatas[this.currentRenderableDataId].data.snapshots[this.renderableDatas[this.currentRenderableDataId].data.currentSnapshotId].info;
         for (var i = 0; i < snapInfo.length; i++) {
             info[snapInfo[i].name] = i + 1;
         }
 
-        this.gui.__folders.Data.add(this.parameters, 'idInfo', info).onFinishChange(function (value) {
-            if(value != 0 && snapInfo[value - 1].min < snapInfo[value - 1].max) {
+        this.gui.__folders.Data.remove(this.infoList);
+
+        this.infoList = this.gui.__folders.Data.add(this.parameters, 'idInfo', info).name('info').onFinishChange(function (value) {
+            if (value != 0 && snapInfo[value - 1].min < snapInfo[value - 1].max) {
                 var min = snapInfo[value - 1].min;
                 var max = snapInfo[value - 1].max;
 
@@ -268,8 +305,8 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id){
                     var color = that.renderableDatas[that.currentRenderableDataId].pointCloud.geometry.attributes.color;
                     for (var i = 0; i < color.length / 3; i++) {
                         r = Math.abs(snapInfo[value - 1].value[i] - min) / Math.abs(max - min);
-                        g = 1 - r;
-                        b = 0;
+                        g = 0;
+                        b = 1 - r;
 
                         color.array[3 * i] = r;
                         color.array[3 * i + 1] = g;
@@ -277,22 +314,37 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id){
                     }
                     color.needsUpdate = true;
                 }
-            }else{
-                if(that.currentRenderableDataId >= 0) {
-                    r = that.renderableDatas[that.currentRenderableDataId].defaultColor[0]/255;
-                    g = that.renderableDatas[that.currentRenderableDataId].defaultColor[1]/255;
-                    b = that.renderableDatas[that.currentRenderableDataId].defaultColor[2]/255;
+            } else {
+                if (that.currentRenderableDataId >= 0) {
+                    r = that.renderableDatas[that.currentRenderableDataId].defaultColor[0] / 255;
+                    g = that.renderableDatas[that.currentRenderableDataId].defaultColor[1] / 255;
+                    b = that.renderableDatas[that.currentRenderableDataId].defaultColor[2] / 255;
                     color = that.renderableDatas[that.currentRenderableDataId].pointCloud.geometry.attributes.color;
-                    for(i = 0; i < color.length/3;i++){
-                        color.array[3*i] = r;
-                        color.array[3*i + 1] = g;
-                        color.array[3*i + 2] = b;
+                    for (i = 0; i < color.length / 3; i++) {
+                        color.array[3 * i] = r;
+                        color.array[3 * i + 1] = g;
+                        color.array[3 * i + 2] = b;
                     }
                     color.needsUpdate = true;
                 }
             }
         })
     }
+};
+/**
+ * @description set the id of the current renderable data
+ * @detail update the ui to match the new current renderable data
+ * @param id
+ */
+SIMU.View.prototype.setCurrentRenderableDataId = function(id) {
+    this.currentRenderableDataId = id;
+    this.parameters.active = this.renderableDatas[this.currentRenderableDataId].isActive;
+    this.parameters.pointsize = this.renderableDatas[this.currentRenderableDataId].uniforms.size.value;
+    this.parameters.color = this.renderableDatas[this.currentRenderableDataId].defaultColor;
+    this.parameters.idTexture = this.renderableDatas[this.currentRenderableDataId].idTexture;
+    this.parameters.idBlending = this.renderableDatas[this.currentRenderableDataId].idBlending;
+
+    this.updateUIinfoList();
 };
 
 /**
@@ -382,6 +434,9 @@ SIMU.View.prototype.render = function(){
     this.stats.update();
 };
 
+/**
+ * @description Stop the current rendering loop
+ */
 SIMU.View.prototype.stopRender = function(){
     cancelAnimationFrame(this.renderId);
 };
@@ -435,6 +490,13 @@ SIMU.View.prototype.onWindowResize = function(){
     }*/
 };
 
+/**
+ * @description resize and adjust the view in order to render the scene properly
+ * @param width
+ * @param height
+ * @param left
+ * @param top
+ */
 SIMU.View.prototype.resize = function(width, height, left, top){
     this.width = width;
     this.height = height;
@@ -444,8 +506,8 @@ SIMU.View.prototype.resize = function(width, height, left, top){
     this.domElement.style.width = width + 'px';
     this.domElement.style.height = height + 'px';
 
-    this.camera.aspect = this.width / this.height;
-    this.camera.updateProjectionMatrix();
+    this.privateCamera.aspect = this.width / this.height;
+    this.privateCamera.updateProjectionMatrix();
 
     this.renderer.setSize( this.width, this.height );
     /*if ( this.currentDisplay == this.DisplayType.CARDBOARD )
@@ -454,6 +516,11 @@ SIMU.View.prototype.resize = function(width, height, left, top){
     }*/
 };
 
+/**
+ * @description Try to get the particle which is pointed by the mouse
+ * @detail If found, the point get colored, and information on it is displayed
+ * @param event
+ */
 SIMU.View.prototype.getMouseIntersection = function(event){
 
     var mouse = new THREE.Vector2(
@@ -476,9 +543,16 @@ SIMU.View.prototype.getMouseIntersection = function(event){
         negate(target.renderableData.pointCloud.geometry.attributes.color, target.index);
         this.showInfo(target);
     }
+    if(this.target) {
+        negate(this.target.renderableData.pointCloud.geometry.attributes.color, this.target.index);
+    }
     this.target = target;
 };
 
+/**
+ * @description Start to move the camera to reach the selected point
+ * @detail Takes an average of 1s, with no camera interaction enabled during this time
+ */
 SIMU.View.prototype.reachMouseFocus = function(){
     if(this.target) {
         var x = this.target.renderableData.pointCloud.geometry.attributes.position.array[this.target.index * 3];
@@ -493,7 +567,7 @@ SIMU.View.prototype.reachMouseFocus = function(){
 };
 
 /**
- *
+ * @description display information about the selected point
  */
 SIMU.View.prototype.showInfo = function(point){
     var infos = point.renderableData.data.snapshots[point.renderableData.data.currentSnapshotId].info;
@@ -514,6 +588,10 @@ SIMU.View.prototype.showInfo = function(point){
     this.info.innerHTML = result.join('');
 };
 
+/**
+ * @description Set the camera in order to control it as in a FPS
+ * @param view
+ */
 THREE.PerspectiveCamera.prototype.useFPSControls = function(view){
     if(this.controls){
         this.controls.enabled = false;
@@ -526,19 +604,6 @@ THREE.PerspectiveCamera.prototype.useFPSControls = function(view){
     this.controls = this.fpControls;
     this.controls.enabled = true;
 };
-
-THREE.PerspectiveCamera.prototype.useOrbitControls = function(view){
-    if(this.controls){
-        this.controls.enabled = false;
-    }
-    if(!this.orbitControls)
-    {
-        this.orbitControls = new THREE.OrbitControls(this, view.renderer.domElement);
-    }
-    this.controls = this.orbitControls;
-    this.controls.enabled = true;
-};
-
 
 
 

@@ -57,7 +57,7 @@ SIMU.Data.prototype.computePositions = function(){
     //linear interpolation between two snapshots
     var length = this.currentPositionArray.length / 3;
     var i;
-    if(this.snapshots[this.currentSnapshotId].directionIsSet) {
+    if(this.currentSnapshotId < (this.nbSnapShot - 1) &&  this.snapshots[this.currentSnapshotId].directionIsSet) {
         for (i = 0; i < length; i++) {
             this.currentPositionArray[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
             this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
@@ -69,6 +69,7 @@ SIMU.Data.prototype.computePositions = function(){
             this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1];
             this.currentPositionArray[i * 3 + 2] = this.currentDeparture[i * 3 + 2];
         }
+        console.log("Pas de destination !");
     }
 
     document.body.style.cursor = 'crosshair';
