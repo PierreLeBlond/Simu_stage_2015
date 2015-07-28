@@ -204,8 +204,6 @@ SIMU.Simu.prototype.switchToMultiview = function()
     this.showUI();
     this.render();
 
-    /*this.timeline = new SIMU.Timeline();
-    this.timeline.addSnapEventOnHTML('click', 'addSnap');*/
 };
 
 /**
@@ -214,6 +212,12 @@ SIMU.Simu.prototype.switchToMultiview = function()
 SIMU.Simu.prototype.setupGui = function(){
 
     var that = this;
+
+    /* Création de la timeline */
+    this.timeline = new SIMU.Timeline();
+
+    /* Ajout de l'événement de calcul de la position du curseur lors du relâchement de la souris au DOM */
+    document.addEventListener('mouseup', this.lookForNewCurrentSnapshot.bind(this), false);
 
     this.gui = new dat.GUI();
 
@@ -267,6 +271,7 @@ SIMU.Simu.prototype.setupGui = function(){
 SIMU.Simu.prototype.hideUI = function(){
     document.getElementById('data_manager').style.display = "none";
     this.gui.domElement.style.display = "none";
+    this.timeline.html.style.display = "none";
 };
 
 /**
@@ -275,6 +280,7 @@ SIMU.Simu.prototype.hideUI = function(){
 SIMU.Simu.prototype.showUI = function(){
     document.getElementById('data_manager').style.display = "block";
     this.gui.domElement.style.display = "block";
+    this.timeline.html.style.display = "initial";
 };
 
 /**
@@ -450,6 +456,7 @@ SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
 SIMU.Simu.prototype.changeCurrentSnapshot = function(event){
     this.setUICurrentSnapshot(event.target.id);
     this.setCurrentSnapshotId(event.target.id);
+    this.timeline.changeCurrentSnapshot(this.timeline.getSnapById(event.target.id));
 };
 
 /**
@@ -521,6 +528,12 @@ SIMU.Simu.prototype.addRow = function(){
         //add Snap
         this.addSnapshot();
 
+        /* Ajout du snapshot à la timeline */
+        this.timeline.addSnapshot();
+
+        /* Ajout de l'événement de mise à jour du snapshot sélectionné au clic de souris sur le snapshot */
+        this.timeline.snapshots[id-1].html.addEventListener('click', this.changeCurrentSnapshot.bind(this), false);
+
         //Set new Snap as current
         this.setUICurrentSnapshot(id - 1);
         this.setCurrentSnapshotId(id - 1);
@@ -569,6 +582,9 @@ SIMU.Simu.prototype.browse = function(event){
 
     this.setUICurrentSnapshot(id[0] - 1);
     this.setCurrentSnapshotId(id[0] - 1);
+
+    /* Mise à jour de la timeline */
+    this.timeline.changeCurrentSnapshot(this.timeline.getSnapById(id[0] -1));
 
     document.getElementById('files').click(event);
 
@@ -673,3 +689,34 @@ SIMU.Simu.prototype.onKeyDown = function(event){
             break;
     }
 };
+
+/* Fonction lookForNewCurrentSnapshot
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but de calculer la position du curseur, de la comparer aux positions des snapshots et de sélectionner un snapshot si le curseur est suffisamment proche.
+ */
+SIMU.Simu.prototype.lookForNewCurrentSnapshot = function()
+{
+    /* Si l'événement est bien appelé après le déplacement du curseur, on calcule la position */
+    if (this.timeline.cursor.positionHasToBeComputed)
+    {
+        /* Boucle sur les objets Snapshot2 du tableau snapshots */
+        for (var i = 0; i < this.timeline.nbSnapshots; i++)
+        {
+            /* Si le curseur se situe dans un intervalle ]-10, +10[ autour du snapshot, on sélectionne ce snapshot */
+            if (this.timeline.cursor.getOffset() + 10 > this.timeline.snapshots[i].getOffset() - 10
+                && this.timeline.cursor.getOffset() + 10 < this.timeline.snapshots[i].getOffset() + 10)
+            {
+                //Set new Snap as current
+                this.setUICurrentSnapshot(i);
+                this.setCurrentSnapshotId(i);
+
+                /* Mise à jour de la timeline */
+                this.timeline.changeCurrentSnapshot(this.timeline.snapshots[i]);
+            }
+        }
+        this.timeline.cursor.positionHasToBeComputed = false;
+    }
+}
