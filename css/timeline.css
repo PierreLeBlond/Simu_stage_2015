@@ -1,7 +1,7 @@
 /* Style de la timeline, des breakpoints et du curseur */
 
 #timeline {
-    display:table;
+    display: table;
     list-style: none;
     position:absolute;
     width: 20%;
@@ -72,8 +72,8 @@
 .snapshot {
     display: table-cell;
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 10px;
+    height: 14px;
     cursor: pointer;
 }
 
