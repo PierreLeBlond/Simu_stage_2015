@@ -202,11 +202,24 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
         var test = 0;
         var isInside = false;
 
+        //console.log(camera.frustum);
+
         /*for(var i = 0; i < 6; i++){
 
 
 
          }*/
+
+        var points = [new THREE.Vector3(xMin, yMin, zMin),
+            new THREE.Vector3(xMin, yMin, zMax),
+            new THREE.Vector3(xMin, yMax, zMin),
+            new THREE.Vector3(xMin, yMax, zMax),
+            new THREE.Vector3(xMax, yMin, zMin),
+            new THREE.Vector3(xMax, yMin, zMax),
+            new THREE.Vector3(xMax, yMax, zMin),
+            new THREE.Vector3(xMax, yMax, zMax)
+        ];
+
         function testVertice(pos){
             var result = pos.project(camera);
 
@@ -216,23 +229,68 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             return 0;
         }
 
-        //First test if camera is inside the box
-        if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
-            isInside = true;
-        }else{
-            test += testVertice(new THREE.Vector3(xMin, yMin, zMin));
-            test += testVertice(new THREE.Vector3(xMax, yMin, zMax));
-            test += testVertice(new THREE.Vector3(xMin, yMax, zMin));
-            test += testVertice(new THREE.Vector3(xMax, yMax, zMax));
-            test += testVertice(new THREE.Vector3(xMin, yMax, zMax));
-            test += testVertice(new THREE.Vector3(xMax, yMin, zMin));
-            test += testVertice(new THREE.Vector3(xMin, yMin, zMax));
-            test += testVertice(new THREE.Vector3(xMax, yMax, zMin));
+        function testBoxVsPlane(p){
+            var nb = 0;
+            for(i = 0; i < 8; i++){
+                var m = p.normal.dot(points[i]);
+                if(m <= -p.constant){
+                    nb++;
+                }
+            }
+            return nb;
+        }
+
+        function testBoxVsFrustum(){
+            var nb = 0;
+            var partial = false;
+            var i = 0;
+            while(i < 6 && nb != 8){
+                nb = testBoxVsPlane(camera.frustum.planes[i]);
+                if(nb > 0 && nb < 8){
+                    partial = true;
+                }
+                i++;
+            }
+            if(i == 6){
+                if(partial){
+                    return 1;//partial
+                }else{
+                    return 2;//inside
+                }
+            }else{
+                return 0;//outside
+            }
         }
 
 
 
-        if(isInside || (test > 0 && test < 8)){//partially inside
+        //First test if camera is inside the box
+        /*if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
+            isInside = true;
+        }else{
+            for(i = 0; i < 8;i++){
+                test += testVerticeVsFrustum(points[i]);
+            }
+        }*/
+
+
+        test = testBoxVsFrustum();
+        console.log(test);
+        if(test == 1){
+            if(octree.hasChild) {
+                for (var i = 0; i < octree.child.length; i++) {
+                    cullFromFrustum(octree.child[i]);
+                }
+            }else{
+                that.drawCalls.push({start : octree.start, count : octree.count});
+            }
+        }else if(test == 2){
+            that.drawCalls.push({start : octree.start, count : octree.count});
+        }
+
+
+
+        /*if(isInside || (test > 0 && test < 8)){//partially inside
             if(octree.hasChild) {
                 for (var i = 0; i < octree.child.length; i++) {
                     cullFromFrustum(octree.child[i]);
@@ -242,7 +300,7 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             }
         }else if(test == 8){
             that.drawCalls.push({start : octree.start, count : octree.count});
-        }
+        }*/
 
     }
 
@@ -255,7 +313,7 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 };
 
 /**
- * @description Search for intersection between the mouse anbd the PointCloud
+ * @description Search for intersection between the mouse and the PointCloud
  * @param mouse
  * @param camera
  * @returns {*} An object with info about the intersected point
