@@ -372,6 +372,7 @@ SIMU.View.prototype.setAnimatedShaderMode = function(){
     this.parameters.isStatic = false;
     for(var i = 0; i < this.renderableDatas.length;i++){
         if(this.renderableDatas[i].isActive) {
+            //First remove element from the scene, in order to take the modification in account when we'll put it back
             this.scene.remove(this.renderableDatas[i].pointCloud);
             this.renderableDatas[i].enableAnimatedShaderMode();
             this.scene.add(this.renderableDatas[i].pointCloud);
