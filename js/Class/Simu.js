@@ -226,6 +226,7 @@ SIMU.Simu.prototype.setupGui = function(){
     var animationFolder = this.gui.addFolder('Animation');
 
     animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(function(value){
+        //Question : Does onFinishChange is trigger by the listen() ?
         var i;
         for (i = 0; i < that.views.length; i++) {
             that.views[i].setTime(value);
@@ -235,7 +236,9 @@ SIMU.Simu.prototype.setupGui = function(){
         }
         if(!that.parameters.play){
             for (i = 0; i < that.datas.length; i++) {
-                that.datas[i].computePositions();
+                if(that.datas[i].isReady) {
+                    that.datas[i].computePositions();
+                }
             }
             for (i = 0; i < that.views.length; i++) {
                 that.views[i].dataHasChanged();
