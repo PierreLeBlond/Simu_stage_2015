@@ -111,6 +111,30 @@ SIMU.Simu.prototype.setupSimu = function(){
     this.menu.displayMenu();
 };
 
+SIMU.Simu.prototype.addView = function(){
+    var view = new SIMU.View();
+    view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
+    view.setupScene();
+    view.setupGui();
+    view.texture = this.texture;
+    view.domElement.addEventListener('click', this.focus.bind(this), false);
+
+    for(var i = 0; i < this.datas.length;i++) {
+        var renderableData = new SIMU.RenderableData();
+        renderableData.setData(this.datas[i]);
+        view.addRenderableData(renderableData);
+    }
+
+    if(this.currentDataId >= 0) {
+        view.setCurrentRenderableDataId(this.currentDataId);
+    }
+    if(this.currentSnapshotId >= 0){
+        view.setCurrentRenderableSnapshotId(this.currentSnapshotId);
+    }
+
+    this.views.push(view);
+};
+
 /**
  * @description Enter simple view mode
  */
@@ -124,13 +148,7 @@ SIMU.Simu.prototype.switchToSingleview = function(){
     this.globalCamera.updateProjectionMatrix();
 
     if(this.views.length == 0){
-        var view = new SIMU.View();
-        view.setupView(0, 0, window.innerWidth, window.innerHeight);
-        view.setupScene();
-        view.setupGui();
-        view.texture = this.texture;
-        view.domElement.addEventListener('click', this.focus.bind(this), false);
-        this.views.push(view);
+        this.addView();
     }
     this.currentView = this.views[0];
     this.currentView.domElement.id = 0;
@@ -164,22 +182,10 @@ SIMU.Simu.prototype.switchToMultiview = function()
     this.globalCamera.updateProjectionMatrix();
 
     if(this.views.length == 0){
-        var view = new SIMU.View();
-        view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
-        view.setupScene();
-        view.setupGui();
-        view.texture = this.texture;
-        view.domElement.addEventListener('click', this.focus.bind(this), false);
-        this.views.push(view);
+        this.addView();
     }
     if(this.views.length == 1){
-        view = new SIMU.View();
-        view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
-        view.setupScene();
-        view.setupGui();
-        view.texture = this.texture;
-        view.domElement.addEventListener('click', this.focus.bind(this), false);
-        this.views.push(view);
+        this.addView();
     }
 
     this.currentView = this.views[0];

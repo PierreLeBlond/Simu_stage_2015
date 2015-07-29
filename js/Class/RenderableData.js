@@ -23,10 +23,13 @@ SIMU.RenderableData = function(){
     this.fogIsEnabled                       = false;
 
     this.drawCalls                          = [];
+    this.levelOfDetail                      = 4;
 
     this.defaultColor                       = [255, 255, 255];
     this.idTexture                          = 0;
     this.idBlending                         = 1;
+
+    this.clock                              = new THREE.Clock();
 
     this.animatedAttributes                 = {
         endPosition:    {type: 'v3', value: []},
@@ -39,6 +42,7 @@ SIMU.RenderableData = function(){
 
     this.uniforms                           = {
         t:              { type: 'f', value: 0.001},
+        current_time:   { type: 'f', value: 60.0},
         size:           { type: 'f', value: 0.5},
         fog:            { type: 'f', value: 0.9},
         fogDistance:    { type: 'f', value: 3.4},
@@ -348,6 +352,11 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
     this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start:0, count:0}];
     for(var i = 0; i < this.drawCalls.length;i++){
         this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
+        /*for(var j = 0; j < this.levelOfDetail;j++) {
+            var start = this.drawCalls[i].start/4 + j*this.data.snapshots[this.data.currentSnapshotId].index.length;
+            var count = this.drawCalls[i].count/4;
+            this.pointCloud.geometry.addDrawCall(start, count, start);
+        }*/
     }
 
 };

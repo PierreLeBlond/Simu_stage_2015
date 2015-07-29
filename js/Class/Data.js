@@ -244,6 +244,9 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     snap.index = event.data.index;
                     snap.octree = event.data.octree;
 
+                    //Get new indexation according to LevelOfDetail
+                    //snap.index = that.computeLevelOfDetail(4, snap.index);
+
                     var position = new Float32Array(snap.position.length);
 
                     for(var j = 0; j < snap.info.length;j++){
@@ -446,4 +449,17 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
     }
     document.getElementById('fileLoadingProgress').value += 50/this.nbFiles;
     callback(); //Let's notify async that we are done here
+};
+
+SIMU.Data.prototype.computeLevelOfDetail = function(levelOfDetail, indexArray){
+    var length = indexArray.length;
+    var index = new Float32Array(length);
+
+    var loop = length/levelOfDetail;
+    for(var i = 0; i < loop;i++){
+        for(var j = 0; j < levelOfDetail;j++){
+            index[i + j*loop] = indexArray[i*levelOfDetail + j];
+        }
+    }
+    return index;
 };
