@@ -118,6 +118,8 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         this.privateCamera.useFPSControls(this);
         this.camera = this.privateCamera;
 
+        this.camera.frustum = new THREE.Frustum();
+
         this.resize(width, height, left, top);
 
         //Events listener
@@ -410,12 +412,15 @@ SIMU.View.prototype.animate = function(){
             this.camera.isNotFree = false;
         }
     }
-    this.camera.updateMatrix();
-    this.camera.updateMatrixWorld();
-    this.camera.matrixWorldInverse.getInverse(this.camera.matrixWorld);
 
-    this.camera.frustum = new THREE.Frustum();
-    this.camera.frustum.setFromMatrix(new THREE.Matrix4().multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse));
+    //TODO Update frustum only if camera has changed
+    if(this.parameters.frustumculling) {
+        this.camera.updateMatrix();
+        this.camera.updateMatrixWorld();
+        this.camera.matrixWorldInverse.getInverse(this.camera.matrixWorld);
+
+        this.camera.frustum.setFromMatrix(new THREE.Matrix4().multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse));
+    }
 };
 
 /**

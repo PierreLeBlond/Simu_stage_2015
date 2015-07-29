@@ -229,6 +229,46 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             return 0;
         }
 
+        function testBoxVsPlaneFast(p){
+            //TODO just test n-vertex & p-vertex
+            var nb = 0;
+            var id = (p.normal.x > 0 ? 0 : 1)*4 + (p.normal.y > 0 ? 0 : 1)*2 + (p.normal.z > 0 ? 0 : 1);
+            var n_vertex = points[id];
+            var p_vertex = points[7 - id];
+            var m = p.normal.dot(n_vertex);
+            if(m <= -p.constant){
+                nb++;
+            }
+            m = p.normal.dot(p_vertex);
+            if(m <= -p.constant){
+                nb++;
+            }
+            return nb;
+        }
+
+        function testBoxVsFrustumFast(){
+            var nb = 0;
+            var partial = false;
+            var i = 0;
+            //TODO use plane coherency
+            while(i < 6 && nb != 2){
+                nb = testBoxVsPlaneFast(camera.frustum.planes[i]);
+                if(nb > 0 && nb < 2){
+                    partial = true;
+                }
+                i++;
+            }
+            if(i == 6){
+                if(partial){
+                    return 1;//partial
+                }else{
+                    return 2;//inside
+                }
+            }else{
+                return 0;//outside
+            }
+        }
+
         function testBoxVsPlane(p){
             var nb = 0;
             for(i = 0; i < 8; i++){
@@ -266,16 +306,16 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
         //First test if camera is inside the box
         /*if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
-            isInside = true;
-        }else{
-            for(i = 0; i < 8;i++){
-                test += testVerticeVsFrustum(points[i]);
-            }
-        }*/
+         isInside = true;
+         }else{
+         for(i = 0; i < 8;i++){
+         test += testVerticeVsFrustum(points[i]);
+         }
+         }*/
 
 
-        test = testBoxVsFrustum();
-        console.log(test);
+        test = testBoxVsFrustumFast();
+        //console.log(test);
         if(test == 1){
             if(octree.hasChild) {
                 for (var i = 0; i < octree.child.length; i++) {
@@ -291,16 +331,16 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
 
         /*if(isInside || (test > 0 && test < 8)){//partially inside
-            if(octree.hasChild) {
-                for (var i = 0; i < octree.child.length; i++) {
-                    cullFromFrustum(octree.child[i]);
-                }
-            }else{
-                that.drawCalls.push({start : octree.start, count : octree.count});
-            }
-        }else if(test == 8){
-            that.drawCalls.push({start : octree.start, count : octree.count});
-        }*/
+         if(octree.hasChild) {
+         for (var i = 0; i < octree.child.length; i++) {
+         cullFromFrustum(octree.child[i]);
+         }
+         }else{
+         that.drawCalls.push({start : octree.start, count : octree.count});
+         }
+         }else if(test == 8){
+         that.drawCalls.push({start : octree.start, count : octree.count});
+         }*/
 
     }
 
