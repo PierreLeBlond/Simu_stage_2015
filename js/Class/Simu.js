@@ -217,7 +217,7 @@ SIMU.Simu.prototype.setupGui = function(){
     this.timeline = new SIMU.Timeline();
 
     /* Ajout de l'événement de calcul de la position du curseur lors du relâchement de la souris au DOM */
-    document.addEventListener('mouseup', this.lookForNewCurrentSnapshot.bind(this), false);
+    document.addEventListener('mouseup', this.updateTimeline.bind(this), false);
 
     this.gui = new dat.GUI();
 
@@ -297,6 +297,8 @@ SIMU.Simu.prototype.animate = function(){
             this.setUICurrentSnapshot(this.currentSnapshotId);
             this.setCurrentSnapshotId(this.currentSnapshotId);
 
+            this.timeline.changeCurrentSnapshot(this.currentSnapshotId);
+
             if (this.currentSnapshotId >= this.info.nbSnapShot - 1) {
                 this.parameters.play = false;
             }
@@ -309,6 +311,8 @@ SIMU.Simu.prototype.animate = function(){
         for (i = 0; i < this.datas.length; i++) {
             this.datas[i].setTime(this.parameters.t);
         }
+
+        this.timeline.animate(this.parameters.t);
     }
 };
 
@@ -451,7 +455,8 @@ SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
 SIMU.Simu.prototype.changeCurrentSnapshot = function(event){
     this.setUICurrentSnapshot(event.target.id);
     this.setCurrentSnapshotId(event.target.id);
-    this.timeline.changeCurrentSnapshot(this.timeline.getSnapById(event.target.id));
+    this.timeline.changeCurrentSnapshot(event.target.id);
+    // this.parameters.t = 0.0001;
 };
 
 /**
@@ -575,7 +580,7 @@ SIMU.Simu.prototype.browse = function(event){
     this.setCurrentSnapshotId(id[0] - 1);
 
     /* Mise à jour de la timeline */
-    this.timeline.changeCurrentSnapshot(this.timeline.getSnapById(id[0] -1));
+    this.timeline.changeCurrentSnapshot(id[0] -1);
 
     document.getElementById('files').click(event);
 
@@ -641,7 +646,7 @@ SIMU.Simu.prototype.onKeyDown = function(event){
                 }
             }
             break;
-        case 27 :
+        case 27 :       // Echap
             if(this.menu.isDisplayed){
                 for(i = 0; i < this.views.length;i++){
                     if(this.views[i].isShown){
@@ -667,22 +672,66 @@ SIMU.Simu.prototype.onKeyDown = function(event){
     }
 };
 
-/* Fonction lookForNewCurrentSnapshot
+/* Fonction updateTimeline
  *
  * Paramètres : null
  * Retourne : null
  *
  * Cette fonction a pour but de calculer la position du curseur, de la comparer aux positions des snapshots et de sélectionner un snapshot si le curseur est suffisamment proche.
  */
-SIMU.Simu.prototype.lookForNewCurrentSnapshot = function()
+SIMU.Simu.prototype.updateTimeline = function()
 {
     /* Si l'événement est bien appelé après le déplacement du curseur, on calcule la position */
     if (this.timeline.cursor.positionHasToBeComputed)
     {
-        /* Boucle sur les objets Snapshot2 du tableau snapshots */
+        // 1 : Chercher le snapshot le plus proche
+        // 2 : Déterminer s'il faut déplacer le curseur dessus ou non // Useless
+        // 3 : Si non, calculer le temps.
+        // 4 : Créer et appeler une fonction générique pour maj les datas.
+
+        var id = this.timeline.lookForCurrentSnapshot();
+
+        //Set new Snap as current
+        this.setUICurrentSnapshot(id);
+        this.setCurrentSnapshotId(id);
+        this.timeline.setCurrentSnapshotId(id);
+
+        this.parameters.t = (this.timeline.cursor.getOffset() + 10 - Math.floor(id * this.timeline.interval)) / this.timeline.interval;
+
+        for ( var i = 0; i < this.views.length; i++) {
+            this.views[i].setTime(this.parameters.t);
+        }
+        for (i = 0; i < this.datas.length; i++) {
+            this.datas[i].setTime(this.parameters.t);
+        }
+        if(!this.parameters.play){
+            for (i = 0; i < this.datas.length; i++) {
+                if (this.datas[i].isReady) {
+                    this.datas[i].computePositions();
+                }
+            }
+            for (i = 0; i < this.views.length; i++) {
+                this.views[i].dataHasChanged();
+            }
+        }
+
+/*
+        var isComputingNecessary = true;
+
+        for (var i = id; i < id+2; i++)
+        {
+            isComputingNecessary = this.timeline.changeCurrentSnapshotIfNeeded(i);
+        }
+
+        if (isComputingNecessary)
+        {
+            // Compute cursor position with time
+        }
+
+        /* Boucle sur les objets Snapshot2 du tableau snapshots
         for (var i = 0; i < this.timeline.nbSnapshots; i++)
         {
-            /* Si le curseur se situe dans un intervalle ]-10, +10[ autour du snapshot, on sélectionne ce snapshot */
+            /* Si le curseur se situe dans un intervalle ]-10, +10[ autour du snapshot, on sélectionne ce snapshot
             if (this.timeline.cursor.getOffset() + 10 > this.timeline.snapshots[i].getOffset() - 10
                 && this.timeline.cursor.getOffset() + 10 < this.timeline.snapshots[i].getOffset() + 10)
             {
@@ -690,10 +739,11 @@ SIMU.Simu.prototype.lookForNewCurrentSnapshot = function()
                 this.setUICurrentSnapshot(i);
                 this.setCurrentSnapshotId(i);
 
-                /* Mise à jour de la timeline */
-                this.timeline.changeCurrentSnapshot(this.timeline.snapshots[i]);
+                /* Mise à jour de la timeline
+                this.timeline.changeCurrentSnapshot(i);
             }
         }
+*/
         this.timeline.cursor.positionHasToBeComputed = false;
     }
 }

@@ -13,6 +13,7 @@ var SIMU = SIMU || {};
 *  currentSnapshot          : entier correspondant à l'id du snapshot actuellement sélectionné
 *  html                     : élement HTML correspondant à la timeline qui englobe également le curseur et les différents snapshots
 *  cursor                   : objet correspondant au curseur de la timeline
+*  interval                 : réel correspondant au nombre de pixels entre chaque snapshot sur la timeline
 *
 *  La classe Timeline a pour but de gérer les différents événements menant à changer son aspect visuel :
 *  - L'ajout d'un snapshot
@@ -33,6 +34,7 @@ SIMU.Timeline = function()
     this.currentSnapshot    = 'undefined';
     this.html               = document.getElementById('timeline');
     this.cursor             = new SIMU.Cursor();
+    this.interval           = 0;
 }
 
 /* Fonction addSnapshot
@@ -73,7 +75,6 @@ SIMU.Timeline.prototype.addSnapshot = function()
     /* Ajout de l'événement de suppression de snapshot au clic droit de la souris sur un snapshot */
     var that = this;
     snapshot.html.addEventListener('contextmenu', function(e) { that.removeSnapshot(e, snapshot); }, false);
-    //snapshot.html.addEventListener('click', function() { that.changeCurrentSnapshot(snapshot); }, false);
 
     // Repositionnement du curseur sur le nouveau snapshot automatiquement sélectionné */
     this.moveCursorOnSnapshot(snapshot);
@@ -91,6 +92,7 @@ SIMU.Timeline.prototype.addSnapshot = function()
 *  Retourne : null
 *
 *  Cette fonction a pour but de calculer la nouvelle position des snapshots en fonction de leur nombre.
+*  Elle s'occupera également de mettre à jour l'attribut intervald e la timeline.
 */
 SIMU.Timeline.prototype.replaceSnapshots = function()
 {
@@ -103,6 +105,7 @@ SIMU.Timeline.prototype.replaceSnapshots = function()
             break;
         default:            // Au moins deux snapshots, on calcule le pas entre chaque snapshot et on appelle replaceSnapshot pour chacun d'entre eux.
             var step = 100 / (this.nbSnapshots - 1);
+            this.setInterval(step);
             for (var i = 0; i < this.nbSnapshots; i++)
             {
                 this.replaceSnapshot(i, step);
@@ -143,6 +146,7 @@ SIMU.Timeline.prototype.replaceSnapshot = function(i, step)
 *
 *  TODO : Le test de current Snapshot est-il toujours pertinent ?
 *  TODO : Est-ce que chaque partie de cette fonction ne devrait pas être une fonction en soi ?
+*  TODO : Suppression de cette fonction si jamais utilisée.
  */
 SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
 {
@@ -210,28 +214,40 @@ SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
 *  Retourne : null
 *
 *  Cette fonction a pour but de déplacer le curseur sur le snapshot renseigné.
-*  Elle permettra également de mettre à jour le snapshot actuellement sélectionné.
  */
 SIMU.Timeline.prototype.moveCursorOnSnapshot = function(snap)
 {
     this.cursor.setOffset(snap.getOffset() - 10);
-    this.currentSnapshot = snap.getIdNumber();
+}
+
+/* Fonction setCurrentSnapshotId
+ *
+ * Paramètres :
+ *  id      : entier correspondant à l'identifiant du snapshot à sélectionner
+ *
+ * Retourne : null
+ *
+ * Cette fonction a pour but de mettre à jour le snapshot actuellement sélectionné.
+ */
+SIMU.Timeline.prototype.setCurrentSnapshotId = function(id)
+{
+    this.currentSnapshot = id;
 }
 
 /* Fonction changeCurrentSnapshot
  *
  * Paramètres :
- *  snap    : objet Snapshot2 correspondant au nouveau snapshot actuellement sélectionné
+ *  id      : entier correspondant à l'identifiant du snapshot à sélectionner.
  *
  * Retourne : null
  *
- * Cette fonciton a pour but de mettre à jour le snapshot actuellement sélectionné tout en déplacant le curseur sur celui-ci.
- *
- * TODO : Redondance avec la fonciton moveCursorOnSnapshot, plutôt créer deux fonctions indépendantes.
+ * Cette fonction a pour but de mettre à jour le snapshot actuellement sélectionné tout en déplacant le curseur sur celui-ci.
  */
-SIMU.Timeline.prototype.changeCurrentSnapshot = function(snap)
+SIMU.Timeline.prototype.changeCurrentSnapshot = function(id)
 {
+    var snap = this.getSnapById(id);
     this.moveCursorOnSnapshot(snap);
+    this.setCurrentSnapshotId(id);
 }
 
 /* Fonction getSnapById
@@ -248,15 +264,61 @@ SIMU.Timeline.prototype.getSnapById = function(id)
     return this.snapshots[id];
 }
 
-SIMU.Timeline.prototype.computeTime = function()
+/* Fonction animate
+ *
+ * Paramètres :
+ *  t       : réel correspondant au temps écoulé entre deux snapshots.
+ *
+ * Retourne : null
+ *
+ * Cette fonction a pour but de calculer et de mettre à jour la position du curseur en fonction du temps lors de l'animation.
+ */
+SIMU.Timeline.prototype.animate = function(t)
 {
-    for (var i = 0; i < this.nbSnapshots; i++)
+    var position = t * this.interval;
+
+    this.cursor.setOffset(this.getSnapById(this.currentSnapshot).getOffset() + position -10);
+}
+
+/* Fonction setInterval
+ *
+ * Paramètres :
+ *  step    : réel correspondant au pourcentage de la timeline entre chaque snapshot
+ *
+ * Retourne : null
+ *
+ * Cette fonction a pour but de mettre à jour l'intervalle en pixels entre chaque snapshot en fonction du pas en pourcentage entre ceux-ci.
+ */
+SIMU.Timeline.prototype.setInterval = function(step)
+{
+    this.interval = ( step * this.html.offsetWidth ) / 100;
+}
+
+// TODO : Comment
+SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
+{
+    var result = -1;
+
+    var cursorPosition = this.cursor.getOffset() + 10;
+
+    if ( cursorPosition == Math.floor((this.nbSnapshots - 1) * this.interval))
     {
-        if (this.cursor.getOffset() > this.snapshots[i].getOffset() - 10 && this.cursor.getOffset() < this.snapshots[i].getOffset())
+        result = this.nbSnapshots - 1;
+    }
+    else
+    {
+        for (var i = 0; i < this.nbSnapshots - 1; i++)
         {
-            this.changeCurrentSnapshot(this.snapshots[i]);
+            var snapPosition = Math.floor(i*this.interval);
+
+            if (cursorPosition >= snapPosition)
+            {
+                result = i;
+            }
         }
     }
+
+    return result;
 }
 
 /* Classe Cursor
