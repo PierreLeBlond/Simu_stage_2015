@@ -1,8 +1,18 @@
 /**
  * Created by lespingal on 10/07/15.
+ * @description Welcome to Class renderableData. Each instance of this class ougth to be link to an instance of Class Data
+ * If Data is just a way of storing buffer and information, RenderableData use THREE.js to provide an PointCloud based on the data
+ * We can then display the data onto views, i.e. on the screen
+ *
+ * Each views have a RenderableData for each Data living in the application, so these RenderableData share the same data
+ * It let us display the same data in different ways, such as color or point size.
  */
 var SIMU = SIMU || {};
 
+/**
+ *
+ * @constructor
+ */
 SIMU.RenderableData = function(){
     this.data                               = null;
     this.pointCloud                         = null;
@@ -92,6 +102,11 @@ SIMU.RenderableData = function(){
 
 };
 
+/**
+ * @description Bind a Data object to this RenderableData
+ * @detail data can be empty for the moment
+ * @param data
+ */
 SIMU.RenderableData.prototype.setData = function(data){
     this.data = data;
 
@@ -116,6 +131,9 @@ SIMU.RenderableData.prototype.setData = function(data){
     }
 };
 
+/**
+ * @description When the bind data is already loaded, reset the display attributes to see the new change on the screen
+ */
 SIMU.RenderableData.prototype.resetData = function(){
     if(this.data.isReady) {
         this.staticBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentPositionArray, 3);
@@ -136,6 +154,9 @@ SIMU.RenderableData.prototype.resetData = function(){
     }
 };
 
+/**
+ * @description Set the PointCloud in animated mode, i.e. with the position being compute within the shader (GPU)
+ */
 SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
     this.pointCloud = null;
     if(this.fogIsEnabled){
@@ -145,6 +166,9 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
     }
 };
 
+/**
+ * @description Set the PointCloud in static mode, i.e. with the position being compute within the CPU
+ */
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
     this.pointCloud = null;
     if(this.fogIsEnabled){
@@ -154,6 +178,10 @@ SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
     }
 };
 
+/**
+ * @description Compute the frustum culling, by change the PointCloud draw-calls
+ * @param camera
+ */
 SIMU.RenderableData.prototype.computeCulling = function(camera){
 
     this.drawCalls = [];
@@ -170,14 +198,28 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
         var yMax = box.yMax;
         var zMax = box.zMax;
 
+        var inside = 0;
         var test = 0;
         var isInside = false;
+
+        //console.log(camera.frustum);
 
         /*for(var i = 0; i < 6; i++){
 
 
 
          }*/
+
+        var points = [new THREE.Vector3(xMin, yMin, zMin),
+            new THREE.Vector3(xMin, yMin, zMax),
+            new THREE.Vector3(xMin, yMax, zMin),
+            new THREE.Vector3(xMin, yMax, zMax),
+            new THREE.Vector3(xMax, yMin, zMin),
+            new THREE.Vector3(xMax, yMin, zMax),
+            new THREE.Vector3(xMax, yMax, zMin),
+            new THREE.Vector3(xMax, yMax, zMax)
+        ];
+
         function testVertice(pos){
             var result = pos.project(camera);
 
@@ -187,23 +229,68 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             return 0;
         }
 
-        //First test if camera is inside the box
-        if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
-            isInside = true;
-        }else{
-            test += testVertice(new THREE.Vector3(xMin, yMin, zMin));
-            test += testVertice(new THREE.Vector3(xMax, yMin, zMax));
-            test += testVertice(new THREE.Vector3(xMin, yMax, zMin));
-            test += testVertice(new THREE.Vector3(xMax, yMax, zMax));
-            test += testVertice(new THREE.Vector3(xMin, yMax, zMax));
-            test += testVertice(new THREE.Vector3(xMax, yMin, zMin));
-            test += testVertice(new THREE.Vector3(xMin, yMin, zMax));
-            test += testVertice(new THREE.Vector3(xMax, yMax, zMin));
+        function testBoxVsPlane(p){
+            var nb = 0;
+            for(i = 0; i < 8; i++){
+                var m = p.normal.dot(points[i]);
+                if(m <= -p.constant){
+                    nb++;
+                }
+            }
+            return nb;
+        }
+
+        function testBoxVsFrustum(){
+            var nb = 0;
+            var partial = false;
+            var i = 0;
+            while(i < 6 && nb != 8){
+                nb = testBoxVsPlane(camera.frustum.planes[i]);
+                if(nb > 0 && nb < 8){
+                    partial = true;
+                }
+                i++;
+            }
+            if(i == 6){
+                if(partial){
+                    return 1;//partial
+                }else{
+                    return 2;//inside
+                }
+            }else{
+                return 0;//outside
+            }
         }
 
 
 
-        if(isInside || (test > 0 && test < 8)){//partially inside
+        //First test if camera is inside the box
+        /*if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
+            isInside = true;
+        }else{
+            for(i = 0; i < 8;i++){
+                test += testVerticeVsFrustum(points[i]);
+            }
+        }*/
+
+
+        test = testBoxVsFrustum();
+        console.log(test);
+        if(test == 1){
+            if(octree.hasChild) {
+                for (var i = 0; i < octree.child.length; i++) {
+                    cullFromFrustum(octree.child[i]);
+                }
+            }else{
+                that.drawCalls.push({start : octree.start, count : octree.count});
+            }
+        }else if(test == 2){
+            that.drawCalls.push({start : octree.start, count : octree.count});
+        }
+
+
+
+        /*if(isInside || (test > 0 && test < 8)){//partially inside
             if(octree.hasChild) {
                 for (var i = 0; i < octree.child.length; i++) {
                     cullFromFrustum(octree.child[i]);
@@ -213,18 +300,24 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             }
         }else if(test == 8){
             that.drawCalls.push({start : octree.start, count : octree.count});
-        }
+        }*/
 
     }
 
     cullFromFrustum(this.data.currentOctree);
-    this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [];
+    this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start:0, count:0}];
     for(var i = 0; i < this.drawCalls.length;i++){
         this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
     }
 
 };
 
+/**
+ * @description Search for intersection between the mouse and the PointCloud
+ * @param mouse
+ * @param camera
+ * @returns {*} An object with info about the intersected point
+ */
 SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
     if(this.isReady) {
         var target = null;
@@ -277,7 +370,12 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
     }
 };
 
-
+/**
+ * @description Search for all the Octree's octant intersecting with the mouse, in order to help the global research for point intersection
+ * @param origin
+ * @param ray
+ * @returns {Array} Array of all the intersected octant
+ */
 SIMU.RenderableData.prototype.getIntersectedOctans = function(origin, ray){
     function getIntersectedOctanWithFace(octree, octan, face){
 

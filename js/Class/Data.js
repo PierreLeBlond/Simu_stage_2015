@@ -1,5 +1,7 @@
 /**
  * Created by lespingal on 10/07/15.
+ * @description Welcome to Class Data ! this class store raw data as the current position in time,
+ * as well as other snapshot.
  */
 var SIMU = SIMU || {};
 
@@ -30,18 +32,33 @@ SIMU.Data = function(){
     this.t                          = 0;
 };
 
+/**
+ * @description Set current time, which will be used when we compute the position within the CPU
+ * @param t
+ */
 SIMU.Data.prototype.setTime = function(t){
     this.t = t;
 };
 
+/**
+ * @description Set the current script used to load data
+ * @param script {SIMU.Script}
+ */
 SIMU.Data.prototype.setScript = function(script){
     this.script = script;
 };
 
+/**
+ * @description Set the current snapshot id
+ * @param id
+ */
 SIMU.Data.prototype.setCurrentSnapshotId = function(id){
     this.currentSnapshotId = id;
 };
 
+/**
+ * @description Add an empty snapshot
+ */
 SIMU.Data.prototype.addSnapshot = function(){
     var snapshot = new SIMU.Snapshot();
     this.snapshots.push(snapshot);
@@ -76,7 +93,7 @@ SIMU.Data.prototype.computePositions = function(){
 };
 
 /**
- * @description Set the current snapshot
+ * @description Change the current snapshot
  * @param snapshot
  */
 SIMU.Data.prototype.changeSnapshot = function(snapshot){
@@ -172,6 +189,12 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
     }
 };
 
+/**
+ * @description get called when all the files have been loaded
+ * @detail Populate the snapshot and modify other closed snapshot, and compute the octree & the right indexation
+ * @param err
+ * @param results {Array}
+ */
 SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
 
     var that = this;
@@ -190,7 +213,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
         snap.direction = new Float32Array(size * 3);
         snap.index = new Float32Array(size);
 
-        //prepare info buffers
+        //prepare info buffer
         for (i = 0; i < results[0].length; i++) {
             var name = results[0][i].name;
             if (name != "position" && name != "color" && name != "index") {
@@ -198,6 +221,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
             }
         }
 
+        //prepare default color & index buffer
         var length = snap.color.length / 3;
         for (i = 0; i < length; i++) {
             snap.color[3 * i] = 1.0;
@@ -208,6 +232,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
 
         async.forEach(results, this.populateBuffer.bind(this), function () {
 
+            //First compute the octree
             if (typeof(w) == "undefined") {
                 var w = new Worker("js/octreeWorker.js");
                 w.postMessage({
@@ -219,7 +244,6 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     snap.index = event.data.index;
                     snap.octree = event.data.octree;
 
-                    //Index buffer according to new indexation
                     var position = new Float32Array(snap.position.length);
 
                     for(var j = 0; j < snap.info.length;j++){
@@ -227,6 +251,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         snap.info[j].max = snap.info[j].value[0];
                     }
 
+                    //Then get the right indexation to match the octree, & search for the bounds of additional data
                     for(var i = 0; i < size; i++){
                         position[3*i] = snap.position[3*snap.index[i]];
                         position[3*i + 1] = snap.position[3*snap.index[i] + 1];
@@ -246,7 +271,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         that.currentPositionArray[i] = position[i];
                     }
 
-                    //If next snapshot is already available
+                    //If next snapshot is already available, compute the direction
                     if(that.currentSnapshotId + 1 < that.nbSnapShot && that.snapshots[that.currentSnapshotId + 1].isReady){
                         var nextSnapshot = that.snapshots[that.currentSnapshotId + 1];
                         for(i = 0; i < size;i++) {
@@ -257,7 +282,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         snap.directionIsSet = true;
                         that.currentDirection = snap.direction;
                     }
-                    //If there is a previous snapshot
+                    //If there is a previous snapshot, compute its direction
                     if(that.currentSnapshotId > 0 && that.snapshots[that.currentSnapshotId - 1].isReady){
                         var previousSnapshot = that.snapshots[that.currentSnapshotId - 1];
                         for(i = 0; i < size;i++) {
@@ -288,6 +313,10 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
     }
 };
 
+/**
+ * @description Handle file selection and start loading phase
+ * @param evt
+ */
 SIMU.Data.prototype.handleFileSelect = function(evt) {
     var files = evt.target.files;
     this.nbFiles = files.length;
@@ -298,6 +327,12 @@ SIMU.Data.prototype.handleFileSelect = function(evt) {
     async.map(files, this.readAdd.bind(this), this.onEveryLoadEnd.bind(this));
 };
 
+/**
+ * @description populate the already created buffer with a part of the data providing by one of the file
+ * @detail this function will be called for each of the loaded file
+ * @param data
+ * @param callback
+ */
 SIMU.Data.prototype.populateBuffer = function(data, callback){
     var i;
     var j;
@@ -382,7 +417,7 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
                 }*/
                 position = null;    //let's free some memory as fast as possible, shall we ?
                 break;
-            case "color" : // Here we populate colors and infos buffer for each snapshot, but maybe we only need them once
+            case "color" : // Here we populate colors and info buffer for each snapshot, but maybe we only need them once
                     value = data[j].value;
                     var color = snap.color;
                     for (i = 0; i < length; i++) {

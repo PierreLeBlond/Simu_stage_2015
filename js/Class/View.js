@@ -57,7 +57,8 @@ SIMU.View = function () {
         color                       : [ 255, 255, 255],
         idInfo                      : -1,
         idTexture                   : -1,
-        idBlending                  : -1
+        idBlending                  : -1,
+        frustumculling              : true
     };
 
     this.texture                    = [];
@@ -68,7 +69,7 @@ SIMU.View = function () {
     this.currentRenderableDataId    = -1;
     this.currentRenderableSnapshotId= -1;
 
-    this.target           = null;
+    this.target                     = null;
 
 };
 
@@ -189,6 +190,8 @@ SIMU.View.prototype.setupGui = function(){
             that.render();
         }
     });
+
+    viewFolder.add(this.parameters, 'frustumculling').name('Frustum Culling');
 
     var dataFolder = this.gui.addFolder('Data');
 
@@ -372,6 +375,7 @@ SIMU.View.prototype.setAnimatedShaderMode = function(){
     this.parameters.isStatic = false;
     for(var i = 0; i < this.renderableDatas.length;i++){
         if(this.renderableDatas[i].isActive) {
+            //First remove element from the scene, in order to take the modification in account when we'll put it back
             this.scene.remove(this.renderableDatas[i].pointCloud);
             this.renderableDatas[i].enableAnimatedShaderMode();
             this.scene.add(this.renderableDatas[i].pointCloud);
@@ -406,6 +410,12 @@ SIMU.View.prototype.animate = function(){
             this.camera.isNotFree = false;
         }
     }
+    this.camera.updateMatrix();
+    this.camera.updateMatrixWorld();
+    this.camera.matrixWorldInverse.getInverse(this.camera.matrixWorld);
+
+    this.camera.frustum = new THREE.Frustum();
+    this.camera.frustum.setFromMatrix(new THREE.Matrix4().multiplyMatrices(this.camera.projectionMatrix, this.camera.matrixWorldInverse));
 };
 
 /**
@@ -423,7 +433,7 @@ SIMU.View.prototype.render = function(){
     this.animate();
 
     for(var i = 0; i < this.renderableDatas.length;i++){
-        if(this.renderableDatas[i].isActive && this.renderableDatas[i].isReady) {
+        if(this.renderableDatas[i].isActive && this.renderableDatas[i].isReady && this.parameters.frustumculling) {
             this.renderableDatas[i].computeCulling(this.camera);
         }
     }

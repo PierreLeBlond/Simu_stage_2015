@@ -301,11 +301,16 @@ SIMU.Simu.prototype.animate = function(){
 
             if (this.currentSnapshotId >= this.info.nbSnapShot - 1) {
                 this.parameters.play = false;
+                for(var i = 0; i < this.views.length;i++){
+                    this.views[i].setStaticShaderMode();
+                }
             }
+
+
 
         }
 
-        for (var i = 0; i < this.views.length; i++) {
+        for (i = 0; i < this.views.length; i++) {
             this.views[i].setTime(this.parameters.t);
         }
         for (i = 0; i < this.datas.length; i++) {
@@ -566,6 +571,10 @@ SIMU.Simu.prototype.focus = function(event){
     }
 };
 
+/**
+ * @description Browse file which will be loaded into the data's snapshot given by id of event target
+ * @param event
+ */
 SIMU.Simu.prototype.browse = function(event){
     document.body.style.cursor = 'progress';
 
@@ -589,6 +598,10 @@ SIMU.Simu.prototype.browse = function(event){
 
 
 //Events
+
+/**
+ * @description Setup and enabled the keyboard & mouse events
+ */
 SIMU.Simu.prototype.setupEvents = function(){
 
     document.getElementById('add_column_button').addEventListener('click', this.addColumn.bind(this), false);
@@ -601,6 +614,9 @@ SIMU.Simu.prototype.setupEvents = function(){
     }*/
 };
 
+/**
+ * @description Handle window resizing in single view mode
+ */
 SIMU.Simu.prototype.onSingleviewWindowResize = function(){
     /*document.getElementById('container').style.width = window.innerWidth + "px";
     document.getElementById('container').style.height = window.innerHeight + "px";*/
@@ -609,6 +625,9 @@ SIMU.Simu.prototype.onSingleviewWindowResize = function(){
     this.currentView.resize(window.innerWidth, window.innerHeight, 0, 0);
 };
 
+/**
+ * @description Handle window resizing in multiple view mode
+ */
 SIMU.Simu.prototype.onMultiviewWindowResize = function(){
     var length = this.views.length;
     /*document.getElementById('container').style.width = window.innerWidth + "px";
@@ -623,6 +642,10 @@ SIMU.Simu.prototype.onMultiviewWindowResize = function(){
     }
 };
 
+/**
+ * @description Handle keyboard event
+ * @param event
+ */
 SIMU.Simu.prototype.onKeyDown = function(event){
     switch(event.keyCode){
         case 80 ://p
