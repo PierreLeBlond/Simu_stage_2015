@@ -58,7 +58,8 @@ SIMU.View = function () {
         idInfo                      : -1,
         idTexture                   : -1,
         idBlending                  : -1,
-        frustumculling              : true
+        frustumculling              : true,
+        levelOfDetail               : 4
     };
 
     this.texture                    = [];
@@ -243,6 +244,12 @@ SIMU.View.prototype.setupGui = function(){
         }
     });
 
+    dataFolder.add(this.parameters, 'levelOfDetail', 0, 4).name("Level of Detail").listen().onChange(function(value){
+        if(that.currentRenderableDataId >= 0) {
+            that.renderableDatas[that.currentRenderableDataId].levelOfDetail = value;
+        }
+    });
+
     var blendingType = {none:0,
                         normal:1,
                         additive:2,
@@ -348,6 +355,7 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id) {
     this.parameters.color = this.renderableDatas[this.currentRenderableDataId].defaultColor;
     this.parameters.idTexture = this.renderableDatas[this.currentRenderableDataId].idTexture;
     this.parameters.idBlending = this.renderableDatas[this.currentRenderableDataId].idBlending;
+    this.parameters.levelOfDetail = this.renderableDatas[this.currentRenderableDataId].levelOfDetail;
 
     this.updateUIinfoList();
 };
@@ -438,10 +446,14 @@ SIMU.View.prototype.render = function(){
     this.animate();
 
     for(var i = 0; i < this.renderableDatas.length;i++){
-        if(this.renderableDatas[i].isActive && this.renderableDatas[i].isReady && this.parameters.frustumculling) {
-            this.renderableDatas[i].computeCulling(this.camera);
+        if(this.renderableDatas[i].isActive && this.renderableDatas[i].isReady) {
+            if(this.parameters.frustumculling) {
+                this.renderableDatas[i].computeCulling(this.camera);
+            }
+            this.renderableDatas[i].uniforms.current_time.value = this.clock.elapsedTime;
         }
     }
+
 
     this.renderer.render(this.scene, this.camera);
 

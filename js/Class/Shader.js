@@ -99,30 +99,36 @@ SIMU.shader.static.nofog.vertex =
     ].join('');
 
 SIMU.shader.animated.fog.fragment = SIMU.shader.static.fog.fragment =
-    ["uniform float fog;                                                                                              \n",
-    "uniform float fogDistance;                                                                                       \n",
-    "uniform float scale;                                                                                             \n",
-    "uniform sampler2D map;                                                                                           \n",
-    "                                                                                                                 \n",
-    "varying vec4 mvPosition;                                                                                         \n",
-    "varying vec3 color_out;                                                                                          \n",
-    "                                                                                                                 \n",
-    "void main() {                                                                                                    \n",
-    "vec4 diffuse = texture2D(map, gl_PointCoord);                                                                    \n",
-    "vec4 color = mix(vec4(color_out, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0)))); \n",
-    "gl_FragColor = color * diffuse;                                                                                  \n",
-    "}                                                                                                                \n"
+    ["uniform float fog;                                                                                                                \n",
+    "uniform float fogDistance;                                                                                                         \n",
+    "uniform float scale;                                                                                                               \n",
+    "uniform sampler2D map;                                                                                                             \n",
+    "uniform float current_time;                                                                                                        \n",
+    "                                                                                                                                   \n",
+    "varying vec4 mvPosition;                                                                                                           \n",
+    "varying vec3 color_out;                                                                                                            \n",
+    "                                                                                                                                   \n",
+    "float rand(vec3 co){                                                                                                               \n",
+    "   return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);                                                              \n",
+    "}                                                                                                                                  \n",
+    "                                                                                                                                   \n",
+    "void main() {                                                                                                                      \n",
+    "vec4 diffuse = texture2D(map, gl_PointCoord);                                                                                      \n",
+    "float blindfactor = (cos(current_time*2.0*3.14/2.0 + mod(rand(mvPosition.xyz), 2.0*3.14)) + 2.0)/2.0;                              \n",
+    "vec4 color = blindfactor*mix(vec4(color_out, 1.0), vec4(0.0),1.0 - fogDistance*1.0/(exp(pow(length(mvPosition)*fog, 2.0))));       \n",
+    "gl_FragColor = color * diffuse;                                                                                                    \n",
+    "}                                                                                                                                  \n"
     ].join('');
 
 SIMU.shader.animated.nofog.fragment = SIMU.shader.static.nofog.fragment =
-    ["uniform sampler2D map;                          \n",
-    "                                                 \n",
-    "varying vec3 color_out;                          \n",
-    "                                                 \n",
-    "void main() {                                    \n",
-    "vec4 diffuse = texture2D(map, gl_PointCoord);    \n",
-    "vec4 color = vec4(color_out, 1.0);               \n",
-    "gl_FragColor = color * diffuse;                  \n",
-    "}                                                \n"
+    ["uniform sampler2D map;                                                                                \n",
+    "                                                                                                       \n",
+    "varying vec3 color_out;                                                                                \n",
+    "                                                                                                       \n",
+    "void main() {                                                                                          \n",
+    "vec4 diffuse = texture2D(map, gl_PointCoord);                                                          \n",
+    "vec4 color = vec4(color_out, 1.0);                                                                     \n",
+    "gl_FragColor = color * diffuse;                                                                        \n",
+    "}                                                                                                      \n"
     ].join('');
 
