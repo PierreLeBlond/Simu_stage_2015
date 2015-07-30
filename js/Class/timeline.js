@@ -35,6 +35,7 @@ SIMU.Timeline = function()
     this.html               = document.getElementById('timeline');
     this.cursor             = new SIMU.Cursor();
     this.interval           = 0;
+    this.playButton         = document.getElementById('play-border');
 }
 
 /* Fonction addSnapshot
@@ -294,17 +295,29 @@ SIMU.Timeline.prototype.setInterval = function(step)
     this.interval = ( step * this.html.offsetWidth ) / 100;
 }
 
-// TODO : Comment
+/* Fonction lookForCurrentSnapshot
+ *
+ * Paramètres :
+ *
+ * Retourne : un entier correspondant à l'identifiant du snapshot le plus proche du curseur (sur sa gauche).
+ *
+ * Cette fonction a pour but de rechercher le snapshot courant en fonction de la position du curseur afin, par exemple d'effectuer des calculs sur la position du curseur en fonction de l'intervalle dans le quel il se situe, et ce , sans modifier le snapshot actuellement sélectionné.
+ * La fonction retourne -1 en cas d'erreur.
+ */
 SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
 {
+    /* Initialisation de la valeur de retour à son cas d'erreur */
     var result = -1;
 
+    /* Position du curseur par rapport à la timeline */
     var cursorPosition = this.cursor.getOffset() + 10;
 
-    if ( cursorPosition == Math.floor((this.nbSnapshots - 1) * this.interval))
+    /* Si le curseur se situe à la fin de la timeline, alors le snapshot courant est le dernier */
+    if ( cursorPosition == this.html.offsetWidth )
     {
         result = this.nbSnapshots - 1;
     }
+    /* Sinon, on boucle sur les positions des snapshots pour déterminer celui qui est le plus proche du curseur (sur sa gauche) */
     else
     {
         for (var i = 0; i < this.nbSnapshots - 1; i++)
@@ -321,11 +334,35 @@ SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
     return result;
 }
 
+/* Fonction setPlayButton
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but de modifier l'identifiant de l'élément HTML du bouton Play/Stop afin d'afficher un bouton Play.
+ */
+SIMU.Timeline.prototype.setPlayButton = function()
+{
+    this.playButton.firstElementChild.id = 'play-button';
+}
+
+/* Fonction setStopButton
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but de modifier l'identifiant de l'élément HTML du bouton Play/Stop afin d'afficher un bouton Stop.
+ */
+SIMU.Timeline.prototype.setStopButton = function()
+{
+    this.playButton.firstElementChild.id = 'stop-button';
+}
+
 /* Classe Cursor
  *
  * html                     : élément HTML correspondant au curseur
  * cursorOffsetOrigin       : entier correspondant à l'offset du curseur avant déplacement
- * dragging                 : booléen contrôlant la permission de dragger le curseur ou non
+ * isMoving                 : booléen contrôlant la permission de dragger le curseur ou non
  * mouseOffsetOrigin        : entier correspondant à l'abscisse de la souris lors du premier clic
  * dragCursorEvent          : événement correspondant à l'appel de la fonction dragCursor après un événement de type mousedown
  * stopDraggingEvent        : événement correspondant à l'appel de la fonction stopDragging après un événement de type mouseup
@@ -341,7 +378,7 @@ SIMU.Cursor = function()
 {
     this.html                       = document.getElementById('cursor');
     this.cursorOffsetOrigin         = this.html.offsetLeft;
-    this.dragging                   = false;
+    this.isMoving                   = false;
     this.mouseOffsetOrigin          = 0;
     this.dragCursorEvent            = null;
     this.stopDraggingEvent          = null;
@@ -382,7 +419,7 @@ SIMU.Cursor.prototype.removeDragging = function()
  */
 SIMU.Cursor.prototype.stopDragging = function()
 {
-    this.dragging = false;
+    this.isMoving = false;
     document.removeEventListener('mousemove', this.moveCursor);
     document.removeEventListener('mouseup', this.stopDraggingEvent);
 }
@@ -418,7 +455,7 @@ SIMU.Cursor.prototype.dragCursor = function(e)
     this.cursorOffsetOrigin = this.html.offsetLeft;
 
     /* Activation du déplacement du curseur */
-    this.dragging = true;
+    this.isMoving = true;
 
     /* Stockage de la position d'origine de la souris */
     this.mouseOffsetOrigin = evtobj.clientX;
@@ -446,7 +483,7 @@ SIMU.Cursor.prototype.moveCursor = function(e)
     var evtobj = window.event ? window.event : e;
 
     /* Si le déplacement du curseur est activé */
-    if (this.dragging)
+    if (this.isMoving)
     {
         /* Calcul de la nouvelle position du curseur */
         var newPosition = this.cursorOffsetOrigin + evtobj.clientX - this.mouseOffsetOrigin;

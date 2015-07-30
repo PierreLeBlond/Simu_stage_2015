@@ -88,3 +88,56 @@
     border-radius: 50%;
     background-color: green;
 }
+
+#play-border {
+    position: absolute;
+    width: 26px;
+    height: 26px;
+    left: -20%;
+    top: -11px;
+    background-color: #eee;
+    border: 2px solid rgba(0,0,0,0.7);
+    -webkit-border-radius: 100%;
+    -moz-border-radius: 100%;
+    border-radius: 100%;
+    -webkit-transition: all 0.5s ease;
+    -moz-transition: all 0.5s ease;
+    -o-transition: all 0.5s ease;
+    -ms-transition: all 0.5s ease;
+    transition: all 0.5s ease;
+    cursor: pointer;
+}
+
+#play-border:hover{
+    border-color: transparent;
+}
+
+#play-border:hover #play-button{
+    border-left: 8px solid rgba(0,0,0,0.5);
+}
+
+#play-border:hover #stop-button{
+    border-left: 4px solid rgba(0,0,0,0.5);
+    border-right: 4px solid rgba(0,0,0,0.5);
+}
+
+#play-button {
+    position:relative;
+    top: 5px;
+    left: 10px;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 8px solid rgba(0,0,0,0.8);
+}
+
+#stop-button {
+    position: relative;
+    top: 6px;
+    left: 7px;
+    width: 4px;
+    height: 14px;
+    border-left: 4px solid rgba(0,0,0,0.8);
+    border-right: 4px solid rgba(0,0,0,0.8);
+}
