@@ -194,7 +194,7 @@ SIMU.View.prototype.setupGui = function(){
         }
     });
 
-    viewFolder.add(this.parameters, 'frustumculling').name('Frustum Culling');
+    viewFolder.add(this.parameters, 'frustumculling').name('Frustum Culling').listen();
 
     var dataFolder = this.gui.addFolder('Data');
 

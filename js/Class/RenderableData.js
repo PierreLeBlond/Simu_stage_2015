@@ -319,7 +319,6 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
 
         test = testBoxVsFrustumFast();
-        //console.log(test);
         if(test == 1){
             if(octree.hasChild) {
                 for (var i = 0; i < octree.child.length; i++) {
@@ -351,12 +350,12 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
     cullFromFrustum(this.data.currentOctree);
     this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start:0, count:0}];
     for(var i = 0; i < this.drawCalls.length;i++){
-        this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
-        /*for(var j = 0; j < this.levelOfDetail;j++) {
-            var start = this.drawCalls[i].start/4 + j*this.data.snapshots[this.data.currentSnapshotId].index.length;
+        //this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
+        for(var j = 0; j < this.levelOfDetail;j++) {
+            var start = this.drawCalls[i].start/4 + j*this.data.snapshots[this.data.currentSnapshotId].index.length/4;
             var count = this.drawCalls[i].count/4;
             this.pointCloud.geometry.addDrawCall(start, count, start);
-        }*/
+        }
     }
 
 };
@@ -380,32 +379,38 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
         var i;
         var j = 0;
 
+        //this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [];
+
         while (j < intersectedOctants.length && target == null) {
-            var start = intersectedOctants[j].start;
-            var end = intersectedOctants[j].count + start;
-            for (i = start; i < end; i++) {
-                var x = this.data.currentPositionArray[3 * i];
-                var y = this.data.currentPositionArray[3 * i + 1];
-                var z = this.data.currentPositionArray[3 * i + 2];
-                var a = raycaster.ray.direction.x;
-                var b = raycaster.ray.direction.y;
-                var c = raycaster.ray.direction.z;
-                var cx = camera.position.x;
-                var cy = camera.position.y;
-                var cz = camera.position.z;
+            for (var k = 0; k < this.levelOfDetail; k++) {
+                var start = intersectedOctants[j].start/4 + k*this.data.snapshots[this.data.currentSnapshotId].index.length / 4;
+                var end = start + intersectedOctants[j].count/4;
+                //this.pointCloud.geometry.addDrawCall(start, intersectedOctants[j].count/4, start);
+                for (i = start; i < end; i++) {
+                    //var index = (i % 4) * this.data.snapshots[this.data.currentSnapshotId].index.length / 4 + (i / 4);
+                    var x = this.data.currentPositionArray[3 * i];
+                    var y = this.data.currentPositionArray[3 * i + 1];
+                    var z = this.data.currentPositionArray[3 * i + 2];
+                    var a = raycaster.ray.direction.x;
+                    var b = raycaster.ray.direction.y;
+                    var c = raycaster.ray.direction.z;
+                    var cx = camera.position.x;
+                    var cy = camera.position.y;
+                    var cz = camera.position.z;
 
-                if ((x - cx) * (a - cx) + (y - cy) * (b - cy) + (z - cz) * (c - cz) > 0) { //We don't want particles behind us, the sneaky ones
+                    if ((x - cx) * (a - cx) + (y - cy) * (b - cy) + (z - cz) * (c - cz) > 0) { //We don't want particles behind us, the sneaky ones
 
-                    var d = -a * x - b * y - c * z;
+                        var d = -a * x - b * y - c * z;
 
-                    var md = (Math.pow(a * cx + b * cy + c * cz + d, 2)) / (a * a + b * b + c * c);
-                    var h = Math.abs((cx - x) * (cx - x) + (cy - y) * (cy - y) + (cz - z) * (cz - z));
-                    if (Math.sqrt(h - md) < this.uniforms.size.value / 4000) { //It's a kind of magic, maaaaagic !
-                        if (target == null) {
-                            target = {index: i, distance: Math.sqrt(h), renderableData: this};
-                        } else if (Math.sqrt(h) < target.distance) {
-                            target.index = i;
-                            target.distance = Math.sqrt(h);
+                        var md = (Math.pow(a * cx + b * cy + c * cz + d, 2)) / (a * a + b * b + c * c);
+                        var h = Math.abs((cx - x) * (cx - x) + (cy - y) * (cy - y) + (cz - z) * (cz - z));
+                        if (Math.sqrt(h - md) < this.uniforms.size.value / 400) { //It's a kind of magic, maaaaagic !
+                            if (target == null) {
+                                target = {index: i, distance: Math.sqrt(h), renderableData: this};
+                            } else if (Math.sqrt(h) < target.distance) {
+                                target.index = i;
+                                target.distance = Math.sqrt(h);
+                            }
                         }
                     }
                 }

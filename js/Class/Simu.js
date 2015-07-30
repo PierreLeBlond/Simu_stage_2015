@@ -251,7 +251,6 @@ SIMU.Simu.prototype.setupGui = function(){
             }
         }
     });
-    animationFolder.add(this.parameters, 'position', 0, 5).name("position").listen();
     animationFolder.add(this.parameters, 'speed', 0.00001, 1).name("speed").listen();
 
     var scriptFolder = this.gui.addFolder('Script');
@@ -263,8 +262,11 @@ SIMU.Simu.prototype.setupGui = function(){
 
     var perfFolder = this.gui.addFolder('Perf');
 
-    perfFolder.add(this.parameters, 'raycasting').name("Raycasting");
-    perfFolder.add(this.parameters, 'frustumculling').name("Frustum Culling");
+    perfFolder.add(this.parameters, 'frustumculling').name("Frustum Culling").onFinishChange(function(value){
+        for(var i = 0; i < that.views.length;i++){
+            that.views[i].parameters.frustumculling.value = value;
+        }
+    });
     perfFolder.add(this.parameters, 'octreeprecision', 0, 5).name("Octree Precision");
 
     this.setupEvents();
@@ -567,7 +569,6 @@ SIMU.Simu.prototype.addRow = function(){
  * @param event
  */
 SIMU.Simu.prototype.focus = function(event){
-    console.log("coucou");
     //TODO find a better way of retreiving the id than looking for its parent
     var id = event.target.parentElement.id;
 
