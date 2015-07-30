@@ -90,25 +90,32 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
  * @description Setup the menu and the global camera
  */
 SIMU.Simu.prototype.setupSimu = function(){
-    this.menu = new SIMU.Menu();
-    this.menu.initialize();
+    if (SIMU.isMobile())
+    {
 
-    this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
-    this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
+    }
+    else
+    {
+        this.menu = new SIMU.Menu();
+        this.menu.initialize();
 
-    this.globalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 200);
-    this.globalCamera.rotation.order  = 'ZYX';
-    this.globalCamera.position.set(0.5, 0.5, 0.5);
-    this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
+        this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
+        this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
 
-    this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
-    this.globalCamera.controls.moveSpeed = 0.5;
-    this.globalCamera.controls.enabled = false;
+        this.globalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 200);
+        this.globalCamera.rotation.order  = 'ZYX';
+        this.globalCamera.position.set(0.5, 0.5, 0.5);
+        this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark1.png"));
-    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
+        this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
+        this.globalCamera.controls.moveSpeed = 0.5;
+        this.globalCamera.controls.enabled = false;
 
-    this.menu.displayMenu();
+        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark1.png"));
+        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
+
+        this.menu.displayMenu();
+    }
 };
 
 SIMU.Simu.prototype.addView = function(){
@@ -222,8 +229,14 @@ SIMU.Simu.prototype.setupGui = function(){
     /* Création de la timeline */
     this.timeline = new SIMU.Timeline();
 
-    /* Ajout de l'événement de calcul de la position du curseur lors du relâchement de la souris au DOM */
-    document.addEventListener('mouseup', this.updateTimeline.bind(this), false);
+    /* Ajout de l'événement de mise à jour de l'interface lors du déplacement du curseur au DOM */
+    document.addEventListener('mousemove', this.updateTimeOnCursorMove.bind(this), false);
+
+    /* Ajout de l'événement de mise à jour de l'interface lors du relâchement de la souris au DOM */
+    document.addEventListener('mouseup', this.updateTimeOnCursorRelease.bind(this), false);
+
+    /* Ajout de l'événement d'animation des snapshots lors d'un clic sur le bouton play */
+    this.timeline.playButton.addEventListener('click', this.onPlay.bind(this), false);
 
     this.gui = new dat.GUI();
 
@@ -251,6 +264,7 @@ SIMU.Simu.prototype.setupGui = function(){
             }
         }
     });
+    animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(this.updateDataOnTimeChange.bind(this)).onChange(function(value) { that.timeline.animate(value); });
     animationFolder.add(this.parameters, 'speed', 0.00001, 1).name("speed").listen();
 
     var scriptFolder = this.gui.addFolder('Script');
@@ -308,13 +322,17 @@ SIMU.Simu.prototype.animate = function(){
             this.setUICurrentSnapshot(this.currentSnapshotId);
             this.setCurrentSnapshotId(this.currentSnapshotId);
 
+            // Modifie la valeur du snapshot actuellement sélectionné dans l'objet Timeline
             this.timeline.changeCurrentSnapshot(this.currentSnapshotId);
 
             if (this.currentSnapshotId >= this.info.nbSnapShot - 1) {
                 this.parameters.play = false;
+                // Permet de modifier le CSS du bouton en fin d'animation.
+                this.timeline.setPlayButton();
                 for(var i = 0; i < this.views.length;i++){
                     this.views[i].setStaticShaderMode();
                 }
+
             }
 
 
@@ -328,6 +346,7 @@ SIMU.Simu.prototype.animate = function(){
             this.datas[i].setTime(this.parameters.t);
         }
 
+        // Déplace le curseur en fonction du temps
         this.timeline.animate(this.parameters.t);
     }
 };
@@ -472,7 +491,8 @@ SIMU.Simu.prototype.changeCurrentSnapshot = function(event){
     this.setUICurrentSnapshot(event.target.id);
     this.setCurrentSnapshotId(event.target.id);
     this.timeline.changeCurrentSnapshot(event.target.id);
-    // this.parameters.t = 0.0001;
+    this.parameters.t = 0.0001;
+    this.updateDataOnTimeChange();
 };
 
 /**
@@ -659,25 +679,7 @@ SIMU.Simu.prototype.onMultiviewWindowResize = function(){
 SIMU.Simu.prototype.onKeyDown = function(event){
     switch(event.keyCode){
         case 80 ://p
-            if(this.currentSnapshotId >= 0 && this.currentSnapshotId < this.info.nbSnapShot - 1) {
-                if (this.parameters.play) {
-                    this.parameters.play = false;
-                    var i;
-                    for (i = 0; i < this.datas.length; i++) {
-                        this.datas[i].computePositions();
-                    }
-                    for (i = 0; i < this.views.length; i++) {
-                        this.views[i].dataHasChanged();
-                        this.views[i].setStaticShaderMode();
-                    }
-                } else {
-                    this.parameters.play = true;
-                    for (i = 0; i < this.views.length; i++) {
-                        this.views[i].dataHasChanged();
-                        this.views[i].setAnimatedShaderMode();
-                    }
-                }
-            }
+            this.onPlay();
             break;
         case 27 :       // Echap
             if(this.menu.isDisplayed){
@@ -705,61 +707,49 @@ SIMU.Simu.prototype.onKeyDown = function(event){
     }
 };
 
-/* Fonction updateTimeline
+/* Fonction updateTimeOnCursorRelease
  *
  * Paramètres : null
  * Retourne : null
  *
- * Cette fonction a pour but de calculer la position du curseur, de la comparer aux positions des snapshots et de sélectionner un snapshot si le curseur est suffisamment proche.
+ * Cette fonction a pour but de mettre à jour le paramètre temps de l'interface en fonction de la position du curseur.
+ * Elle s'occupera également :
+ * - de mettre à jour le snapshot actuellement sélectionné
+ * - de mettre à jour le snapshot actuellement sélectionné sur l'interface
+ * - de mettre à jour les données afin d'afficher le rendu correspondant au temps
  */
-SIMU.Simu.prototype.updateTimeline = function()
+SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
 {
-    /* Si l'événement est bien appelé après le déplacement du curseur, on calcule la position */
+    /* Si l'événement est bien appelé après le déplacement du curseur, on met à jour */
     if (this.timeline.cursor.positionHasToBeComputed)
     {
-        // 1 : Chercher le snapshot le plus proche
-        // 2 : Déterminer s'il faut déplacer le curseur dessus ou non // Useless
-        // 3 : Si non, calculer le temps.
-        // 4 : Créer et appeler une fonction générique pour maj les datas.
-
+        /* Stockage de l'identifiant du snapshot courant */
         var id = this.timeline.lookForCurrentSnapshot();
 
-        //Set new Snap as current
+        /* Mise à jour du snapshot sélectionné */
         this.setUICurrentSnapshot(id);
         this.setCurrentSnapshotId(id);
         this.timeline.setCurrentSnapshotId(id);
 
+        /* Calcul du temps en fonction de la position du curseur */
         this.parameters.t = (this.timeline.cursor.getOffset() + 10 - Math.floor(id * this.timeline.interval)) / this.timeline.interval;
 
-        for ( var i = 0; i < this.views.length; i++) {
-            this.views[i].setTime(this.parameters.t);
+        /* Si le curseur se situe sur un snapshot, on passe le temps à 0.0001 par défaut */
+        if (this.parameters.t == 0)
+        {
+            this.parameters.t = 0.0001;
         }
-        for (i = 0; i < this.datas.length; i++) {
-            this.datas[i].setTime(this.parameters.t);
-        }
-        if(!this.parameters.play){
-            for (i = 0; i < this.datas.length; i++) {
-                if (this.datas[i].isReady) {
-                    this.datas[i].computePositions();
-                }
-            }
-            for (i = 0; i < this.views.length; i++) {
-                this.views[i].dataHasChanged();
-            }
-        }
+
+        /* Mise à jour des données */
+        this.updateDataOnTimeChange();
+
+        /* Il n'est plus nécessaire de mettre à jour avant le prochain déplacement du curseur */
+        this.timeline.cursor.positionHasToBeComputed = false;
 
 /*
-        var isComputingNecessary = true;
-
-        for (var i = id; i < id+2; i++)
-        {
-            isComputingNecessary = this.timeline.changeCurrentSnapshotIfNeeded(i);
-        }
-
-        if (isComputingNecessary)
-        {
-            // Compute cursor position with time
-        }
+    // Fonction catch qui permet d'attraper le curseur lorsque celui-ci est très proche d'un snapshot.
+    // Peut toujours être utile, à conserver si nécessaire.
+    // Exemple : En général, il est très compliqué de drag & drop le curseur pile sur un snapshot, on sera toujours à un pixel à côté. Cette fonctionnalité serait indispensable pour l'expérience utilisateur si un clic ne permettait pas de positionner le curseur sur un snapshot.
 
         /* Boucle sur les objets Snapshot2 du tableau snapshots
         for (var i = 0; i < this.timeline.nbSnapshots; i++)
@@ -777,6 +767,102 @@ SIMU.Simu.prototype.updateTimeline = function()
             }
         }
 */
-        this.timeline.cursor.positionHasToBeComputed = false;
+    }
+}
+
+/* Fonction updateDataOnTimeChange
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but de mettre à jour les données en fonction du temps actuellement sélectionné.
+ */
+SIMU.Simu.prototype.updateDataOnTimeChange = function()
+{
+    var i;
+    for (i = 0; i < this.views.length; i++) {
+        this.views[i].setTime(this.parameters.t);
+    }
+    for (i = 0; i < this.datas.length; i++) {
+        this.datas[i].setTime(this.parameters.t);
+    }
+    if(!this.parameters.play){
+        for (i = 0; i < this.datas.length; i++) {
+            if(this.datas[i].isReady) {
+                this.datas[i].computePositions();
+            }
+        }
+        for (i = 0; i < this.views.length; i++) {
+            this.views[i].dataHasChanged();
+        }
+    }
+}
+
+/* Fonction updateTimeOnCursorMove
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but de répercuter les déplacements du curseur de la timeline sur le paramètre temps de l'interface.
+ * Elle s'occupera également de modifier visuellement le snapshot sélectionné dans le tableau.
+ */
+SIMU.Simu.prototype.updateTimeOnCursorMove = function()
+{
+    /* Si on bien dans le cas du curseur en mouvement */
+    if (this.timeline.cursor.isMoving)
+    {
+        /* Stockage de l'identifiant du snapshot courant */
+        var id = this.timeline.lookForCurrentSnapshot();
+
+        /* Mise à jour visuelle de l'interface */
+        this.setUICurrentSnapshot(id);
+
+        /* Calcul du temps en fonction de la position du curseur */
+        this.parameters.t = (this.timeline.cursor.getOffset() + 10 - Math.floor(id * this.timeline.interval)) / this.timeline.interval;
+
+        /* Si le curseur se situe sur un snapshot, on passe le temps à 0.0001 par défaut */
+        if (this.parameters.t == 0)
+        {
+            this.parameters.t = 0.0001;
+        }
+    }
+}
+
+/* Fonction onPlay
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour d'initialiser ou d'interrompre l'animation.
+ * Elle s'occupera également :
+ * - De modifier le CSS du bouton play
+ * - De mettre à jour les données
+ * - De calculer les positions dans le cas de l'interruption de l'animation
+ */
+
+SIMU.Simu.prototype.onPlay = function()
+{
+    if(this.currentSnapshotId >= 0 && this.currentSnapshotId < this.info.nbSnapShot - 1) {
+        if (this.parameters.play) {
+            this.parameters.play = false;
+            this.timeline.setPlayButton();
+            var i;
+            for (i = 0; i < this.datas.length; i++) {
+                if (this.datas[i].isReady) {
+                    this.datas[i].computePositions();
+                }
+            }
+            for (i = 0; i < this.views.length; i++) {
+                this.views[i].dataHasChanged();
+                this.views[i].setStaticShaderMode();
+            }
+        } else {
+            this.parameters.play = true;
+            this.timeline.setStopButton();
+            for (i = 0; i < this.views.length; i++) {
+                this.views[i].dataHasChanged();
+                this.views[i].setAnimatedShaderMode();
+            }
+        }
     }
 }
