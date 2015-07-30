@@ -90,25 +90,32 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
  * @description Setup the menu and the global camera
  */
 SIMU.Simu.prototype.setupSimu = function(){
-    this.menu = new SIMU.Menu();
-    this.menu.initialize();
+    if (SIMU.isMobile())
+    {
 
-    this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
-    this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
+    }
+    else
+    {
+        this.menu = new SIMU.Menu();
+        this.menu.initialize();
 
-    this.globalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 200);
-    this.globalCamera.rotation.order  = 'ZYX';
-    this.globalCamera.position.set(0.5, 0.5, 0.5);
-    this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
+        this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
+        this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
 
-    this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
-    this.globalCamera.controls.moveSpeed = 0.5;
-    this.globalCamera.controls.enabled = false;
+        this.globalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 200);
+        this.globalCamera.rotation.order  = 'ZYX';
+        this.globalCamera.position.set(0.5, 0.5, 0.5);
+        this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark1.png"));
-    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
+        this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, document.getElementById('container'));
+        this.globalCamera.controls.moveSpeed = 0.5;
+        this.globalCamera.controls.enabled = false;
 
-    this.menu.displayMenu();
+        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark1.png"));
+        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
+
+        this.menu.displayMenu();
+    }
 };
 
 SIMU.Simu.prototype.addView = function(){
