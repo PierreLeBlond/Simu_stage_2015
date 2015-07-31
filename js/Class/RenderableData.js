@@ -131,6 +131,7 @@ SIMU.RenderableData.prototype.setData = function(data){
     if(data.isReady) {
         this.isReady = true;
     }else{
+        this.isReady = false;
         console.log("Warning : data is set but not ready yet.");
     }
 };
@@ -155,6 +156,8 @@ SIMU.RenderableData.prototype.resetData = function(){
         this.animatedBufferGeometry.attributes.color.needsUpdate = true;
 
         this.isReady = true;
+    }else{
+        this.isReady = false;
     }
 };
 
@@ -347,14 +350,16 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
     }
 
-    cullFromFrustum(this.data.currentOctree);
-    this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start:0, count:0}];
-    for(var i = 0; i < this.drawCalls.length;i++){
-        //this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
-        for(var j = 0; j < this.levelOfDetail;j++) {
-            var start = this.drawCalls[i].start/4 + j*this.data.snapshots[this.data.currentSnapshotId].index.length/4;
-            var count = this.drawCalls[i].count/4;
-            this.pointCloud.geometry.addDrawCall(start, count, start);
+    if(this.isReady) {
+        cullFromFrustum(this.data.currentOctree);
+        this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start: 0, count: 0}];
+        for (var i = 0; i < this.drawCalls.length; i++) {
+            //this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
+            for (var j = 0; j < this.levelOfDetail; j++) {
+                var start = this.drawCalls[i].start / 4 + j * this.data.snapshots[this.data.currentSnapshotId].index.length / 4;
+                var count = this.drawCalls[i].count / 4;
+                this.pointCloud.geometry.addDrawCall(start, count, start);
+            }
         }
     }
 

@@ -12,6 +12,7 @@ var SIMU = SIMU || {};
  */
 SIMU.Data = function(){
     this.isReady                    = false;    /** True if at least one snapshot is ready, and is the current one **/
+    this.directionIsSet             = false;
 
     this.nbSnapShot                 = 0;        /** Number of snapshot **/
     this.currentSnapshotId          = -1;       /** Index of the current snapshot **/
@@ -74,7 +75,7 @@ SIMU.Data.prototype.computePositions = function(){
     //linear interpolation between two snapshots
     var length = this.currentPositionArray.length / 3;
     var i;
-    if(this.currentSnapshotId < (this.nbSnapShot - 1) &&  this.snapshots[this.currentSnapshotId].directionIsSet) {
+    if(this.currentSnapshotId < (this.nbSnapShot - 1) &&  this.directionIsSet) {
         for (i = 0; i < length; i++) {
             this.currentPositionArray[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
             this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
@@ -100,15 +101,20 @@ SIMU.Data.prototype.changeSnapshot = function(snapshot){
     if(snapshot >= 0 && snapshot < this.nbSnapShot){
         this.currentSnapshotId = snapshot;
         if(this.snapshots[snapshot].isReady) {
+            this.isReady = true;
             this.currentDeparture = this.snapshots[snapshot].position;
             if(this.snapshots[snapshot].directionIsSet) {
+                this.directionIsSet = true;
                 this.currentDirection = this.snapshots[snapshot].direction;
+            }else{
+                this.directionIsSet = false;
             }
                 this.computePositions();
             this.currentOctree = this.snapshots[snapshot].octree;
             console.log("Success : change to snapshot " + snapshot);
         }else{//For the moment, when the snapshot is empty, we let the previous snapshot as the current one
             console.log("Warning : this snapshot is empty.");
+            this.isReady = false;
         }
     }else{
         console.log("Error : this snapshot doesn't exist.");

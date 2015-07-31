@@ -16,6 +16,10 @@ var SIMU = SIMU || {};
  * @constructor
  */
 SIMU.Simu = function(){
+
+    this.scenes                 = [];
+    this.currentScene           = null;
+
     //Global parameters of the App
     this.parameters             = {
         "t"                   : 0.00001,
@@ -38,11 +42,7 @@ SIMU.Simu = function(){
     this.currentDataId          = -1;
     this.currentSnapshotId      = -1;
 
-    //Views
-    this.views                  = [];
-    this.currentView            = null;
 
-    this.controls               = null;
 
     /* List of different types of display, useful to remember the current display */
     this.DisplayType            = {
@@ -62,14 +62,39 @@ SIMU.Simu = function(){
     this.scripts                = [];
     this.texture                = [];
 
+
+    //Views
+    this.views                  = [];
+    this.currentView            = null;
+
+    this.controls               = null;
+
     this.menu                   = null;
-    this.viewManager            = null;
     this.timeline               = null;
+
+    this.domElement             = null;
+
+    this.width                  = 0;
+    this.height                 = 0;
 
     //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
     this.windowResizeEvent      = null;
 
+};
+
+SIMU.Simu.prototype.setDomElement = function(el){
+    this.domElement = el;
+};
+
+SIMU.Simu.prototype.setWidth = function(width){
+    this.width = width;
+    this.domElement.style.width = width + 'px';
+};
+
+SIMU.Simu.prototype.setHeight = function(height){
+    this.height = height;
+    this.domElement.style.height = height + 'px';
 };
 
 /**
@@ -90,19 +115,7 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
  * @description Setup the menu and the global camera
  */
 SIMU.Simu.prototype.setupSimu = function(){
-    if (SIMU.isMobile())
-    {
-
-    }
-    else
-    {
-        this.menu = new SIMU.Menu();
-        this.menu.initialize();
-
-        this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
-        this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
-
-        this.globalCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.00001, 200);
+        this.globalCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
         this.globalCamera.rotation.order  = 'ZYX';
         this.globalCamera.position.set(0.5, 0.5, 0.5);
         this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
@@ -111,33 +124,47 @@ SIMU.Simu.prototype.setupSimu = function(){
         this.globalCamera.controls.moveSpeed = 0.5;
         this.globalCamera.controls.enabled = false;
 
+        this.globalCamera.frustum = new THREE.Frustum();
+
         this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark1.png"));
         this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
-
-        this.menu.displayMenu();
-    }
 };
 
-SIMU.Simu.prototype.addView = function(){
+SIMU.Simu.prototype.addViewWithNewScene = function(){
     var view = new SIMU.View();
-    view.setupView(0, 0, (window.innerWidth/2), window.innerHeight);
-    view.setupScene();
-    view.setupGui();
-    view.texture = this.texture;
-    view.domElement.addEventListener('click', this.focus.bind(this), false);
 
+    var scene = new SIMU.Scene();
+    this.scenes.push(scene);
+    scene.setupScene();
+    scene.texture = this.texture;
     for(var i = 0; i < this.datas.length;i++) {
         var renderableData = new SIMU.RenderableData();
         renderableData.setData(this.datas[i]);
-        view.addRenderableData(renderableData);
+        scene.addRenderableData(renderableData);
     }
-
     if(this.currentDataId >= 0) {
-        view.setCurrentRenderableDataId(this.currentDataId);
+        scene.setCurrentRenderableDataId(this.currentDataId);
     }
     if(this.currentSnapshotId >= 0){
-        view.setCurrentRenderableSnapshotId(this.currentSnapshotId);
+        scene.setCurrentRenderableSnapshotId(this.currentSnapshotId);
     }
+
+
+    view.setScene(scene);
+    view.setupView(0, 0, this.domElement.width/2, this.domElement.height);
+    view.setupGui();
+    view.domElement.addEventListener('click', this.focus.bind(this), false);
+
+    this.views.push(view);
+};
+
+SIMU.Simu.prototype.addViewFromScene = function(scene){
+    var view = new SIMU.View();
+
+    view.setScene(scene);
+    view.setupView(0, 0, this.domElement.width/2, this.domElement.height);
+    view.setupGui();
+    view.domElement.addEventListener('click', this.focus.bind(this), false);
 
     this.views.push(view);
 };
@@ -155,7 +182,7 @@ SIMU.Simu.prototype.switchToSingleview = function(){
     this.globalCamera.updateProjectionMatrix();
 
     if(this.views.length == 0){
-        this.addView();
+        this.addViewWithNewScene();
     }
     this.currentView = this.views[0];
     this.currentView.domElement.id = 0;
@@ -172,7 +199,7 @@ SIMU.Simu.prototype.switchToSingleview = function(){
     window.addEventListener( 'resize',this.windowResizeEvent, false );
 
     this.showUI();
-    this.render();
+    this.animate();
 };
 
 /**
@@ -189,10 +216,10 @@ SIMU.Simu.prototype.switchToMultiview = function()
     this.globalCamera.updateProjectionMatrix();
 
     if(this.views.length == 0){
-        this.addView();
+        this.addViewWithNewScene();
     }
     if(this.views.length == 1){
-        this.addView();
+        this.addViewWithNewScene();
     }
 
     this.currentView = this.views[0];
@@ -215,7 +242,7 @@ SIMU.Simu.prototype.switchToMultiview = function()
     window.addEventListener( 'resize',this.windowResizeEvent, false );
 
     this.showUI();
-    this.render();
+    this.animate();
 
 };
 
@@ -225,6 +252,16 @@ SIMU.Simu.prototype.switchToMultiview = function()
 SIMU.Simu.prototype.setupGui = function(){
 
     var that = this;
+
+
+    this.menu = new SIMU.Menu();
+    this.menu.initialize();
+
+    this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
+    this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
+
+    this.menu.displayMenu();
+
 
     /* Création de la timeline */
     this.timeline = new SIMU.Timeline();
@@ -238,32 +275,12 @@ SIMU.Simu.prototype.setupGui = function(){
     /* Ajout de l'événement d'animation des snapshots lors d'un clic sur le bouton play */
     this.timeline.playButton.addEventListener('click', this.onPlay.bind(this), false);
 
-    this.gui = new dat.GUI();
 
-    //SIMU.gui.name('Global parameters');
+
+    this.gui = new dat.GUI();
 
     var animationFolder = this.gui.addFolder('Animation');
 
-    animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(function(value){
-        //Question : Does onFinishChange is trigger by the listen() ?
-        var i;
-        for (i = 0; i < that.views.length; i++) {
-            that.views[i].setTime(value);
-        }
-        for (i = 0; i < that.datas.length; i++) {
-            that.datas[i].setTime(value);
-        }
-        if(!that.parameters.play){
-            for (i = 0; i < that.datas.length; i++) {
-                if(that.datas[i].isReady) {
-                    that.datas[i].computePositions();
-                }
-            }
-            for (i = 0; i < that.views.length; i++) {
-                that.views[i].dataHasChanged();
-            }
-        }
-    });
     animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(this.updateDataOnTimeChange.bind(this)).onChange(function(value) { that.timeline.animate(value); });
     animationFolder.add(this.parameters, 'speed', 0.00001, 1).name("speed").listen();
 
@@ -277,8 +294,8 @@ SIMU.Simu.prototype.setupGui = function(){
     var perfFolder = this.gui.addFolder('Perf');
 
     perfFolder.add(this.parameters, 'frustumculling').name("Frustum Culling").onFinishChange(function(value){
-        for(var i = 0; i < that.views.length;i++){
-            that.views[i].parameters.frustumculling.value = value;
+        for(var i = 0; i < that.scenes.length;i++){
+            that.scenes[i].parameters.frustumculling.value = value;
         }
     });
     perfFolder.add(this.parameters, 'octreeprecision', 0, 5).name("Octree Precision");
@@ -312,6 +329,13 @@ SIMU.Simu.prototype.showUI = function(){
  * @description handle animation, i.e. movement in time
  */
 SIMU.Simu.prototype.animate = function(){
+
+    var that = this;
+
+    this.requestId = requestAnimationFrame(function (){
+        that.animate();
+    });
+
     if(this.parameters.play) {
         if (this.parameters.t < 1.0) {
             this.parameters.t += this.parameters.speed / 100;
@@ -329,18 +353,14 @@ SIMU.Simu.prototype.animate = function(){
                 this.parameters.play = false;
                 // Permet de modifier le CSS du bouton en fin d'animation.
                 this.timeline.setPlayButton();
-                for(var i = 0; i < this.views.length;i++){
-                    this.views[i].setStaticShaderMode();
+                for(var i = 0; i < this.scenes.length;i++){
+                    this.scenes[i].setStaticShaderMode();
                 }
-
             }
-
-
-
         }
 
-        for (i = 0; i < this.views.length; i++) {
-            this.views[i].setTime(this.parameters.t);
+        for (i = 0; i < this.scenes.length; i++) {
+            this.scenes[i].setTime(this.parameters.t);
         }
         for (i = 0; i < this.datas.length; i++) {
             this.datas[i].setTime(this.parameters.t);
@@ -352,21 +372,13 @@ SIMU.Simu.prototype.animate = function(){
 };
 
 /**
- * @description Render the views if they are synchro, animate the application
+ * @description animate the application
  */
 SIMU.Simu.prototype.render = function(){
-    this.animate();
-
     var that = this;
     this.requestId = requestAnimationFrame(function (){
         that.render();
     });
-
-    for(var i = 0; i < this.views.length; i++){
-        if(this.views[i].parameters.synchrorendering) {
-            this.views[i].render();
-        }
-    }
 };
 
 /**
@@ -377,11 +389,18 @@ SIMU.Simu.prototype.stopRender = function(){
 };
 
 /**
+ * @description Stop animation
+ */
+SIMU.Simu.prototype.stopAnimation = function(){
+    cancelAnimationFrame(this.requestId);
+};
+
+
+/**
  * @description Add empty data object to the application
- * @detail for each view an associated renderable data will be created
+ * @detail for each scene an associated renderable data will be created
  */
 SIMU.Simu.prototype.addData = function(){
-    //TODO get id data & snap
     var i;
     var data = new SIMU.Data();
     for(i = 0; i < this.info.nbSnapShot;i++){
@@ -392,11 +411,56 @@ SIMU.Simu.prototype.addData = function(){
     this.info.nbData++;
 
     var renderableData;
-    for(i = 0; i < this.views.length;i++){
+    for(i = 0; i < this.scenes.length;i++){
         renderableData = new SIMU.RenderableData();
         renderableData.setData(data);
-        this.views[i].addRenderableData(renderableData);
+        this.scenes[i].addRenderableData(renderableData);
     }
+};
+
+/**
+ * @description Modify the User Interface to show the current data given by its id
+ * @detail Call this function before setCurrentDataId
+ * @param id
+ */
+SIMU.Simu.prototype.setUICurrentData = function(id){
+    if(this.currentDataId != -1) {
+        document.getElementById('files').removeEventListener('change', this.lastFileEvent, false);
+    }
+
+    var array = document.getElementsByClassName("data_head_active");
+    for(var i = 0; i < array.length;i++){
+        array[i].className = "data_head";
+    }
+    array = document.getElementsByClassName("data_head");
+    array[id].className = "data_head_active";
+
+    this.lastFileEvent = this.datas[id].handleFileSelect.bind(this.datas[id]);
+    document.getElementById('files').addEventListener('change', this.lastFileEvent, false);
+};
+
+/**
+ * @description Set the current data within the application, i.e. for each views, by its id
+ * @param id
+ */
+SIMU.Simu.prototype.setCurrentDataId = function(id){
+    var i;
+    this.currentDataId = id;
+    for(i = 0; i < this.scenes.length;i++){
+        this.scenes[i].setCurrentRenderableDataId(this.currentDataId);
+    }
+    for(i = 0; i < this.views.length;i++){
+        this.views[i].setCurrentRenderableDataId(this.currentDataId);
+    }
+};
+
+/**
+ * @description Handle the event in which we change the current data
+ * @param event
+ */
+SIMU.Simu.prototype.changeCurrentData = function(event){
+    this.setUICurrentData(event.target.id);
+    this.setCurrentDataId(event.target.id);
 };
 
 /**
@@ -426,49 +490,6 @@ SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
 };
 
 /**
- * @description Set the current data within the application, i.e. for each views, by its id
- * @param id
- */
-SIMU.Simu.prototype.setCurrentDataId = function(id){
-    var i;
-
-
-    if(this.currentDataId != -1) {
-        document.getElementById('files').removeEventListener('change', this.lastFileEvent, false);
-    }
-
-    this.currentDataId = id;
-    for(i = 0; i < this.views.length;i++){
-        this.views[i].setCurrentRenderableDataId(this.currentDataId);
-    }
-
-    this.lastFileEvent = this.datas[this.currentDataId].handleFileSelect.bind(this.datas[this.currentDataId]);
-    document.getElementById('files').addEventListener('change', this.lastFileEvent, false);
-};
-
-/**
- * @description Handle the event in which we change the current data
- * @param event
- */
-SIMU.Simu.prototype.changeCurrentData = function(event){
-    this.setUICurrentData(event.target.id);
-    this.setCurrentDataId(event.target.id);
-};
-
-/**
- * @description Modify the User Interface to show the current data given by its id
- * @param id
- */
-SIMU.Simu.prototype.setUICurrentData = function(id){
-    var array = document.getElementsByClassName("data_head_active");
-    for(var i = 0; i < array.length;i++){
-        array[i].className = "data_head";
-    }
-    array = document.getElementsByClassName("data_head");
-    array[id].className = "data_head_active";
-};
-
-/**
  * @description Set the current snapshot within the application, i.e. for each views, by its id
  * @param id
  */
@@ -478,8 +499,8 @@ SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
     for(i = 0; i < this.datas.length;i++){
         this.datas[i].changeSnapshot(this.currentSnapshotId);
     }
-    for(i = 0; i < this.views.length;i++){
-        this.views[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
+    for(i = 0; i < this.scenes.length;i++){
+        this.scenes[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
     }
 };
 
@@ -527,11 +548,6 @@ SIMU.Simu.prototype.addColumn = function(){
     this.addData();
     this.setUICurrentData(this.info.nbData - 1);
     this.setCurrentDataId(this.info.nbData - 1);
-
-    for(i = 0; i < this.views.length;i++){
-        this.views[i].setCurrentRenderableDataId(this.currentDataId);
-    }
-
 };
 
 /**
@@ -561,25 +577,20 @@ SIMU.Simu.prototype.addRow = function(){
             tr.insertBefore(node, tr.lastElementChild);
         }
 
-        //add Snap
-        this.addSnapshot();
-
         /* Ajout du snapshot à la timeline */
         this.timeline.addSnapshot();
 
         /* Ajout de l'événement de mise à jour du snapshot sélectionné au clic de souris sur le snapshot */
         this.timeline.snapshots[id-1].html.addEventListener('click', this.changeCurrentSnapshot.bind(this), false);
 
+
+
+        //add Snap
+        this.addSnapshot();
+
         //Set new Snap as current
         this.setUICurrentSnapshot(id - 1);
         this.setCurrentSnapshotId(id - 1);
-        //this.currentSnapshotId = id - 1;
-        for(i = 0; i < this.datas.length;i++){
-            this.datas[i].changeSnapshot(this.currentSnapshotId);
-        }
-        for(i = 0; i < this.views.length;i++){
-            this.views[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
-        }
     }
 };
 
@@ -683,13 +694,13 @@ SIMU.Simu.prototype.onKeyDown = function(event){
             break;
         case 27 :       // Echap
             if(this.menu.isDisplayed){
-                for(i = 0; i < this.views.length;i++){
+                for(var i = 0; i < this.views.length;i++){
                     if(this.views[i].isShown){
                         this.views[i].render();
                     }
                 }
                 this.menu.hideMenu();
-                this.render();
+                this.animate();
 
             }else{
                 for(i = 0; i < this.views.length;i++){
@@ -697,7 +708,7 @@ SIMU.Simu.prototype.onKeyDown = function(event){
                         this.views[i].stopRender();
                     }
                 }
-                this.stopRender();
+                this.stopAnimation();
                 this.menu.displayMenu();
 
             }
@@ -780,8 +791,8 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
 SIMU.Simu.prototype.updateDataOnTimeChange = function()
 {
     var i;
-    for (i = 0; i < this.views.length; i++) {
-        this.views[i].setTime(this.parameters.t);
+    for (i = 0; i < this.scenes.length; i++) {
+        this.scenes[i].setTime(this.parameters.t);
     }
     for (i = 0; i < this.datas.length; i++) {
         this.datas[i].setTime(this.parameters.t);
@@ -792,8 +803,8 @@ SIMU.Simu.prototype.updateDataOnTimeChange = function()
                 this.datas[i].computePositions();
             }
         }
-        for (i = 0; i < this.views.length; i++) {
-            this.views[i].dataHasChanged();
+        for (i = 0; i < this.scenes.length; i++) {
+            this.scenes[i].dataHasChanged();
         }
     }
 }
@@ -826,7 +837,7 @@ SIMU.Simu.prototype.updateTimeOnCursorMove = function()
             this.parameters.t = 0.0001;
         }
     }
-}
+};
 
 /* Fonction onPlay
  *
@@ -852,17 +863,17 @@ SIMU.Simu.prototype.onPlay = function()
                     this.datas[i].computePositions();
                 }
             }
-            for (i = 0; i < this.views.length; i++) {
-                this.views[i].dataHasChanged();
-                this.views[i].setStaticShaderMode();
+            for (i = 0; i < this.scenes.length; i++) {
+                this.scenes[i].dataHasChanged();
+                this.scenes[i].setStaticShaderMode();
             }
         } else {
             this.parameters.play = true;
             this.timeline.setStopButton();
-            for (i = 0; i < this.views.length; i++) {
-                this.views[i].dataHasChanged();
-                this.views[i].setAnimatedShaderMode();
+            for (i = 0; i < this.scenes.length; i++) {
+                this.scenes[i].dataHasChanged();
+                this.scenes[i].setAnimatedShaderMode();
             }
         }
     }
-}
+};
