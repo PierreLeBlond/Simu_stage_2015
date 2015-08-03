@@ -1,7 +1,7 @@
 /**
  * Created by lespingal on 10/07/15.
- * @description Welcome to Class Data ! this class store raw data as the current position in time,
- * as well as other snapshot.
+ * @description A Data store raw data as the current position in time,
+ * as well as other Snapshot object.
  */
 var SIMU = SIMU || {};
 
@@ -11,25 +11,28 @@ var SIMU = SIMU || {};
  * @description Data, with all the snapshot related to it and the current used snapshot
  */
 SIMU.Data = function(){
-    this.isReady                    = false;
+    this.isReady                    = false;    /** True if at least one snapshot is ready, and is the current one **/
+    this.directionIsSet             = false;
 
-    this.nbSnapShot                 = 0;//Number of snapshot for this type of data
-    this.currentSnapshotId          = -1;//Current position within the snapshots
+    this.nbSnapShot                 = 0;        /** Number of snapshot **/
+    this.currentSnapshotId          = -1;       /** Index of the current snapshot **/
 
-    this.files                      = 0;
-    this.nbFiles                    = 0;
-    this.script                     = null;
+    this.files                      = 0;        /** Last files used to populate a snapshot **/
+    this.nbFiles                    = 0;        /** Number of files used to create last snapshot **/
+    this.script                     = null;     /** Current script used to load data from files **/
 
-    this.snapshots                  = [];
-    this.currentDeparture           = null;
-    this.currentPositionArray       = null;
-    this.indexArray                 = null;
-    this.currentDirection           = null;
-    this.color                      = null;
+    this.snapshots                  = [];       /** Array of Snapshot object **/
+    this.currentDeparture           = null;     /** Current buffer of point's departure, used for point animation **/
+    this.currentPositionArray       = null;     /** Current position of the points **/
+    this.indexArray                 = null;     /** Current buffer of the point index **/
+    this.currentDirection           = null;     /** Current buffer of point's directions, used for point animation **/
+    this.color                      = null;     /** Current buffer of point's color **/
 
-    this.currentOctree              = null;
+    this.currentOctree              = null;     /** Current octree **/
 
-    this.t                          = 0;
+    this.t                          = 0;        /** Current time **/
+
+    this.loadBar                    = new SIMU.LoadingBar();
 };
 
 /**
@@ -69,12 +72,11 @@ SIMU.Data.prototype.addSnapshot = function(){
  * @description Compute the timed position within the currents snapshots
  */
 SIMU.Data.prototype.computePositions = function(){
-    document.body.style.cursor = 'progress';
 
     //linear interpolation between two snapshots
     var length = this.currentPositionArray.length / 3;
     var i;
-    if(this.currentSnapshotId < (this.nbSnapShot - 1) &&  this.snapshots[this.currentSnapshotId].directionIsSet) {
+    if(this.currentSnapshotId < (this.nbSnapShot - 1) &&  this.directionIsSet) {
         for (i = 0; i < length; i++) {
             this.currentPositionArray[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
             this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
@@ -88,27 +90,30 @@ SIMU.Data.prototype.computePositions = function(){
         }
         console.log("Pas de destination !");
     }
-
-    document.body.style.cursor = 'crosshair';
 };
 
 /**
  * @description Change the current snapshot
- * @param snapshot
+ * @param {int} snapshot - wanted snapshot's id
  */
 SIMU.Data.prototype.changeSnapshot = function(snapshot){
     if(snapshot >= 0 && snapshot < this.nbSnapShot){
         this.currentSnapshotId = snapshot;
         if(this.snapshots[snapshot].isReady) {
+            this.isReady = true;
             this.currentDeparture = this.snapshots[snapshot].position;
             if(this.snapshots[snapshot].directionIsSet) {
+                this.directionIsSet = true;
                 this.currentDirection = this.snapshots[snapshot].direction;
+            }else{
+                this.directionIsSet = false;
             }
                 this.computePositions();
             this.currentOctree = this.snapshots[snapshot].octree;
             console.log("Success : change to snapshot " + snapshot);
         }else{//For the moment, when the snapshot is empty, we let the previous snapshot as the current one
             console.log("Warning : this snapshot is empty.");
+            this.isReady = false;
         }
     }else{
         console.log("Error : this snapshot doesn't exist.");
@@ -117,25 +122,24 @@ SIMU.Data.prototype.changeSnapshot = function(snapshot){
 
 /**
  * @author Arnaud Steinmetz
- * @description Sets a reader for each file selected
- * @param {FileList} files - List of the file selected.
- * @param {int} numFile - Number of the file that is read.
+ * @description Set a reader for a file and process data once FileReader has done his job.
+ * @param {file} file - The file to read in
+ * @param {function} callback - The function to call when all the data is read, to notify async "Hey ! We are done here !"
  */
 SIMU.Data.prototype.readAdd = function(file, callback) {
+
     var that = this;
     var reader = new FileReader();
-    //var fileName = files[numFile].name;
 
-    //
     reader.onerror = function (evt) {
         switch (evt.target.error.code) {
-            case evt.target.error.NOT_FOUND_ERR:        //If the file isn't found
+            case evt.target.error.NOT_FOUND_ERR:
                 alert('File Not Found!');
                 break;
-            case evt.target.error.NOT_READABLE_ERR:     //If the file isn't readable
+            case evt.target.error.NOT_READABLE_ERR:
                 alert('File is not readable');
                 break;
-            case evt.target.error.ABORT_ERR:            //If something abort the file
+            case evt.target.error.ABORT_ERR:
                 alert('Reading interrupted');
                 break;
             default:
@@ -143,20 +147,16 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
         }
     };
 
-    //
     reader.onprogress = function (evt) {
     };
 
-    //
     reader.onabort = function (e) {
         alert('File read cancelled');
     };
 
-    //
     reader.onloadstart = function (e) {
     };
 
-    //
     reader.onload = function (e) {
     };
 
@@ -166,13 +166,12 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
      * @description Function that will be called at the end of the loading phase.
      * @description Reads the file by using arrayBuffer and fill the right array depending on the position
      * @description This part of the reading is blocking the other when it is running (running back on the main thread -> not asynchronous)
-     * @param {loadend} evt
+     * @param {event} evt
      *
-     * /!\ TODO: check the file content before attempting to fill the array
      */
     reader.onloadend = function (evt) {
         var file = evt.target;
-        document.getElementById('fileLoadingProgress').value += 50/that.nbFiles;
+        document.getElementById('fileLoadingProgress').value += 80/that.nbFiles;
         //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
             var data = that.script.script(file.result);
@@ -181,7 +180,8 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
             callback(null, null);
         }
     };
-    // Read in the file as a ArrayBuffer.
+
+    //Just use the right method to read in the file
     if(this.script.binary) {
         reader.readAsArrayBuffer(file);
     }else{
@@ -190,10 +190,10 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
 };
 
 /**
- * @description get called when all the files have been loaded
+ * @description Get called when all the files have been loaded
  * @detail Populate the snapshot and modify other closed snapshot, and compute the octree & the right indexation
  * @param err
- * @param results {Array}
+ * @param {Array} results - Array of all results retrieved from each loaded files
  */
 SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
 
@@ -245,7 +245,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     snap.octree = event.data.octree;
 
                     //Get new indexation according to LevelOfDetail
-                    //snap.index = that.computeLevelOfDetail(4, snap.index);
+                    snap.index = that.computeLevelOfDetail(4, snap.index);
 
                     var position = new Float32Array(snap.position.length);
 
@@ -331,10 +331,10 @@ SIMU.Data.prototype.handleFileSelect = function(evt) {
 };
 
 /**
- * @description populate the already created buffer with a part of the data providing by one of the file
+ * @description Populate the already created buffer with a part of the data providing by one of the file
  * @detail this function will be called for each of the loaded file
- * @param data
- * @param callback
+ * @param data Result from a reading file
+ * @param {function} callback - Function to call when populating buffer is done, to notify async that, like, you know, it's done
  */
 SIMU.Data.prototype.populateBuffer = function(data, callback){
     var i;
@@ -451,6 +451,14 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
     callback(); //Let's notify async that we are done here
 };
 
+/**
+ * @description Change an index array to a structure easily usable for level of detail rendering
+ * @detail Makes different part of the array, for example, with a level of detail of 2 : [1, 2, 3, 4, 5, 6, 7, 8] -> [1, 3, 5, 7, 2, 4, 6, 8]
+ * With that, we can render one point of two with a draw call to the four first elements, while keeping the order.
+ * @param {int} levelOfDetail - The wanted lod, the more it is, the more we will be able to diminish the number of point rendered on screen
+ * @param {Float32Array} indexArray - The index array to change
+ * @returns {Float32Array} - The new index array
+ */
 SIMU.Data.prototype.computeLevelOfDetail = function(levelOfDetail, indexArray){
     var length = indexArray.length;
     var index = new Float32Array(length);

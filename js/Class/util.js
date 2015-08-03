@@ -78,6 +78,33 @@ function negate(color, index){
     color.needsUpdate = true;
 }
 
+SIMU.LoadingBar = function(){
+    this.domElement = null;
+};
+
+SIMU.LoadingBar.prototype.setupBar = function(){
+    this.domElement = document.createElement('progress');
+    this.domElement.style.position = 'absolute';
+    this.domElement.style.width = '20%';
+    this.domElement.style.height = '10px';
+    this.domElement.style.left = '40%';
+    this.domElement.style.bottom = '60px';
+    this.domElement.style.zIndex = '1';
+
+};
+
+SIMU.LoadingBar.prototype.display = function(){
+    this.domElement.style.display = 'block';
+};
+
+SIMU.LoadingBar.prototype.hide = function(){
+    this.domElement.style.display = 'none';
+};
+
+SIMU.LoadingBar.prototype.setPercent = function(percent){
+    this.domElement.value = percent;
+};
+
 SIMU.isMobile = {
     Android: function() {
         return navigator.userAgent.match(/Android/i);
