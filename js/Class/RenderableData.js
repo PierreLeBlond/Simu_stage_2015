@@ -20,8 +20,6 @@ SIMU.RenderableData = function(){
     this.isActive                           = false;
     this.isReady                            = false;//true if the buffer are populated and no error occurred
 
-    this.fogIsEnabled                       = false;
-
     this.drawCalls                          = [];
     this.levelOfDetail                      = 4;
 
@@ -44,27 +42,18 @@ SIMU.RenderableData = function(){
         t:              { type: 'f', value: 0.001},
         current_time:   { type: 'f', value: 60.0},
         size:           { type: 'f', value: 0.5},
-        fog:            { type: 'f', value: 0.9},
+        fogFactor:      { type: 'f', value: 0.9},
         fogDistance:    { type: 'f', value: 3.4},
-        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
+        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},
+        fog:            { type: 'i', value:0},
+        blink:          { type: 'i', value:0}
     };
 
     this.animatedShaderMaterial             = new THREE.ShaderMaterial( {
         attributes:     this.animatedAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.shader.animated.nofog.vertex,
-        fragmentShader: SIMU.shader.animated.nofog.fragment,
-        blending:       THREE.AdditiveBlending,
-        depthTest:      false,
-        transparent:    true,
-        fog:            false
-    });
-
-    this.animatedFogShaderMaterial          = new THREE.ShaderMaterial({
-        attributes:     this.animatedAttributes,
-        uniforms:       this.uniforms,
-        vertexShader:   SIMU.shader.animated.fog.vertex,
-        fragmentShader: SIMU.shader.animated.fog.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.animated.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.animated.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -74,21 +63,8 @@ SIMU.RenderableData = function(){
     this.staticShaderMaterial               = new THREE.ShaderMaterial({
         attributes:     this.staticAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.shader.static.nofog.vertex,
-        fragmentShader: SIMU.shader.static.nofog.fragment,
-
-        blending:       THREE.AdditiveBlending,
-        depthTest:      false,
-        transparent:    true,
-        fog:            false
-    });
-
-    this.staticFogShaderMaterial            = new THREE.ShaderMaterial({
-        attributes:     this.staticAttributes,
-        uniforms:       this.uniforms,
-        vertexShader:   SIMU.shader.static.fog.vertex,
-        fragmentShader: SIMU.shader.static.fog.fragment,
-
+        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.static.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.static.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -97,8 +73,8 @@ SIMU.RenderableData = function(){
 
     this.staticBufferGeometry               = new THREE.BufferGeometry();
 
-
     this.animatedBufferGeometry             = new THREE.BufferGeometry();
+
     this.animatedBufferGeometry.addAttribute('position', null);
     this.animatedBufferGeometry.addAttribute('endPosition', null);
     this.animatedBufferGeometry.addAttribute('color', null);
@@ -166,11 +142,7 @@ SIMU.RenderableData.prototype.resetData = function(){
  */
 SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
     this.pointCloud = null;
-    if(this.fogIsEnabled){
-        this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedFogShaderMaterial);
-    }else{
-        this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedShaderMaterial);
-    }
+    this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedShaderMaterial);
 };
 
 /**
@@ -178,11 +150,7 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
  */
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
     this.pointCloud = null;
-    if(this.fogIsEnabled){
-        this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticFogShaderMaterial);
-    }else{
-        this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticShaderMaterial);
-    }
+    this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticShaderMaterial);
 };
 
 /**
@@ -205,18 +173,6 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
         var yMax = box.yMax;
         var zMax = box.zMax;
 
-        var inside = 0;
-        var test = 0;
-        var isInside = false;
-
-        //console.log(camera.frustum);
-
-        /*for(var i = 0; i < 6; i++){
-
-
-
-         }*/
-
         var points = [new THREE.Vector3(xMin, yMin, zMin),
             new THREE.Vector3(xMin, yMin, zMax),
             new THREE.Vector3(xMin, yMax, zMin),
@@ -227,6 +183,12 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             new THREE.Vector3(xMax, yMax, zMax)
         ];
 
+        /**
+         * @depreciate
+         * @description old function, was testing each point in clip coordinate against frustum
+         * @param pos
+         * @returns {number}
+         */
         function testVertice(pos){
             var result = pos.project(camera);
 
@@ -384,13 +346,16 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
         var i;
         var j = 0;
 
-        //this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [];
+        this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [];
 
         while (j < intersectedOctants.length && target == null) {
             for (var k = 0; k < this.levelOfDetail; k++) {
                 var start = intersectedOctants[j].start/4 + k*this.data.snapshots[this.data.currentSnapshotId].index.length / 4;
-                var end = start + intersectedOctants[j].count/4;
-                //this.pointCloud.geometry.addDrawCall(start, intersectedOctants[j].count/4, start);
+                var end = start + intersectedOctants[j].count/4;//We miss a few point there, between 0 & 3
+                /*if((intersectedOctants[j].count%4) > k){
+                    end++;
+                }*/
+                this.pointCloud.geometry.addDrawCall(start, end - start, start);
                 for (i = start; i < end; i++) {
                     //var index = (i % 4) * this.data.snapshots[this.data.currentSnapshotId].index.length / 4 + (i / 4);
                     var x = this.data.currentPositionArray[3 * i];
@@ -409,7 +374,7 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
 
                         var md = (Math.pow(a * cx + b * cy + c * cz + d, 2)) / (a * a + b * b + c * c);
                         var h = Math.abs((cx - x) * (cx - x) + (cy - y) * (cy - y) + (cz - z) * (cz - z));
-                        if (Math.sqrt(h - md) < this.uniforms.size.value / 400) { //It's a kind of magic, maaaaagic !
+                        if (Math.sqrt(h - md) < this.uniforms.size.value / 4000) { //It's a kind of magic, maaaaagic !
                             if (target == null) {
                                 target = {index: i, distance: Math.sqrt(h), renderableData: this};
                             } else if (Math.sqrt(h) < target.distance) {

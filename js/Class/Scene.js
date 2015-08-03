@@ -43,25 +43,6 @@ SIMU.Scene = function(){
 };
 
 /**
- * @description Set fog state
- * @param {boolean} bool - State of fog parameter
- */
-SIMU.Scene.prototype.setFog = function(bool){
-    for (var i = 0; i < this.renderableDatas.length;i++){
-        this.renderableDatas[i].fogIsEnabled = bool;
-        if(this.renderableDatas[i].isReady) {
-            this.scene.remove(this.renderableDatas[i].pointCloud);
-            if (this.parameters.isStatic) {
-                this.renderableDatas[i].enableStaticShaderMode();
-            } else {
-                this.renderableDatas[i].enableAnimatedShaderMode();
-            }
-            this.scene.add(this.renderableDatas[i].pointCloud);
-        }
-    }
-};
-
-/**
  * @description set time for the scene to t
  * @detail get called whenever time is changing within the application
  * @param t
@@ -121,6 +102,26 @@ SIMU.Scene.prototype.deactivateCurrentData = function(){
 };
 
 /**
+ * @description Set fog state
+ * @param {boolean} bool - State of fog parameter
+ */
+SIMU.Scene.prototype.setCurrentDataFog = function(bool){
+    if (this.currentRenderableDataId >= 0) {
+        this.renderableDatas[this.currentRenderableDataId].uniforms.fog.value = bool ? 1 : 0;
+    }
+};
+
+/**
+ * @description Set fog state
+ * @param {boolean} bool - State of fog parameter
+ */
+SIMU.Scene.prototype.setCurrentDataBlink = function(bool){
+    if (this.currentRenderableDataId >= 0) {
+        this.renderableDatas[this.currentRenderableDataId].uniforms.blink.value = bool ? 1 : 0;
+    }
+};
+
+/**
  * @description Set texture for the current RenderableData object
  * @param {int} texture - Id of wanted texture
  */
@@ -169,9 +170,7 @@ SIMU.Scene.prototype.setCurrentDataLevelOfDetail = function(levelOfDetail){
 
 SIMU.Scene.prototype.setCurrentDataBlendingType = function(blendingType){
     if (this.currentRenderableDataId >= 0) {
-        this.renderableDatas[this.currentRenderableDataId].animatedFogShaderMaterial.blending = this.blending[blendingType];
         this.renderableDatas[this.currentRenderableDataId].animatedShaderMaterial.blending = this.blending[blendingType];
-        this.renderableDatas[this.currentRenderableDataId].staticFogShaderMaterial.blending = this.blending[blendingType];
         this.renderableDatas[this.currentRenderableDataId].staticShaderMaterial.blending = this.blending[blendingType];
     }
 };

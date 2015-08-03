@@ -1,16 +1,3 @@
-body {
-    margin: 0;
-}
-
-canvas {
-    width: 100%; height: 100%;
-}
-
-body {
-    overflow:hidden;
-    cursor: crosshair;
-}
-
 progress {
     position:fixed;
     width:20%;
@@ -20,71 +7,12 @@ progress {
     z-index:1;
 }
 
-#container {
-    position:absolute;
-}
-
-#tools {
-    position: fixed;
-    width: 110px;
-    bottom: 10px;
-    right: 10px;
-}
-
-#colorPickingTexture {
-    position : fixed;
-    width: 10%;
-    height: 10%;
-    right: 10px;
-    bottom: 100px;
-}
-
-#debugInfo {
-    position: fixed;
-    left: 10px;
-    bottom : 10px;
-    color: white;
-    background : black;
-}
-
-#info {
-    position: fixed;
-    background: black;
-    color: white;
-    left: 5px;
-    top:40%;
-}
-
-#info_intersected {
-    position: fixed;
-    background: black;
-    color: white;
-    border: blue 2px solid;
-    border-radius: 2px;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-}
-
-#info_intersected:hover {
-    cursor: crosshair;
-}
-
-#info_selected {
-    position: fixed;
-    background: black;
-    color: white;
-    border: green 2px solid;
-    border-radius: 2px;
-    -moz-user-select: none;
-    -webkit-user-select: none;
-    -ms-user-select: none;
-}
-
-#info_selected:hover {
-    cursor: crosshair;
-}
-
-.info {
-    white-space: pre-wrap;
+#app {
+    width : 100%;
+    height : 100%;
+    margin-left : auto;
+    margin-right : auto;
+    position : absolute;
+    top : 0;
+    left : 0;
 }

@@ -31,6 +31,7 @@ SIMU.View = function () {
         active                      : false,            /** True if the current point cloud is displayed **/
         pointsize                   : 0.5,              /** Size of the particle within the point cloud **/
         fog                         : false,            /** True if the fog is enable **/
+        blink                       : false,            /** True if blinking effect is enable **/
         linkcamera                  : false,            /** True if the current used camera is the global one **/
         isStatic                    : true,             /** True if we are in static mode **/
         color                       : [ 255, 255, 255], /** Default color of the current point cloud **/
@@ -166,10 +167,6 @@ SIMU.View.prototype.setupGui = function(){
 
         var viewFolder = this.gui.addFolder('View');
 
-        viewFolder.add(this.sceneParameters, 'fog').name("fog").onFinishChange(function (value) {
-            that.scene.setFog(value);
-        });
-
         viewFolder.add(this.sceneParameters, 'linkcamera').name("Link Camera").onFinishChange(function () {
             //TODO Create function in class SIMU.Scene
             if (that.sceneParameters.linkcamera && that.globalCamera) {
@@ -183,7 +180,7 @@ SIMU.View.prototype.setupGui = function(){
             }
         });
 
-        viewFolder.add(this.sceneParameters, 'frustumculling').name('Frustum Culling').listen();
+        viewFolder.add(this.sceneParameters, 'frustumculling').name('Frustum Culling');
 
         viewFolder.add(this.sceneParameters, 'oculus').name('enable oculus view').onFinishChange(function(value){
             if(!value){
@@ -196,7 +193,7 @@ SIMU.View.prototype.setupGui = function(){
 
         var dataFolder = this.gui.addFolder('Data');
 
-        dataFolder.add(this.sceneParameters, 'active').name("activate data").listen().onFinishChange(function () {
+        dataFolder.add(this.sceneParameters, 'active').name("activate data").onFinishChange(function () {
             if (that.sceneParameters.active) {
                 that.scene.activateCurrentData();
                 that.updateUIinfoList();
@@ -205,19 +202,27 @@ SIMU.View.prototype.setupGui = function(){
             }
         });
 
-        dataFolder.add(this.sceneParameters, 'idTexture', {spark: 0, star: 1}).listen().onFinishChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'fog').name("fog").onFinishChange(function (value) {
+            that.scene.setCurrentDataFog(value);
+        });
+
+        dataFolder.add(this.sceneParameters, 'blink').name("blink").onFinishChange(function (value) {
+            that.scene.setCurrentDataBlink(value);
+        });
+
+        dataFolder.add(this.sceneParameters, 'idTexture', {spark: 0, star: 1, starburst: 2, flatstar: 3}).name('texture').onFinishChange(function (value) {
             that.scene.setCurrentDataTexture(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'pointsize', 0.0001, 10).name("point size").listen().onFinishChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'pointsize', 0.0001, 10).name("point size").onFinishChange(function (value) {
             that.scene.setCurrentDataPointSize(value);
         });
 
-        dataFolder.addColor(this.sceneParameters, 'color').name("color").listen().onChange(function (value) {
+        dataFolder.addColor(this.sceneParameters, 'color').name("color").onChange(function (value) {
             that.scene.setCurrentDataColor(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'levelOfDetail', 0, 4).name("Level of Detail").listen().onChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'levelOfDetail', 0, 4).name("Level of Detail").onChange(function (value) {
             that.scene.setCurrentDataLevelOfDetail(value);
         });
 
@@ -229,7 +234,7 @@ SIMU.View.prototype.setupGui = function(){
             multiply: 4
         };
 
-        dataFolder.add(this.sceneParameters, 'idBlending', blendingType).name('blending').listen().onChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'idBlending', blendingType).name('blending').onChange(function (value) {
             that.scene.setCurrentDataBlendingType(value);
         });
 
@@ -250,6 +255,7 @@ SIMU.View.prototype.setupGui = function(){
         this.info.style.left = '30%';
         this.info.style.bottom = '20px';
         this.info.style.color = 'white';
+        this.info.style.whiteSpace = 'pre-wrap';
 
         this.domElement.appendChild(this.info);
     }
@@ -263,10 +269,10 @@ SIMU.View.prototype.showGui = function(){
 };
 
 SIMU.View.prototype.hideGui = function(){
-    this.gui.domElement.style.display = "block";
-    this.stats.domElement.style.display = "block";
-    this.info.style.display = "block";
-    this.debug.style.display = "block";
+    this.gui.domElement.style.display = "none";
+    this.stats.domElement.style.display = "none";
+    this.info.style.display = "none";
+    this.debug.style.display = "none";
 };
 
 SIMU.View.prototype.updateUIinfoList = function(){
@@ -319,21 +325,36 @@ SIMU.View.prototype.updateUIinfoList = function(){
         })
     }
 };
+
+SIMU.View.prototype.updateGuiDisplay = function(gui) {
+    for (var i in gui.__controllers) {
+        gui.__controllers[i].updateDisplay();
+    }
+    for (var f in gui.__folders) {
+        this.updateGuiDisplay(gui.__folders[f]);
+    }
+};
+
+
 /**
  * @description set the id of the current renderable data
  * @detail update the ui to match the new current renderable data
  * @param id
  */
 SIMU.View.prototype.setCurrentRenderableDataId = function(id) {
-    var currentRenderableData = this.scene.renderableDatas[id];
-    this.sceneParameters.active = currentRenderableData.isActive;
-    this.sceneParameters.pointsize = currentRenderableData.uniforms.size.value;
-    this.sceneParameters.color = currentRenderableData.defaultColor;
-    this.sceneParameters.idTexture = currentRenderableData.idTexture;
-    this.sceneParameters.idBlending = currentRenderableData.idBlending;
-    this.sceneParameters.levelOfDetail = currentRenderableData.levelOfDetail;
+    var currentRenderableData           = this.scene.renderableDatas[id];
+    this.sceneParameters.active         = currentRenderableData.isActive;
+    this.sceneParameters.pointsize      = currentRenderableData.uniforms.size.value;
+    this.sceneParameters.color          = currentRenderableData.defaultColor;
+    this.sceneParameters.idTexture      = currentRenderableData.idTexture;
+    this.sceneParameters.idBlending     = currentRenderableData.idBlending;
+    this.sceneParameters.levelOfDetail  = currentRenderableData.levelOfDetail;
+    this.sceneParameters.fog            = currentRenderableData.uniforms.fog.value == 1;
+    this.sceneParameters.blink          = currentRenderableData.uniforms.blink.value == 1;
 
     this.updateUIinfoList();
+
+    this.updateGuiDisplay(this.gui);
 };
 
 /**
@@ -384,7 +405,9 @@ SIMU.View.prototype.render = function(){
 
     this.animate();
 
-    this.scene.computeCulling(this.camera);
+    if(this.sceneParameters.frustumculling) {
+        this.scene.computeCulling(this.camera);
+    }
 
     this.scene.setDeltaT(this.clock.elapsedTime);
 

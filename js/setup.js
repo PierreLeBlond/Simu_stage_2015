@@ -91,7 +91,7 @@ function setupScene()
         size:           { type: 'f', value: 0.5},
         fog:            { type: 'f', value: 1.1},
         fogDistance:    { type: 'f', value: 3.4},
-        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark1.png")}
+        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")}
     };
 
     App.animatedShaderMaterial = new THREE.ShaderMaterial( {

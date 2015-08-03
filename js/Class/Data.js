@@ -31,6 +31,8 @@ SIMU.Data = function(){
     this.currentOctree              = null;     /** Current octree **/
 
     this.t                          = 0;        /** Current time **/
+
+    this.loadBar                    = new SIMU.LoadingBar();
 };
 
 /**
@@ -70,7 +72,6 @@ SIMU.Data.prototype.addSnapshot = function(){
  * @description Compute the timed position within the currents snapshots
  */
 SIMU.Data.prototype.computePositions = function(){
-    document.body.style.cursor = 'progress';
 
     //linear interpolation between two snapshots
     var length = this.currentPositionArray.length / 3;
@@ -89,8 +90,6 @@ SIMU.Data.prototype.computePositions = function(){
         }
         console.log("Pas de destination !");
     }
-
-    document.body.style.cursor = 'crosshair';
 };
 
 /**
@@ -172,7 +171,7 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
      */
     reader.onloadend = function (evt) {
         var file = evt.target;
-        document.getElementById('fileLoadingProgress').value += 50/that.nbFiles;
+        document.getElementById('fileLoadingProgress').value += 80/that.nbFiles;
         //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
             var data = that.script.script(file.result);
@@ -454,6 +453,8 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
 
 /**
  * @description Change an index array to a structure easily usable for level of detail rendering
+ * @detail Makes different part of the array, for example, with a level of detail of 2 : [1, 2, 3, 4, 5, 6, 7, 8] -> [1, 3, 5, 7, 2, 4, 6, 8]
+ * With that, we can render one point of two with a draw call to the four first elements, while keeping the order.
  * @param {int} levelOfDetail - The wanted lod, the more it is, the more we will be able to diminish the number of point rendered on screen
  * @param {Float32Array} indexArray - The index array to change
  * @returns {Float32Array} - The new index array

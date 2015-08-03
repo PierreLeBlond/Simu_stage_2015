@@ -5,9 +5,7 @@
 var SIMU = SIMU || {};
 
 var simu = new SIMU.Simu();
-simu.setDomElement(document.body);
-simu.setWidth(window.innerWidth);
-simu.setHeight(window.innerHeight);
+simu.setDomElement(document.getElementById('app'));
 simu.setupSimu();
 simu.setupGui();
 

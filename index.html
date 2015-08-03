@@ -26,9 +26,7 @@
 </head>
 <body>
 
-<div id="container">
-
-</div>
+<div id="app"></div>
 
 <!-- Détection des couleurs par la caméra -->
 
@@ -84,47 +82,8 @@
 
 </ul>
 
-<button id="addSnap" style="position: absolute; top: 50%; width: 10%; left: 45%; display: none;">Add</button>
-
-<div id="data_manager">
-	<div id="loader">
-		<input type="file" accept="*" id="files" name="file" multiple style="display:none;"/>
-	</div>
-	<table id="data_table">
-		<thead>
-		<tr id="data_head">
-			<th></th>
-		<th><input id="add_column_button" type="image" alt="Add data" src="resources/icons/Add_icon_16.png"/></th>
-		</tr>
-		</thead>
-		<tr>
-			<td>
-				<input id="add_row_button" type="image" alt="Add data" src="resources/icons/Add_icon_16.png"/>
-			</td>
-			<td></td>
-		</tr>
-	</table>
-</div>
-
 
 <progress id="fileLoadingProgress" value="0" max="100"></progress>
-<div id="info_wrapper">
-	<div id="info">
-
-	</div>
-	<div id="info_intersected">
-
-	</div>
-	<div id="info_selected">
-
-	</div>
-</div>
-
-<div id="debugInfo">
-
-</div>
-
-<div id="colorPickingTexture"></div>
 
 </body>
 
@@ -140,6 +99,7 @@
 <script src="js/Class/View.js"></script>
 <script src="js/Class/menu.js"></script>
 <script src="js/Class/timeline.js"></script>
+<script src="js/Class/DataUIManager.js"></script>
 <script src="js/Class/app.js"></script>
 
 </html>
