@@ -631,6 +631,3 @@ THREE.PerspectiveCamera.prototype.useFPSControls = function(view){
     this.controls = this.fpControls;
     this.controls.enabled = true;
 };
-
-
-
