@@ -74,6 +74,8 @@ SIMU.Simu = function(){
 
     this.dataManager            = null;
 
+    this.loadingbar             = null;
+
     this.domElement             = null;
     this.container              = null;
 
@@ -290,6 +292,9 @@ SIMU.Simu.prototype.switchToMultiview = function()
 SIMU.Simu.prototype.setupGui = function(){
 
     var that = this;
+
+    this.loadingbar = SIMU.LoadingBarSingleton.getInstance();
+    this.domElement.appendChild(this.loadingbar.domElement);
 
     this.dataManager = new SIMU.DataUIManager();
     this.dataManager.setupUI();

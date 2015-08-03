@@ -32,7 +32,7 @@ SIMU.Data = function(){
 
     this.t                          = 0;        /** Current time **/
 
-    this.loadBar                    = new SIMU.LoadingBar();
+    this.loadBar                    = SIMU.LoadingBarSingleton.getInstance();
 };
 
 /**
@@ -171,7 +171,7 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
      */
     reader.onloadend = function (evt) {
         var file = evt.target;
-        document.getElementById('fileLoadingProgress').value += 80/that.nbFiles;
+        that.loadBar.domElement.value += 80/that.nbFiles;
         //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
             var data = that.script.script(file.result);
@@ -304,7 +304,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     snap.isReady = true;
                     that.isReady = true;
 
-                    document.getElementById('fileLoadingProgress').style.display = 'none';
+                    that.loadBar.domElement.style.display = 'none';
 
                     w.terminate();
                     w = null;
@@ -324,8 +324,8 @@ SIMU.Data.prototype.handleFileSelect = function(evt) {
     var files = evt.target.files;
     this.nbFiles = files.length;
 
-    document.getElementById('fileLoadingProgress').value = 0;
-    document.getElementById('fileLoadingProgress').style.display = 'block';
+    this.loadBar.domElement.value = 0;
+    this.loadBar.domElement.style.display = 'block';
 
     async.map(files, this.readAdd.bind(this), this.onEveryLoadEnd.bind(this));
 };
@@ -447,7 +447,7 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
                 break;
         }
     }
-    document.getElementById('fileLoadingProgress').value += 50/this.nbFiles;
+    this.loadBar.domElement.value += 20/this.nbFiles;
     callback(); //Let's notify async that we are done here
 };
 

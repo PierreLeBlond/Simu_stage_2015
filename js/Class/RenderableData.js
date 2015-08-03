@@ -325,6 +325,8 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
         }
     }
 
+    this.drawCalls = null;
+
 };
 
 /**
