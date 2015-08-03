@@ -22,6 +22,7 @@ SIMU.View = function () {
     this.scene                      = null;                                 /** The scene to display and bind to this view **/
     this.renderer                   = null;                                 /** The THREE.js renderer **/
     this.oculusRenderer             = null;
+    this.cardboardRenderer          = null;
 
     this.currentRenderer            = null;
 
@@ -120,6 +121,9 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         this.domElement.appendChild( this.renderer.domElement );
 
         this.oculusRenderer = new THREE.OculusRiftEffect(this.renderer);
+        this.cardboardRenderer = new THREE.StereoEffect(this.renderer);
+        this.cardboardRenderer.eyeSeparation = 0.0001;
+        this.cardboardRenderer.setSize(this.width, this.height);
 
         this.currentRenderer = this.renderer;
 
@@ -527,5 +531,19 @@ SIMU.View.prototype.showInfo = function(point){
     this.info.innerHTML = result.join('');
 };
 
-
-
+/**
+ * @description Set the camera in order to control it as in a FPS
+ * @param view
+ */
+THREE.PerspectiveCamera.prototype.useFPSControls = function(view){
+    if(this.controls){
+        this.controls.enabled = false;
+    }
+    if(!this.fpControls)
+    {
+        this.fpControls = new THREE.FirstPersonControls(this, view.renderer.domElement);
+        this.fpControls.moveSpeed =  0.5;
+    }
+    this.controls = this.fpControls;
+    this.controls.enabled = true;
+};

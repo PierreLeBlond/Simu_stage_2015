@@ -240,6 +240,37 @@ SIMU.Simu.prototype.switchToOculusview = function(){
     this.animate();
 };
 
+SIMU.Simu.prototype.switchToCardboardview = function(){
+
+    this.menu.hideMenu();
+
+    this.container.innerHTML = "";
+
+    this.globalCamera.aspect = this.width / this.height;
+    this.globalCamera.updateProjectionMatrix();
+
+    if(this.views.length == 0){
+        this.addViewWithNewScene();
+    }
+    this.currentView = this.views[0];
+    this.currentView.domElement.id = 0;
+    this.container.appendChild(this.currentView.domElement);
+    this.currentView.isShown = true;
+    this.currentView.resize(this.width, this.height, 0, 0);
+    this.currentView.setGlobalCamera(this.globalCamera);
+    this.currentView.currentRenderer = this.currentView.cardboardRenderer;
+    this.currentView.render();
+
+    if(this.windowResizeEvent){
+        window.removeEventListener('resize', this.windowResizeEvent, false);
+    }
+    this.windowResizeEvent = this.onSingleviewWindowResize.bind(this);
+    window.addEventListener( 'resize',this.windowResizeEvent, false );
+
+    this.showUI();
+    this.animate();
+};
+
 /**
  * @description Enter multiple view mode, two view in this case and so far
  */
@@ -323,6 +354,7 @@ SIMU.Simu.prototype.setupGui = function(){
 
     this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
     this.menu.oculus.addEventListener('click', this.switchToOculusview.bind(this), false);
+    this.menu.cardboard.addEventListener('click', this.switchToCardboardview.bind(this), false);
     this.menu.multiView.addEventListener('click', this.switchToMultiview.bind(this), false);
 
     this.menu.displayMenu();
