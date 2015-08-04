@@ -14,7 +14,6 @@ var SIMU = SIMU || {};
  * cardboard            : élément HTML correspondant à la div cardboard
  *
  * blocker              : élément HTML correspondant à la div blocker
- * controlsEnabled      : booléen contrôlant l'activation des contrôles
  * isDisplayed          : booléen contrôlant l'affichage du menu
  *
  * La classe menu a pour but de permettre de naviguer entre différents types d'affichage :
@@ -33,33 +32,69 @@ var SIMU = SIMU || {};
 
 SIMU.Menu = function()
 {
-    this.simpleView = null;
-    this.multiView = null;
-    this.oculus = null;
-    this.cardboard = null;
+    this.simpleView         = null;
+    this.multiView          = null;
+    this.oculus             = null;
+    this.cardboard          = null;
 
-    this.blocker = null;
-    this.controlsEnabled = true;
-    this.isDisplayed = false;
+    this.blocker            = null;
+    this.isDisplayed        = false;
 };
 
-/* Fonction d'initialisation des paramètres du menu */
-
-SIMU.Menu.prototype.initialize = function()
+/* Fonction setup
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but d'initialiser les paramètres de Menu et d'appliquer ses éléments HTML au DOM.
+ * Elle fait également appel à la fonction setCSS afin d'appliquer le CSS.
+ */
+SIMU.Menu.prototype.setup = function()
 {
-    this.simpleView = document.getElementById('simpleview');
-    this.multiView = document.getElementById('multiview');
-    this.oculus = document.getElementById('oculus');
-    this.cardboard = document.getElementById('cardboard');
+    this.setCSS();
 
-    /*this.simpleView.addEventListener('click', this.initSimpleView.bind(this), false);
-    this.multiView.addEventListener('click', this.initMultiView.bind(this), false);
-    this.oculus.addEventListener('click', this.initOculus.bind(this), false);
-    this.cardboard.addEventListener('click', this.initCardboard.bind(this), false);*/
+    this.blocker = document.createElement('div');
+    this.blocker.id = 'blocker';
 
-    this.blocker = document.getElementById('blocker');
+    this.simpleView = document.createElement('div');
+    this.simpleView.id = 'simpleview';
+    this.simpleView.className = 'choices';
+    this.simpleView.innerHTML = [
+        '<span>Simple View</span>\n'
+    ].join('');
 
-    //window.addEventListener('keydown', this.switchMenu.bind(this), false);
+    this.multiView = document.createElement('div');
+    this.multiView.id = 'multiview';
+    this.multiView.className = 'choices';
+    this.multiView.innerHTML = [
+        '<span>Multiview</span>\n'
+    ].join('');
+
+    this.oculus = document.createElement('div');
+    this.oculus.id = 'oculus';
+    this.oculus.className = 'choices';
+    this.oculus.innerHTML = [
+        '<span>Oculus Rift</span>\n'
+    ].join('');
+
+    this.cardboard = document.createElement('div');
+    this.cardboard.id = 'cardboard';
+    this.cardboard.className = 'choices';
+    this.cardboard.innerHTML = [
+        '<span>Google Cardboard</span>\n'
+    ].join('');
+
+    this.blocker.innerHTML = [
+        '<div id="instructions">',
+        '<span style="font-size:50px">Choose display type</span>',
+        '<br/>',
+        '</div>'
+    ].join('\n');
+
+    this.blocker.firstElementChild.appendChild(this.simpleView);
+    this.blocker.firstElementChild.appendChild(this.multiView);
+    this.blocker.firstElementChild.appendChild(this.oculus);
+    this.blocker.firstElementChild.appendChild(this.cardboard);
 };
 
 /* Fonction permettant d'alterner l'affichage du menu
@@ -94,7 +129,6 @@ SIMU.Menu.prototype.switchMenu = function(e)
 SIMU.Menu.prototype.displayMenu = function()
 {
     this.blocker.style.display = 'initial';
-    this.controlsEnabled = false;
     this.isDisplayed = true;
 };
 
@@ -103,170 +137,66 @@ SIMU.Menu.prototype.displayMenu = function()
 SIMU.Menu.prototype.hideMenu = function()
 {
     this.blocker.style.display = 'none';
-    this.controlsEnabled = true;
     this.isDisplayed = false;
 };
 
-/* Fonction d'initialisation du mode SimpleView */
-
-SIMU.Menu.prototype.initSimpleView = function()
+/* Fonction setCSS
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but d'appliquer le CSS en l'insérant dans le DOM dans une balise <style>
+ */
+SIMU.Menu.prototype.setCSS = function()
 {
-    if ( simu.currentDisplay == simu.DisplayType.SIMPLEVIEW )
-    {
-        /* Disparition du menu */
+    var css = document.createElement('style');
 
-        this.hideMenu();
+    css.innerHTML = [
+        '/* Style du menu (choix du type d\'affichage) */',
+        '',
+        '#blocker {',
+        '   position: absolute;',
+        '   display: none;',
+        '   top: 0;',
+        '   left: 0;',
+        '   width: 100%;',
+        '   height: 100%;',
+        '   background-color: rgba(0,0,0,0.5);',
+        '   font-family: Arial, sans-serif;',
+        '   z-index: 100;',
+        '}',
+        '',
+        '#instructions {',
+        '   width: 100%;',
+        '   height: 100%;',
+        '   display: -webkit-box;',
+        '   display: -moz-box;',
+        '   display: box;',
+        '   -webkit-box-orient: horizontal;',
+        '   -moz-box-orient: horizontal;',
+        '   box-orient: horizontal;',
+        '   -webkit-box-pack: center;',
+        '   -moz-box-pack: center;',
+        '   box-pack: center;',
+        '   -webkit-box-align: center;',
+        '   -moz-box-align: center;',
+        '   box-align: center;',
+        '   color: #ffffff;',
+        '   text-align: center;',
+        '}',
+        '',
+        '.choices {',
+        '   display: inline-block;',
+        '   margin: 20px 20px;',
+        '   font-size: 25px;',
+        '   cursor: pointer;',
+        '   transition-duration: .5s;',
+        '}',
+        '',
+        '.choices:hover {',
+        '   font-size: 30px;',
+        '}'
+    ].join('\n');
 
-    }
-    else
-    {
-        /* Interruption de la boucle de rendu en cours s'il y a lieu */
-
-        if ( simu.currentDisplay !== simu.DisplayType.UNKNOWN )
-        {
-
-            // TODO : Interruption de la boucle, destruction de la vue ( désallouement, etc.) & réinitialisation des variables qui seront réutilisées
-
-            /*
-            cancelAnimationFrame(App.requestId);
-            document.body.removeChild( App.renderer.domElement );
-            document.body.removeChild( Gui.stats.domElement );
-            Gui.gui.destroy();
-            Camera.fpControls = undefined;
-            Camera.controls = undefined;
-            */
-        }
-
-        /* Enregistrement du choix */
-
-        simu.currentDisplay = simu.DisplayType.SIMPLEVIEW;
-
-        /* Disparition du menu */
-
-        this.hideMenu();
-
-        /* Création d'un objet SimpleViewManager */
-
-        this.simpleViewManager = new SimpleViewManager();
-
-        this.simpleViewManager.initialize();
-
-        /* Initialisation de la scène */
-
-        // TODO : Initialisation de la scène
-
-        /*
-        setupScene();
-        setupcamera();
-        setupGUI();
-
-        initEventhandling();
-        */
-
-        /* Chargement automatique des données */
-
-        // TODO : A conserver ?
-
-        /*
-        if (App.autoLoadData)
-        {
-            loadBinaryFiles(App.startFiles);
-        }
-        */
-
-        /* Lancement de la boucle de rendu */
-
-        // TODO : Boucle de rendu générale, boucle spécifique, encapsulement, etc.
-
-        /*
-        render();
-        */
-
-    }
-};
-
-/* Fonction d'initialisation du mode MultiView */
-
-SIMU.Menu.prototype.initMultiView = function()
-{
-    if ( simu.currentDisplay == simu.DisplayType.MULTIVIEW )
-    {
-        /* Disparition du menu */
-
-        this.hideMenu();
-
-    }
-    else
-    {
-        /* Interruption de la boucle de rendu en cours s'il y a lieu */
-
-        if ( simu.currentDisplay !== simu.DisplayType.UNKNOWN )
-        {
-
-            // TODO : Interruption de la boucle, destruction de la vue ( désallouement, etc.) & réinitialisation des variables qui seront réutilisées
-
-            /*
-             cancelAnimationFrame(App.requestId);
-             document.body.removeChild( App.renderer.domElement );
-             document.body.removeChild( Gui.stats.domElement );
-             Gui.gui.destroy();
-             Camera.fpControls = undefined;
-             Camera.controls = undefined;
-             */
-        }
-
-        /* Enregistrement du choix */
-
-        simu.currentDisplay = simu.DisplayType.MULTIVIEW;
-
-        /* Disparition du menu */
-
-        this.hideMenu();
-
-        /* Initialisation de la scène */
-
-        // TODO : Initialisation de la scène
-
-        /*
-         setupScene();
-         setupcamera();
-         setupGUI();
-
-         initEventhandling();
-         */
-
-        /* Chargement automatique des données */
-
-        // TODO : A conserver ?
-
-        /*
-         if (App.autoLoadData)
-         {
-         loadBinaryFiles(App.startFiles);
-         }
-         */
-
-        /* Lancement de la boucle de rendu */
-
-        // TODO : Boucle de rendu générale, boucle spécifique, encapsulement, etc.
-
-        /*
-         render();
-         */
-
-    }
-};
-
-/* Fonction d'initialisation du mode Oculus */
-
-SIMU.Menu.prototype.initOculus = function()
-{
-    // TODO : Un équivalent de initSimpleView pour le mode Oculus
-};
-
-/* Fonction d'initialisation du mode Cardboard */
-
-SIMU.Menu.prototype.initCardboard = function()
-{
-    // TODO : Un équivalent de initSimpleView pour le mode Cardboard
-};
+    document.head.appendChild(css);
+}

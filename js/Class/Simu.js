@@ -250,6 +250,7 @@ SIMU.Simu.prototype.switchToCardboardview = function(){
     if(this.views.length == 0){
         this.addViewWithNewScene();
     }
+
     this.currentView = this.views[0];
     this.currentView.domElement.id = 0;
     this.container.appendChild(this.currentView.domElement);
@@ -344,8 +345,10 @@ SIMU.Simu.prototype.setupGui = function(){
     this.globalCamera.controls.enabled = false;
 
 
+    /* Création du menu et des événements associés */
     this.menu = new SIMU.Menu();
-    this.menu.initialize();
+    this.menu.setup();
+    this.domElement.appendChild(this.menu.blocker);
 
     this.menu.simpleView.addEventListener('click', this.switchToSingleview.bind(this), false);
     this.menu.oculus.addEventListener('click', this.switchToOculusview.bind(this), false);
@@ -355,18 +358,14 @@ SIMU.Simu.prototype.setupGui = function(){
     this.menu.displayMenu();
 
 
-    /* Création de la timeline */
+    /* Création de la timeline et des événements associés */
     this.timeline = new SIMU.Timeline();
+    this.timeline.setup();
+    this.domElement.appendChild(this.timeline.html);
 
-    /* Ajout de l'événement de mise à jour de l'interface lors du déplacement du curseur au DOM */
     document.addEventListener('mousemove', this.updateTimeOnCursorMove.bind(this), false);
-
-    /* Ajout de l'événement de mise à jour de l'interface lors du relâchement de la souris au DOM */
     document.addEventListener('mouseup', this.updateTimeOnCursorRelease.bind(this), false);
-
-    /* Ajout de l'événement d'animation des snapshots lors d'un clic sur le bouton play */
     this.timeline.playButton.addEventListener('click', this.onPlay.bind(this), false);
-
 
 
     this.gui = new dat.GUI({autoPlace: false});
