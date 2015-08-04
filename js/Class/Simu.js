@@ -42,22 +42,8 @@ SIMU.Simu = function(){
     this.currentDataId          = -1;
     this.currentSnapshotId      = -1;
 
-
-
-    /* List of different types of display, useful to remember the current display */
-    this.DisplayType            = {
-        UNKNOWN : 0,
-        SIMPLEVIEW : 1,
-        MULTIVIEW : 2,
-        OCULUS : 3,
-        CARDBOARD : 4
-    };
-
     //This camera is used to have different views with the same point of view
     this.globalCamera           = null;
-
-    /* Used to remember the current display */
-    this.currentDisplay         = this.DisplayType.UNKNOWN;
 
     this.scripts                = [];
     this.texture                = [];
