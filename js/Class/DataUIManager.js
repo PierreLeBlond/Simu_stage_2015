@@ -54,7 +54,60 @@ SIMU.DataUIManager.prototype.setupUI = function(){
         '   </tr>\n',
         '</table>\n'].join('');
 
+    var css = [
+        'tr.border {                            \n',
+        '   height: 2px;                        \n',
+        '   background: white;                  \n',
+        '   border-spacing: 0;                  \n',
+        '}                                      \n',
+        '                                       \n',
+        '.browse_button {                       \n',
+        '   width: 16px;                        \n',
+        '   margin-left: auto;                  \n',
+        '   margin-right: auto;                 \n',
+        '}                                      \n',
+        '                                       \n',
+        '.data_head_active {                    \n',
+        '   border-bottom: white solid 1px;     \n',
+        '   border-left: white solid 2px;       \n',
+        '   border-right: white solid 1px;      \n',
+        '   border-top: white solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '.data_head {                           \n',
+        '   border-bottom: black solid 1px;     \n',
+        '   border-left: black solid 2px;       \n',
+        '   border-right: black solid 1px;      \n',
+        '   border-top: black solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '.snap_head_active {                    \n',
+        '   border-bottom: white solid 1px;     \n',
+        '   border-left: white solid 2px;       \n',
+        '   border-right: white solid 1px;      \n',
+        '   border-top: white solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '.snap_head {                           \n',
+        '   border-bottom: black solid 1px;     \n',
+        '   border-left: black solid 2px;       \n',
+        '   border-right: black solid 1px;      \n',
+        '   border-top: black solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '#loader {                              \n',
+        '   color: white;                       \n',
+        '   width: 100%;                        \n',
+        '}                                      \n'
+    ].join('');
+
+
+    var style = document.createElement('style');
+    style.innerHTML = css;
+    document.body.appendChild(style);
+
     this.domElement.firstElementChild.appendChild(this.fileLoader);
+
 };
 
 /**

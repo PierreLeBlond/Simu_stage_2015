@@ -27,21 +27,23 @@ SIMU.View = function () {
     this.currentRenderer            = null;
 
     this.sceneParameters            = {
-        t                           : 0,                /** The snapshot time **/
-        delta_t                     : 0,                /** The current elapsed time **/
-        active                      : false,            /** True if the current point cloud is displayed **/
-        pointsize                   : 0.5,              /** Size of the particle within the point cloud **/
-        fog                         : false,            /** True if the fog is enable **/
-        blink                       : false,            /** True if blinking effect is enable **/
-        linkcamera                  : false,            /** True if the current used camera is the global one **/
-        isStatic                    : true,             /** True if we are in static mode **/
-        color                       : [ 255, 255, 255], /** Default color of the current point cloud **/
-        idInfo                      : -1,               /** Id of the current info of the current point cloud **/
-        idTexture                   : -1,               /** Id of the texture used in the current point cloud **/
-        idBlending                  : -1,               /** Id of the blending mode used in the current point cloud **/
-        frustumculling              : true,             /** True if view frustum culling is enabled **/
-        levelOfDetail               : 4,                /** level of detail of the point cloud **/
-        oculus                      : false
+        t                           : 0,                                    /** The snapshot time **/
+        delta_t                     : 0,                                    /** The current elapsed time **/
+        active                      : false,                                /** True if the current point cloud is displayed **/
+        pointsize                   : 0.5,                                  /** Size of the particle within the point cloud **/
+        fog                         : false,                                /** True if the fog is enable **/
+        blink                       : false,                                /** True if blinking effect is enable **/
+        linkcamera                  : false,                                /** True if the current used camera is the global one **/
+        isStatic                    : true,                                 /** True if we are in static mode **/
+        color                       : [ 255, 255, 255],                     /** Default color of the current point cloud **/
+        idInfo                      : -1,                                   /** Id of the current info of the current point cloud **/
+        idTexture                   : -1,                                   /** Id of the texture used in the current point cloud **/
+        idBlending                  : -1,                                   /** Id of the blending mode used in the current point cloud **/
+        frustumculling              : true,                                 /** True if view frustum culling is enabled **/
+        levelOfDetail               : 4,                                    /** level of detail of the point cloud **/
+        oculus                      : false,
+        idParam                     : 0,
+        paramEnabled                : false
     };
 
     this.camera                     = null;                                 /** Currently used camera **/
@@ -242,8 +244,24 @@ SIMU.View.prototype.setupGui = function(){
             that.scene.setCurrentDataBlendingType(value);
         });
 
+        dataFolder.add(this.sceneParameters, 'paramEnabled').name('enable param').onChange(function(value){
+
+        });
+
 
         this.infoList = this.gui.__folders.Data.add(this.scene.parameters, 'idInfo', {none: 0}).name('info');
+
+        var param = {
+            none: 0,
+            lightning: 1,
+            blink: 2,
+            color: 3,
+            size: 4
+        };
+
+        dataFolder.add(this.sceneParameters, 'idParam', param).name('param').onChange(function(value){
+            that.scene.setCurrentDataParam(value);
+        });
 
         this.domElement.appendChild(this.gui.domElement);
 
@@ -294,7 +312,32 @@ SIMU.View.prototype.updateUIinfoList = function(){
 
         this.infoList = this.gui.__folders.Data.add(this.sceneParameters, 'idInfo', info).name('info').onFinishChange(function (value) {
             var currentRenderableData = that.scene.renderableDatas[that.scene.currentRenderableDataId];
-            if (value != 0 && snapInfo[value - 1].min < snapInfo[value - 1].max) {
+            if (value != 0 && snapInfo[value - 1].min <= snapInfo[value - 1].max) {
+                var min = snapInfo[value - 1].min;
+                var max = snapInfo[value - 1].max;
+                currentRenderableData.uniforms.min_info.value = min;
+                currentRenderableData.uniforms.max_info.value = max;
+                currentRenderableData.idInfo = value - 1;
+
+                currentRenderableData.data.currentInfo = snapInfo[value - 1].value;
+                currentRenderableData.resetData();
+
+                if(that.scene.parameters.shaderType == SIMU.ShaderType.STATIC){
+                    that.scene.setShaderType(SIMU.ShaderType.PARAMETRICSTATIC);
+                }else if(that.scene.parameters.shaderType == SIMU.ShaderType.ANIMATED){
+                    that.scene.setShaderType(SIMU.ShaderType.PARAMETRICANIMATED);
+                }
+            }else{
+                if(that.scene.parameters.shaderType == SIMU.ShaderType.PARAMETRICSTATIC){
+                    that.scene.setShaderType(SIMU.ShaderType.STATIC);
+                }else if(that.scene.parameters.shaderType == SIMU.ShaderType.PARAMETRICANIMATED){
+                    that.scene.setShaderType(SIMU.ShaderType.ANIMATED);
+                }
+            }
+
+
+
+            /*if (value != 0 && snapInfo[value - 1].min < snapInfo[value - 1].max) {
                 var min = snapInfo[value - 1].min;
                 var max = snapInfo[value - 1].max;
 
@@ -325,7 +368,7 @@ SIMU.View.prototype.updateUIinfoList = function(){
                     }
                     color.needsUpdate = true;
                 }
-            }
+            }*/
         })
     }
 };
@@ -355,6 +398,8 @@ SIMU.View.prototype.setCurrentRenderableDataId = function(id) {
     this.sceneParameters.levelOfDetail  = currentRenderableData.levelOfDetail;
     this.sceneParameters.fog            = currentRenderableData.uniforms.fog.value == 1;
     this.sceneParameters.blink          = currentRenderableData.uniforms.blink.value == 1;
+    this.sceneParameters.idParam        = currentRenderableData.uniforms.param_type.value;
+    this.sceneParameters.idInfo         = currentRenderableData.idInfo;
 
     this.updateUIinfoList();
 

@@ -74,6 +74,8 @@ SIMU.Simu = function(){
 
     this.dataManager            = null;
 
+    this.loadingbar             = null;
+
     this.domElement             = null;
     this.container              = null;
 
@@ -118,17 +120,17 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
  * @description Setup the menu and the global camera
  */
 SIMU.Simu.prototype.setupSimu = function(){
-        this.globalCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
-        this.globalCamera.rotation.order  = 'ZYX';
-        this.globalCamera.position.set(0.5, 0.5, 0.5);
-        this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
+    this.globalCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
+    this.globalCamera.rotation.order  = 'ZYX';
+    this.globalCamera.position.set(0.5, 0.5, 0.5);
+    this.globalCamera.lookAt(new THREE.Vector3(0, 0, 0));
 
-        this.globalCamera.frustum = new THREE.Frustum();
+    this.globalCamera.frustum = new THREE.Frustum();
 
-        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark.png"));
-        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
-        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/starburst.jpg"));
-        this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/flatstar.jpg"));
+    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark.png"));
+    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
+    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/starburst.jpg"));
+    this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/flatstar.jpg"));
 };
 
 SIMU.Simu.prototype.addViewWithNewScene = function(){
@@ -323,6 +325,9 @@ SIMU.Simu.prototype.setupGui = function(){
 
     var that = this;
 
+    this.loadingbar = SIMU.LoadingBarSingleton.getInstance();
+    this.domElement.appendChild(this.loadingbar.domElement);
+
     this.dataManager = new SIMU.DataUIManager();
     this.dataManager.setupUI();
 
@@ -451,7 +456,11 @@ SIMU.Simu.prototype.animate = function(){
                 // Permet de modifier le CSS du bouton en fin d'animation.
                 this.timeline.setPlayButton();
                 for(var i = 0; i < this.scenes.length;i++){
-                    this.scenes[i].setStaticShaderMode();
+                    if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.ANIMATED){
+                        this.scenes[i].setShaderType(SIMU.ShaderType.STATIC);
+                    }else if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.PARAMETRICANIMATED){
+                        this.scenes[i].setShaderType(SIMU.ShaderType.PARAMETRICSTATIC);
+                    }
                 }
             }
         }
@@ -702,7 +711,7 @@ SIMU.Simu.prototype.focus = function(event){
 
     if(id != ""){
         for (var i = 0; i < this.views.length; i++) {
-                this.views[i].camera.controls.enabled = false;
+            this.views[i].camera.controls.enabled = false;
         }
         this.currentView = this.views[id];
         this.currentView.camera.controls.enabled = true;
@@ -748,8 +757,8 @@ SIMU.Simu.prototype.setupEvents = function(){
     window.addEventListener('keydown', this.onKeyDown.bind(this), false);
 
     /*for (var i = 0; i < this.views.length; i++) {
-        this.views[i].domElement.addEventListener('click', this.focus.bind(this), false);
-    }*/
+     this.views[i].domElement.addEventListener('click', this.focus.bind(this), false);
+     }*/
 };
 
 /**
@@ -818,7 +827,7 @@ SIMU.Simu.prototype.onKeyDown = function(event){
             break;
         case 72 ://h
             for(i = 0; i < this.views.length;i++){
-                    this.views[i].hideGui();
+                this.views[i].hideGui();
             }
             this.hideUI();
             break;
@@ -870,27 +879,27 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
         /* Il n'est plus nécessaire de mettre à jour avant le prochain déplacement du curseur */
         this.timeline.cursor.positionHasToBeComputed = false;
 
-/*
-    // Fonction catch qui permet d'attraper le curseur lorsque celui-ci est très proche d'un snapshot.
-    // Peut toujours être utile, à conserver si nécessaire.
-    // Exemple : En général, il est très compliqué de drag & drop le curseur pile sur un snapshot, on sera toujours à un pixel à côté. Cette fonctionnalité serait indispensable pour l'expérience utilisateur si un clic ne permettait pas de positionner le curseur sur un snapshot.
+        /*
+         // Fonction catch qui permet d'attraper le curseur lorsque celui-ci est très proche d'un snapshot.
+         // Peut toujours être utile, à conserver si nécessaire.
+         // Exemple : En général, il est très compliqué de drag & drop le curseur pile sur un snapshot, on sera toujours à un pixel à côté. Cette fonctionnalité serait indispensable pour l'expérience utilisateur si un clic ne permettait pas de positionner le curseur sur un snapshot.
 
-        /* Boucle sur les objets Snapshot2 du tableau snapshots
-        for (var i = 0; i < this.timeline.nbSnapshots; i++)
-        {
-            /* Si le curseur se situe dans un intervalle ]-10, +10[ autour du snapshot, on sélectionne ce snapshot
-            if (this.timeline.cursor.getOffset() + 10 > this.timeline.snapshots[i].getOffset() - 10
-                && this.timeline.cursor.getOffset() + 10 < this.timeline.snapshots[i].getOffset() + 10)
-            {
-                //Set new Snap as current
-                this.setUICurrentSnapshot(i);
-                this.setCurrentSnapshotId(i);
+         /* Boucle sur les objets Snapshot2 du tableau snapshots
+         for (var i = 0; i < this.timeline.nbSnapshots; i++)
+         {
+         /* Si le curseur se situe dans un intervalle ]-10, +10[ autour du snapshot, on sélectionne ce snapshot
+         if (this.timeline.cursor.getOffset() + 10 > this.timeline.snapshots[i].getOffset() - 10
+         && this.timeline.cursor.getOffset() + 10 < this.timeline.snapshots[i].getOffset() + 10)
+         {
+         //Set new Snap as current
+         this.setUICurrentSnapshot(i);
+         this.setCurrentSnapshotId(i);
 
-                /* Mise à jour de la timeline
-                this.timeline.changeCurrentSnapshot(i);
-            }
-        }
-*/
+         /* Mise à jour de la timeline
+         this.timeline.changeCurrentSnapshot(i);
+         }
+         }
+         */
     }
 }
 
@@ -978,14 +987,22 @@ SIMU.Simu.prototype.onPlay = function()
             }
             for (i = 0; i < this.scenes.length; i++) {
                 this.scenes[i].dataHasChanged();
-                this.scenes[i].setStaticShaderMode();
+                if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.ANIMATED){
+                    this.scenes[i].setShaderType(SIMU.ShaderType.STATIC);
+                }else if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.PARAMETRICANIMATED){
+                    this.scenes[i].setShaderType(SIMU.ShaderType.PARAMETRICSTATIC);
+                }
             }
         } else {
             this.parameters.play = true;
             this.timeline.setStopButton();
             for (i = 0; i < this.scenes.length; i++) {
                 this.scenes[i].dataHasChanged();
-                this.scenes[i].setAnimatedShaderMode();
+                if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.STATIC){
+                    this.scenes[i].setShaderType(SIMU.ShaderType.ANIMATED);
+                }else if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.PARAMETRICSTATIC){
+                    this.scenes[i].setShaderType(SIMU.ShaderType.PARAMETRICANIMATED);
+                }
             }
         }
     }
