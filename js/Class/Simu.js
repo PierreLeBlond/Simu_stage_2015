@@ -832,7 +832,7 @@ SIMU.Simu.prototype.onKeyDown = function(event){
             }
             this.hideUI();
             break;
-        case 83 ://s
+        case 85 ://t
             for(i = 0; i < this.views.length;i++){
                 this.views[i].showGui();
             }
