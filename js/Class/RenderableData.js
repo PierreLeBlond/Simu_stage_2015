@@ -26,6 +26,7 @@ SIMU.RenderableData = function(){
     this.defaultColor                       = [255, 255, 255];
     this.idTexture                          = 0;
     this.idBlending                         = 1;
+    this.idInfo                             = 0;
 
     this.clock                              = new THREE.Clock();
 
@@ -38,6 +39,17 @@ SIMU.RenderableData = function(){
         color:          {type: 'v3', value: []}
     };
 
+    this.animatedParametricAttributes       = {
+        endPosition:    {type: 'v3', value: []},
+        info:           {type: 'f', value: []},
+        color:          {type: 'v3', value: []}
+    };
+
+    this.staticParametricAttributes         = {
+        info:           {type: 'f', value: []},
+        color:          {type: 'v3', value: []}
+    };
+
     this.uniforms                           = {
         t:              { type: 'f', value: 0.001},
         current_time:   { type: 'f', value: 60.0},
@@ -46,14 +58,17 @@ SIMU.RenderableData = function(){
         fogDistance:    { type: 'f', value: 3.4},
         map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},
         fog:            { type: 'i', value:0},
-        blink:          { type: 'i', value:0}
+        blink:          { type: 'i', value:0},
+        param_type:     { type: 'i', value:0},
+        min_info:       { type: 'f', value:0.0},
+        max_info:       { type: 'f', value:0.0}
     };
 
     this.animatedShaderMaterial             = new THREE.ShaderMaterial( {
         attributes:     this.animatedAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.animated.vertex,
-        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.animated.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.default.animated.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.default.animated.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -63,21 +78,44 @@ SIMU.RenderableData = function(){
     this.staticShaderMaterial               = new THREE.ShaderMaterial({
         attributes:     this.staticAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.static.vertex,
-        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.static.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.default.static.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.default.static.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
         fog:            false
     });
 
-    this.staticBufferGeometry               = new THREE.BufferGeometry();
+    this.animatedParametricShaderMaterial           = new THREE.ShaderMaterial({
+        attributes:     this.animatedParametricAttributes,
+        uniforms:       this.uniforms,
+        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.animated.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.animated.fragment,
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true,
+        fog:            false
+    });
 
-    this.animatedBufferGeometry             = new THREE.BufferGeometry();
+    this.staticParametricShaderMaterial           = new THREE.ShaderMaterial({
+        attributes:     this.staticParametricAttributes,
+        uniforms:       this.uniforms,
+        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.static.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.static.fragment,
+        blending:       THREE.AdditiveBlending,
+        depthTest:      false,
+        transparent:    true,
+        fog:            false
+    });
 
-    this.animatedBufferGeometry.addAttribute('position', null);
-    this.animatedBufferGeometry.addAttribute('endPosition', null);
-    this.animatedBufferGeometry.addAttribute('color', null);
+    this.staticBufferGeometry                       = new THREE.BufferGeometry();
+
+    this.animatedBufferGeometry                     = new THREE.BufferGeometry();
+
+    this.staticParametricBufferGeometry             = new THREE.BufferGeometry();
+
+    this.animatedParametricBufferGeometry           = new THREE.BufferGeometry();
+
 
 
 };
@@ -96,6 +134,14 @@ SIMU.RenderableData.prototype.setData = function(data){
     this.staticBufferGeometry.attributes.position.needsUpdate = true;
     this.staticBufferGeometry.attributes.color.needsUpdate = true;
 
+    this.staticParametricBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPositionArray, 3));
+    this.staticParametricBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
+    this.staticParametricBufferGeometry.addAttribute('info', new THREE.BufferAttribute(this.data.currentInfo, 1));
+
+    this.staticParametricBufferGeometry.attributes.position.needsUpdate = true;
+    this.staticParametricBufferGeometry.attributes.color.needsUpdate = true;
+    this.staticParametricBufferGeometry.attributes.info.needsUpdate = true;
+
     this.animatedBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentDeparture, 3));
     this.animatedBufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
     this.animatedBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
@@ -103,6 +149,16 @@ SIMU.RenderableData.prototype.setData = function(data){
     this.animatedBufferGeometry.attributes.position.needsUpdate = true;
     this.animatedBufferGeometry.attributes.endPosition.needsUpdate = true;
     this.animatedBufferGeometry.attributes.color.needsUpdate = true;
+
+    this.animatedParametricBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentDeparture, 3));
+    this.animatedParametricBufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
+    this.animatedParametricBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
+    this.animatedParametricBufferGeometry.addAttribute('info', new THREE.BufferAttribute(this.data.currentInfo, 1));
+
+    this.animatedParametricBufferGeometry.attributes.position.needsUpdate = true;
+    this.animatedParametricBufferGeometry.attributes.endPosition.needsUpdate = true;
+    this.animatedParametricBufferGeometry.attributes.color.needsUpdate = true;
+    this.animatedParametricBufferGeometry.attributes.info.needsUpdate = true;
 
     if(data.isReady) {
         this.isReady = true;
@@ -123,6 +179,14 @@ SIMU.RenderableData.prototype.resetData = function(){
         this.staticBufferGeometry.attributes.position.needsUpdate = true;
         this.staticBufferGeometry.attributes.color.needsUpdate = true;
 
+        this.staticParametricBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentPositionArray, 3);
+        this.staticParametricBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
+        this.staticParametricBufferGeometry.attributes.info = new THREE.BufferAttribute(this.data.currentInfo, 1);
+
+        this.staticParametricBufferGeometry.attributes.position.needsUpdate = true;
+        this.staticParametricBufferGeometry.attributes.color.needsUpdate = true;
+        this.staticParametricBufferGeometry.attributes.info.needsUpdate = true;
+
         this.animatedBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentDeparture, 3);
         this.animatedBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(this.data.currentDirection, 3);
         this.animatedBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
@@ -130,6 +194,16 @@ SIMU.RenderableData.prototype.resetData = function(){
         this.animatedBufferGeometry.attributes.position.needsUpdate = true;
         this.animatedBufferGeometry.attributes.endPosition.needsUpdate = true;
         this.animatedBufferGeometry.attributes.color.needsUpdate = true;
+
+        this.animatedParametricBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentDeparture, 3);
+        this.animatedParametricBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(this.data.currentDirection, 3);
+        this.animatedParametricBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
+        this.animatedParametricBufferGeometry.attributes.info = new THREE.BufferAttribute(this.data.currentInfo, 1);
+
+        this.animatedParametricBufferGeometry.attributes.position.needsUpdate = true;
+        this.animatedParametricBufferGeometry.attributes.endPosition.needsUpdate = true;
+        this.animatedParametricBufferGeometry.attributes.color.needsUpdate = true;
+        this.animatedParametricBufferGeometry.attributes.info.needsUpdate = true;
 
         this.isReady = true;
     }else{
@@ -151,6 +225,22 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
     this.pointCloud = null;
     this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticShaderMaterial);
+};
+
+/**
+ * @description Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on CPU side
+ */
+SIMU.RenderableData.prototype.enableStaticParametricShaderMode = function(){
+    this.pointCloud = null;
+    this.pointCloud = new THREE.PointCloud(this.staticParametricBufferGeometry, this.staticParametricShaderMaterial);
+};
+
+/**
+ * @description Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on GPU side
+ */
+SIMU.RenderableData.prototype.enableAnimatedParametricShaderMode = function(){
+    this.pointCloud = null;
+    this.pointCloud = new THREE.PointCloud(this.animatedParametricBufferGeometry, this.animatedParametricShaderMaterial);
 };
 
 /**
@@ -355,8 +445,8 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
                 var start = intersectedOctants[j].start/4 + k*this.data.snapshots[this.data.currentSnapshotId].index.length / 4;
                 var end = start + intersectedOctants[j].count/4;//We miss a few point there, between 0 & 3
                 /*if((intersectedOctants[j].count%4) > k){
-                    end++;
-                }*/
+                 end++;
+                 }*/
                 this.pointCloud.geometry.addDrawCall(start, end - start, start);
                 for (i = start; i < end; i++) {
                     //var index = (i % 4) * this.data.snapshots[this.data.currentSnapshotId].index.length / 4 + (i / 4);

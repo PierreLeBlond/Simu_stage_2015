@@ -16,7 +16,7 @@ SIMU.Scene = function(){
         pointsize                   : 0.5,              /** Size of the particle within the point cloud **/
         fog                         : false,            /** True if the fog is enable **/
         linkcamera                  : false,            /** True if the current used camera is the global one **/
-        isStatic                    : true,             /** True if we are in static mode **/
+        shaderType                  : SIMU.ShaderType.STATIC,
         color                       : [ 255, 255, 255], /** Default color of the current point cloud **/
         idInfo                      : -1,               /** Id of the current info of the current point cloud **/
         idTexture                   : -1,               /** Id of the texture used in the current point cloud **/
@@ -83,13 +83,27 @@ SIMU.Scene.prototype.setupScene = function(){
 SIMU.Scene.prototype.activateCurrentData = function(){
     var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
     currentRenderableData.resetData();
-    if(this.parameters.isStatic){
-        currentRenderableData.enableStaticShaderMode();
-    }else{
-        currentRenderableData.enableAnimatedShaderMode();
-    }
+    this.enableCurrentDataShaderMode();
     currentRenderableData.isActive = true;
     this.scene.add(currentRenderableData.pointCloud);
+};
+
+SIMU.Scene.prototype.enableCurrentDataShaderMode = function(){
+    var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
+    switch(this.parameters.shaderType){
+        case SIMU.ShaderType.STATIC :
+            currentRenderableData.enableStaticShaderMode();
+            break;
+        case SIMU.ShaderType.ANIMATED :
+            currentRenderableData.enableAnimatedShaderMode();
+            break;
+        case SIMU.ShaderType.PARAMETRICSTATIC :
+            currentRenderableData.enableStaticParametricShaderMode();
+            break;
+        case SIMU.ShaderType.PARAMETRICANIMATED :
+            currentRenderableData.enableAnimatedParametricShaderMode();
+            break;
+    }
 };
 
 /**
@@ -175,6 +189,12 @@ SIMU.Scene.prototype.setCurrentDataBlendingType = function(blendingType){
     }
 };
 
+SIMU.Scene.prototype.setCurrentDataParam = function(param){
+    if (this.currentRenderableDataId >= 0) {
+        this.renderableDatas[this.currentRenderableDataId].uniforms.param_type.value = param;
+    }
+};
+
 
 
 /**
@@ -206,11 +226,7 @@ SIMU.Scene.prototype.setCurrentRenderableSnapshotId = function(id){
         if(renderableData.isActive) {
             this.scene.remove(renderableData.pointCloud);
             renderableData.resetData();
-            if(this.parameters.isStatic) {
-                renderableData.enableStaticShaderMode();
-            }else{
-                renderableData.enableAnimatedShaderMode();
-            }
+            this.enableCurrentDataShaderMode();
             if(renderableData.isReady) {
                 this.scene.add(renderableData.pointCloud);
             }
@@ -234,16 +250,16 @@ SIMU.Scene.prototype.dataHasChanged = function(){
 };
 
 /**
- * @description Set shader mode to animated
+ * @description Set shader type
  */
-SIMU.Scene.prototype.setAnimatedShaderMode = function(){
-    this.parameters.isStatic = false;
+SIMU.Scene.prototype.setShaderType = function(type){
+    this.parameters.shaderType = type;
     for(var i = 0; i < this.renderableDatas.length;i++){
         var renderableData = this.renderableDatas[i];
         if(renderableData.isActive) {
             //First remove element from the scene, in order to take the modification in account when we'll put it back
             this.scene.remove(renderableData.pointCloud);
-            renderableData.enableAnimatedShaderMode();
+            this.enableCurrentDataShaderMode();
             if(renderableData.isReady) {
                 this.scene.add(renderableData.pointCloud);
             }
@@ -251,22 +267,7 @@ SIMU.Scene.prototype.setAnimatedShaderMode = function(){
     }
 };
 
-/**
- * @description Set shader mode to static
- */
-SIMU.Scene.prototype.setStaticShaderMode = function(){
-    this.parameters.isStatic = true;
-    for(var i = 0; i < this.renderableDatas.length;i++){
-        var renderableData = this.renderableDatas[i];
-        if(renderableData.isActive) {
-            this.scene.remove(renderableData.pointCloud);
-            renderableData.enableStaticShaderMode();
-            if(renderableData.isReady) {
-                this.scene.add(renderableData.pointCloud);
-            }
-        }
-    }
-};
+
 
 SIMU.Scene.prototype.computeCulling = function(camera){
     for(var i = 0; i < this.renderableDatas.length;i++){

@@ -142,3 +142,10 @@ SIMU.isMobile = {
         return (SIMU.isMobile.Android() || SIMU.isMobile.BlackBerry() || SIMU.isMobile.iOS() || SIMU.isMobile.Opera() || SIMU.isMobile.Windows());
     }
 };
+
+SIMU.ShaderType = {
+    STATIC : 0,
+    ANIMATED : 1,
+    PARAMETRICSTATIC : 2,
+    PARAMETRICANIMATED : 3
+};

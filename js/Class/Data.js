@@ -27,6 +27,7 @@ SIMU.Data = function(){
     this.indexArray                 = null;     /** Current buffer of the point index **/
     this.currentDirection           = null;     /** Current buffer of point's directions, used for point animation **/
     this.color                      = null;     /** Current buffer of point's color **/
+    this.currentInfo                = null;
 
     this.currentOctree              = null;     /** Current octree **/
 
