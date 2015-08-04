@@ -1,104 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Data modeling</title>
-	<link rel="stylesheet" href="index.css">
-	<link rel="stylesheet" href="css/timeline.css">
-	<link rel="stylesheet" href="css/menu.css">
-	<script type="text/javascript" src="lib/stats.min.js"></script>
-	<script type="text/javascript" src="lib/dat.gui.min.js"></script>
 
-	<script type="text/javascript" src="lib/three.js"></script>
-	<script type="text/javascript" src="lib/OculusRiftEffect.js"></script>
+	<head>
 
-	<script type="text/javascript" src="lib/OrbitControls.js"></script>
-	<script type="text/javascript" src="lib/FirstPersonControls.js"></script>
+		<meta charset="UTF-8">
+		<title>Data modeling</title>
 
-	<script type="text/javascript" src="lib/async.js"></script>
-	<script type="text/javascript" src="lib/screenfull.js"></script>
+		<link rel="stylesheet" href="index.css">
 
-	<!-- Cardboard dependencies -->
-	<script type="text/javascript" src="lib/StereoEffect.js"></script>
-	<script type="text/javascript" src="lib/DeviceOrientationControls.js"></script>
+		<script type="text/javascript" src="lib/stats.min.js"></script>
+		<script type="text/javascript" src="lib/dat.gui.min.js"></script>
 
-</head>
-<body>
+		<script type="text/javascript" src="lib/three.js"></script>
+		<script type="text/javascript" src="lib/OculusRiftEffect.js"></script>
 
-<div id="app"></div>
+		<script type="text/javascript" src="lib/OrbitControls.js"></script>
+		<script type="text/javascript" src="lib/FirstPersonControls.js"></script>
 
-<!-- Détection des couleurs par la caméra -->
+		<script type="text/javascript" src="lib/async.js"></script>
+		<script type="text/javascript" src="lib/screenfull.js"></script>
 
-<video id="color-detection-video" style="display: none;" muted autoplay></video>
+		<!-- Cardboard dependencies -->
+		<script type="text/javascript" src="lib/StereoEffect.js"></script>
+		<script type="text/javascript" src="lib/DeviceOrientationControls.js"></script>
 
-<canvas id="color-detection-canvas" style="display:none;"></canvas>
+	</head>
 
-<!-- Menu -->
+	<body>
 
-<div id="blocker">
+		<div id="app"></div>
 
-	<div id="instructions">
+		<!-- Détection des couleurs par la caméra -->
+		<video id="color-detection-video" style="display: none;" muted autoplay></video>
+		<canvas id="color-detection-canvas" style="display:none;"></canvas>
 
-		<span style="font-size:50px">Choose display type</span>
-		<br/>
+		<progress id="fileLoadingProgress" value="0" max="100"></progress>
 
-		<div id="simpleview" class="choices">
-			<span>Simple View</span>
-		</div>
+	</body>
 
-		<div id="multiview" class="choices">
-			<span>Multiview</span>
-		</div>
-
-		<div id="oculus" class="choices">
-			<span>Oculus Rift</span>
-		</div>
-
-		<div id="cardboard" class="choices">
-			<span>Google Cardboard</span>
-		</div>
-
-	</div>
-
-</div>
-
-<!-- Timeline : Curseur + liste de snapshots + bouton play/stop -->
-
-<ul id="timeline">
-
-	<div id="cursor" class="draggable">
-		<div id="cursor-head">
-			<div id="cursor-hair-top-left" class="cursor-hair"></div>
-			<div id="cursor-hair-top-right" class="cursor-hair"></div>
-			<div id="cursor-hair-bottom-left" class="cursor-hair"></div>
-			<div id="cursor-hair-bottom-right" class="cursor-hair"></div>
-		</div>
-	</div>
-
-	<div id="play-border">
-		<div id="play-button"></div>
-	</div>
-
-</ul>
-
-
-<progress id="fileLoadingProgress" value="0" max="100"></progress>
-
-</body>
-
-<script src="js/Class/Simu.js"></script>
-<script type="text/javascript" src="js/Class/util.js"></script>
-<script type="text/javascript" src="js/Class/Script.js"></script>
-<script type="text/javascript" src="js/Class/Shader.js"></script>
-<script type="text/javascript" src="js/Class/PerspectiveCamera.js"></script>
-<script src="js/Class/Snapshot.js"></script>
-<script src="js/Class/Data.js"></script>
-<script src="js/Class/RenderableData.js"></script>
-<script src="js/Class/Scene.js"></script>
-<script src="js/Class/View.js"></script>
-<script src="js/Class/menu.js"></script>
-<script src="js/Class/timeline.js"></script>
-<script src="js/Class/DataUIManager.js"></script>
-<script src="js/Class/app.js"></script>
+	<script src="js/Class/Simu.js"></script>
+	<script type="text/javascript" src="js/Class/util.js"></script>
+	<script type="text/javascript" src="js/Class/Script.js"></script>
+	<script type="text/javascript" src="js/Class/Shader.js"></script>
+	<script type="text/javascript" src="js/Class/PerspectiveCamera.js"></script>
+	<script src="js/Class/Snapshot.js"></script>
+	<script src="js/Class/Data.js"></script>
+	<script src="js/Class/RenderableData.js"></script>
+	<script src="js/Class/Scene.js"></script>
+	<script src="js/Class/View.js"></script>
+	<script src="js/Class/menu.js"></script>
+	<script src="js/Class/timeline.js"></script>
+	<script src="js/Class/DataUIManager.js"></script>
+	<script src="js/Class/app.js"></script>
 
 </html>

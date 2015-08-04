@@ -124,7 +124,7 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
 
         this.oculusRenderer = new THREE.OculusRiftEffect(this.renderer);
         this.cardboardRenderer = new THREE.StereoEffect(this.renderer);
-        this.cardboardRenderer.eyeSeparation = 0.0001;
+        this.cardboardRenderer.eyeSeparation = 0.1;             // Here you can caliber the stereo effect for cardboard
         this.cardboardRenderer.setSize(this.width, this.height);
 
         this.currentRenderer = this.renderer;

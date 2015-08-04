@@ -3,17 +3,17 @@
  */
 
 /* Espace de nom */
-
 var SIMU = SIMU || {};
 
 /* Classe Timeline
 *
 *  nbSnapshots              : entier correspondant au nombre de snapshots actuellement chargés, soit la taille du tableau snapshots
-*  snapshots                : tableau contenant les références aux objets Snapshot2 actuellement chargés
+*  snapshots                : tableau contenant les références aux objets SnapshotBreakpoint actuellement chargés
 *  currentSnapshot          : entier correspondant à l'id du snapshot actuellement sélectionné
-*  html                     : élement HTML correspondant à la timeline qui englobe également le curseur et les différents snapshots
+*  html                     : élement HTML correspondant à la timeline qui englobe également le curseur, les différents snapshots et le bouton play/stop
 *  cursor                   : objet correspondant au curseur de la timeline
 *  interval                 : réel correspondant au nombre de pixels entre chaque snapshot sur la timeline
+*  playButton               : élément HTML correspondant au bouton play/stop
 *
 *  La classe Timeline a pour but de gérer les différents événements menant à changer son aspect visuel :
 *  - L'ajout d'un snapshot
@@ -31,11 +31,39 @@ SIMU.Timeline = function()
 {
     this.nbSnapshots        = 0;
     this.snapshots          = [];
-    this.currentSnapshot    = 'undefined';
-    this.html               = document.getElementById('timeline');
-    this.cursor             = new SIMU.Cursor();
+    this.currentSnapshot    = -1;
+    this.html               = null;
+    this.cursor             = null;
     this.interval           = 0;
-    this.playButton         = document.getElementById('play-border');
+    this.playButton         = null;
+}
+
+/* Fonction setup
+ *
+    * Paramètres : null
+* Retourne : null
+*
+* Cette fonction a pour but d'initialiser les paramètres de Timeline et d'appliquer ses éléments HTML au DOM.
+* Elle fait également appel à la fonction setCSS afin d'appliquer le CSS.
+*/
+SIMU.Timeline.prototype.setup = function()
+{
+    this.setCSS();
+
+    this.html = document.createElement('ul');
+    this.html.id = 'timeline';
+
+    this.cursor = new SIMU.Cursor();
+    this.cursor.setup();
+
+    this.playButton = document.createElement('div');
+    this.playButton.id = 'play-border';
+    this.playButton.innerHTML = [
+        '<div id=\"play-button\"></div>'
+    ].join('');
+
+    this.html.appendChild(this.cursor.html);
+    this.html.appendChild(this.playButton);
 }
 
 /* Fonction addSnapshot
@@ -51,8 +79,8 @@ SIMU.Timeline = function()
 */
 SIMU.Timeline.prototype.addSnapshot = function()
 {
-    /* Création d'un nouvel objet Snapshot2 */
-    var snapshot = new SIMU.Snapshot2(this.nbSnapshots);
+    /* Création d'un nouvel objet SnapshotBreakpoint */
+    var snapshot = new SIMU.SnapshotBreakpoint(this.nbSnapshots);
 
     /* Ajout de l'élément HTML du snapshot au DOM */
     this.html.appendChild(snapshot.html);
@@ -134,7 +162,7 @@ SIMU.Timeline.prototype.replaceSnapshot = function(i, step)
 *
 *  Paramètres :
 *   e       : événement correspondant normalement à un événement de type contextmenu
-*   snap    : objet Snapshot2 correspondant au snapshot à supprimer
+*   snap    : objet SnapshotBreakpoint correspondant au snapshot à supprimer
 *
 *  Retourne : null
 *
@@ -210,7 +238,7 @@ SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
 /* Fonction moveCursorOnSnapshot
 *
 *  Paramètres :
-*   snap    : objet Snapshot2 correspondant au snapshot sur lequel positionner le curseur
+*   snap    : objet SnapshotBreakpoint correspondant au snapshot sur lequel positionner le curseur
 *
 *  Retourne : null
 *
@@ -256,9 +284,9 @@ SIMU.Timeline.prototype.changeCurrentSnapshot = function(id)
  * Paramètres :
  *  i       : id du snapshot à récupérer
  *
- * Retourne :   Un objet Snapshot2 correspondant à l'id renseigné.
+ * Retourne :   Un objet SnapshotBreakpoint correspondant à l'id renseigné.
  *
- * Cette fonction a pour but de renvoyer l'objet Snapshot2 d'id id.
+ * Cette fonction a pour but de renvoyer l'objet SnapshotBreakpoint d'id id.
  */
 SIMU.Timeline.prototype.getSnapById = function(id)
 {
@@ -376,13 +404,81 @@ SIMU.Timeline.prototype.setStopButton = function()
  */
 SIMU.Cursor = function()
 {
-    this.html                       = document.getElementById('cursor');
-    this.cursorOffsetOrigin         = this.html.offsetLeft;
+    this.html                       = null;//document.getElementById('cursor');
+    this.cursorOffsetOrigin         = 0;//this.html.offsetLeft;
     this.isMoving                   = false;
     this.mouseOffsetOrigin          = 0;
     this.dragCursorEvent            = null;
     this.stopDraggingEvent          = null;
     this.positionHasToBeComputed    = false;
+}
+
+SIMU.Cursor.prototype.setCSS = function()
+{
+    var css = document.createElement('style');
+
+    css.innerHTML = [
+        '/* Style du curseur */',
+        '',
+        '#cursor {',
+        '   display: block;',
+        '   position: absolute;',
+        '   width: 20px;',
+        '   left: -10px;',
+        '   height: 20px;',
+        '   top: -6px;',
+        '   background-color: rgba(255,255,255,0);',
+        '   cursor: move;',
+        '   z-index: 1;',
+        '}',
+        '',
+        '#cursor-head {',
+        '   display: block;',
+        '   position: absolute;',
+        '   width: 10px;',
+        '   height: 10px;',
+        '   border: 5px solid #eee;',
+        '   border-radius: 50%;',
+        '   background-color: red;',
+        '}',
+        '',
+        '.cursor-hair {',
+        '   position: absolute;',
+        '   width: 10px;',
+        '   height: 5px;',
+        '   border-radius: 50%;',
+        '}',
+        '',
+        '#cursor-hair-top-left {',
+        '   border-top: 3px solid #eee;',
+        '   border-left: 3px solid #eee;',
+        '   top: -10px;',
+        '   left: -10px;',
+        '}',
+        '',
+        '#cursor-hair-top-right {',
+        '   border-top: 3px solid #eee;',
+        '   border-right: 3px solid #eee;',
+        '   top: -10px;',
+        '   right: -10px;',
+        '}',
+        '',
+        '#cursor-hair-bottom-left {',
+        '   border-bottom: 3px solid #eee;',
+        '   border-left: 3px solid #eee;',
+        '   bottom: -10px;',
+        '   left: -10px;',
+        '}',
+        '',
+        '#cursor-hair-bottom-right {',
+        '   border-bottom: 3px solid #eee;',
+        '   border-right: 3px solid #eee;',
+        '   bottom: -10px;',
+        '   right: -10px;',
+        '}'
+    ].join('\n');
+
+    document.head.appendChild(css);
 }
 
 /* Fonction allowDragging
@@ -523,15 +619,15 @@ SIMU.Cursor.prototype.getOffset = function()
     return this.html.offsetLeft;
 }
 
-/* Classe Snapshot2
+/* Classe SnapshotBreakpoint
  *
  * html     : élément HTML correspondant au snapshot de la timeline
  *
- * La classe Snapshot2 a pour but de gérer l'identifiant et la position de son élément HTML.
+ * La classe SnapshotBreakpoint a pour but de gérer l'identifiant et la position de son élément HTML.
  *
- * Un objet Snapshot2 doit obligatoirement être créé à l'aide d'un entier id représentant l'identifiant du snapshot.
+ * Un objet SnapshotBreakpoint doit obligatoirement être créé à l'aide d'un entier id représentant l'identifiant du snapshot.
  */
-SIMU.Snapshot2 = function(id)
+SIMU.SnapshotBreakpoint = function(id)
 {
     this.html = document.createElement('li');
     this.html.className = 'snapshot';
@@ -555,7 +651,7 @@ SIMU.Snapshot2 = function(id)
  *
  * Cette fonction a pour but de renvoyer l'identifiant de l'élément HTML du snapshot.
  */
-SIMU.Snapshot2.prototype.getId = function()
+SIMU.SnapshotBreakpoint.prototype.getId = function()
 {
     return this.html.id;
 }
@@ -571,7 +667,7 @@ SIMU.Snapshot2.prototype.getId = function()
  * Elle permet également d'attribuer un identifiant purement numérique à l'élément HTML breakpoint associé au snapshot.
  * Ceci parce qu'un événement mouse sur le snapshot est généralement associé au breakpoint.
  */
-SIMU.Snapshot2.prototype.setId = function(id)
+SIMU.SnapshotBreakpoint.prototype.setId = function(id)
 {
     this.html.id = 'snap-' + id;
     this.html.firstElementChild.id = id;
@@ -585,7 +681,7 @@ SIMU.Snapshot2.prototype.setId = function(id)
  *
  * Cette fonction a pour but de renvoyer uniquement le nombre contenu dans l'identifiant du snapshot.
  */
-SIMU.Snapshot2.prototype.getIdNumber = function()
+SIMU.SnapshotBreakpoint.prototype.getIdNumber = function()
 {
     var result = -1;
 
@@ -605,7 +701,7 @@ SIMU.Snapshot2.prototype.getIdNumber = function()
  *
  * Cette fonction a pour but de renvoyer la position de l'élément HTML.
  */
-SIMU.Snapshot2.prototype.getOffset = function()
+SIMU.SnapshotBreakpoint.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
 }
@@ -619,7 +715,133 @@ SIMU.Snapshot2.prototype.getOffset = function()
  *
  * Cette fonction a pour but d'affecter une nouvelle position à l'élément HTML du snapshot.
  */
-SIMU.Snapshot2.prototype.setOffset = function(offset)
+SIMU.SnapshotBreakpoint.prototype.setOffset = function(offset)
 {
     this.html.style.left = offset;
+}
+
+/* Fonction setCSS
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but d'appliquer le CSS en l'insérant dans le DOM dans une balise <style>
+ */
+SIMU.Timeline.prototype.setCSS = function()
+{
+    var css = document.createElement('style');
+
+    css.innerHTML = [
+        '/* Style de la timeline et des breakpoints*/\n',
+        '\n',
+        '#timeline {\n',
+        '   display: table;\n',
+        '   list-style: none;\n',
+        '   position:absolute;\n',
+        '   width: 20%;\n',
+        '   left: 40%;\n',
+        '   height: 8px;\n',
+        '   top: 90%;\n',
+        '   background-color: #eee;\n',
+        '   border-radius: 4px 4px 4px 4px;\n',
+        '}\n',
+        '\n',
+        '.snapshot {\n',
+        '   display: table-cell;\n',
+        '   position: absolute;\n',
+        '   width: 10px;\n',
+        '   height: 14px;\n',
+        '   cursor: pointer;\n',
+        '}\n',
+        '\n',
+        '.breakpoint {\n',
+        '   display: block;\n',
+        '   position: absolute;\n',
+        '   width: 10px\n;',
+        '   height: 10px;\n',
+        '   left: -10px;\n',
+        '   top: -6px;\n',
+        '   border: 5px solid #eee;\n',
+        '   border-radius: 50%;\n',
+        '   background-color: green;\n',
+        '}\n',
+        '\n',
+        '#play-border {\n',
+        '   position: absolute;\n',
+        '   width: 26px;\n',
+        '   height: 26px;\n',
+        '   left: -20%;\n',
+        '   top: -11px;\n',
+        '   background-color: #eee;\n',
+        '   border: 2px solid rgba(0,0,0,0.7);\n',
+        '   -webkit-border-radius: 100%;\n',
+        '   -moz-border-radius: 100%;\n',
+        '   border-radius: 100%;\n',
+        '   -webkit-transition: all 0.5s ease;\n',
+        '   -moz-transition: all 0.5s ease;\n',
+        '   -o-transition: all 0.5s ease;\n',
+        '   -ms-transition: all 0.5s ease;\n',
+        '   transition: all 0.5s ease;\n',
+        '   cursor: pointer;\n',
+        '}\n',
+        '\n',
+        '#play-border:hover {\n',
+        '   border-color: transparent;\n',
+        '}\n',
+        '\n',
+        '#play-border:hover #play-button {\n',
+        '   border-left: 8px solid rgba(0,0,0,0.5);\n',
+        '}\n',
+        '\n',
+        '#play-border:hover #stop-button {\n',
+        '   border-left: 4px solid rgba(0,0,0,0.5);\n',
+        '   border-right: 4px solid rgba(0,0,0,0.5);\n',
+        '}\n',
+        '\n',
+        '#play-button {\n',
+        '   position:relative;\n',
+        '   top: 5px;\n',
+        '   left: 10px\n;',
+        '   width: 0;\n',
+        '   height: 0;\n',
+        '   border-top: 8px solid transparent;\n',
+        '   border-bottom: 8px solid transparent;\n',
+        '   border-left: 8px solid rgba(0,0,0,0.8);\n',
+        '}\n',
+        '\n',
+        '#stop-button {\n',
+        '   position: relative;\n',
+        '   top: 6px;\n',
+        '   left: 7px;\n',
+        '   width: 4px;\n',
+        '   height: 14px;\n',
+        '   border-left: 4px solid rgba(0,0,0,0.8);\n',
+        '   border-right: 4px solid rgba(0,0,0,0.8);\n',
+        '}\n'
+    ].join('');
+
+    document.head.appendChild(css);
+}
+
+/* Fonction setCSS
+ *
+ * Paramètres : null
+ * Retourne : null
+ *
+ * Cette fonction a pour but d'appliquer le CSS en l'insérant dans le DOM dans une balise <style>
+ */
+SIMU.Cursor.prototype.setup = function()
+{
+    this.setCSS();
+
+    this.html = document.createElement('div');
+    this.html.id = 'cursor';
+    this.html.innerHTML = [
+        '<div id=\"cursor-head\">',
+        '    <div id=\"cursor-hair-top-left\" class=\"cursor-hair\"></div>',
+        '    <div id=\"cursor-hair-top-right\" class=\"cursor-hair\"></div>',
+        '    <div id=\"cursor-hair-bottom-left\" class=\"cursor-hair\"></div>',
+        '    <div id=\"cursor-hair-bottom-right\" class=\"cursor-hair\"></div>',
+        '</div>',
+    ].join('');
 }
