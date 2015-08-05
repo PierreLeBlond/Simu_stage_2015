@@ -390,7 +390,7 @@ SIMU.Simu.prototype.setupGui = function(){
 
     this.setupEvents();
 
-    document.getElementById('fileLoadingProgress').style.display = "none";
+    //document.getElementById('fileLoadingProgress').style.display = "none";
 
     this.hideUI();
 };
