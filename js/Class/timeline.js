@@ -13,13 +13,13 @@ var SIMU = SIMU || {};
  * @name Timeline
  * @class
  *
- * @property {number}   nbSnapshots         - Number of loaded snapshots and length of snapshots array
- * @property {array}    snapshots           - Array of SnapshotBreakpoint objects
- * @property {number}   currentSnapshot     - Index of the SnapshotBreakpoint currently picked
- * @property {HTML}     html                - HTML element of the timeline
- * @property {Cursor}   cursor              - Cursor object of the timeline
- * @property {number}   interval            - Number of pixels between each snapshot on the timeline (can be a float for computing)
- * @property {HTML}     playButton          - HTML element of the play button of the timeline
+ * @property {number}                   nbSnapshots         - Number of loaded snapshots and length of snapshots array
+ * @property {Array|SnapshotBreakpoint} snapshots           - Array of SnapshotBreakpoint objects
+ * @property {number}                   currentSnapshot     - Index of the SnapshotBreakpoint currently picked
+ * @property {HTML}                     html                - HTML element of the timeline
+ * @property {Cursor}                   cursor              - Cursor object of the timeline
+ * @property {number}                   interval            - Number of pixels between each snapshot on the timeline (can be a float for computing)
+ * @property {HTML}                     playButton          - HTML element of the play button of the timeline
  *
  * @constructor
  */
