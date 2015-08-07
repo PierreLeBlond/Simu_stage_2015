@@ -137,8 +137,8 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         this.resize(width, height, left, top);
 
         //Events listener
-        this.domElement.addEventListener('mousedown', this.getMouseIntersection.bind(this), false);
-        this.domElement.addEventListener('dblclick', this.reachMouseFocus.bind(this), false);
+        this.currentRenderer.domElement.addEventListener('mousedown', this.getMouseIntersection.bind(this), false);
+        this.currentRenderer.domElement.addEventListener('dblclick', this.reachMouseFocus.bind(this), false);
 
         //window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
     }
@@ -320,6 +320,7 @@ SIMU.View.prototype.updateUIinfoList = function(){
                 currentRenderableData.idInfo = value - 1;
 
                 currentRenderableData.data.currentInfo = snapInfo[value - 1].value;
+                currentRenderableData.data.currentInfoIsSet = true;
                 currentRenderableData.resetData();
 
                 if(that.scene.parameters.shaderType == SIMU.ShaderType.STATIC){
@@ -333,42 +334,8 @@ SIMU.View.prototype.updateUIinfoList = function(){
                 }else if(that.scene.parameters.shaderType == SIMU.ShaderType.PARAMETRICANIMATED){
                     that.scene.setShaderType(SIMU.ShaderType.ANIMATED);
                 }
+                currentRenderableData.data.currentInfoIsSet = false;
             }
-
-
-
-            /*if (value != 0 && snapInfo[value - 1].min < snapInfo[value - 1].max) {
-                var min = snapInfo[value - 1].min;
-                var max = snapInfo[value - 1].max;
-
-                if (that.scene.currentRenderableDataId >= 0) {
-                    var r, g, b;
-                    var color = currentRenderableData.pointCloud.geometry.attributes.color;
-                    for (var i = 0; i < color.length / 3; i++) {
-                        r = Math.abs(snapInfo[value - 1].value[i] - min) / Math.abs(max - min);
-                        g = 0;
-                        b = 1 - r;
-
-                        color.array[3 * i] = r;
-                        color.array[3 * i + 1] = g;
-                        color.array[3 * i + 2] = b;
-                    }
-                    color.needsUpdate = true;
-                }
-            } else {
-                if (that.scene.currentRenderableDataId >= 0) {
-                    r = currentRenderableData.defaultColor[0] / 255;
-                    g = currentRenderableData.defaultColor[1] / 255;
-                    b = currentRenderableData.defaultColor[2] / 255;
-                    color = currentRenderableData.pointCloud.geometry.attributes.color;
-                    for (i = 0; i < color.length / 3; i++) {
-                        color.array[3 * i] = r;
-                        color.array[3 * i + 1] = g;
-                        color.array[3 * i + 2] = b;
-                    }
-                    color.needsUpdate = true;
-                }
-            }*/
         })
     }
 };
@@ -388,7 +355,7 @@ SIMU.View.prototype.updateGuiDisplay = function(gui) {
  * @detail update the ui to match the new current renderable data
  * @param id
  */
-SIMU.View.prototype.setCurrentRenderableDataId = function(id) {
+SIMU.View.prototype.setCurrentRenderableData = function(id) {
     var currentRenderableData           = this.scene.renderableDatas[id];
     this.sceneParameters.active         = currentRenderableData.isActive;
     this.sceneParameters.pointsize      = currentRenderableData.uniforms.size.value;
@@ -493,6 +460,9 @@ SIMU.View.prototype.resize = function(width, height, left, top){
     this.width = width;
     this.height = height;
 
+    this.top = top;
+    this.left = left;
+
     this.domElement.style.top = top + 'px';
     this.domElement.style.left = left + 'px';
     this.domElement.style.width = width + 'px';
@@ -512,8 +482,8 @@ SIMU.View.prototype.resize = function(width, height, left, top){
 SIMU.View.prototype.getMouseIntersection = function(event){
 
     var mouse = new THREE.Vector2(
-        ( event.clientX / this.renderer.domElement.clientWidth ) * 2 - 1,
-        -( event.clientY / this.renderer.domElement.clientHeight ) * 2 + 1
+        ( (event.clientX - this.domElement.getBoundingClientRect().left) / this.width ) * 2 - 1,
+        -( (event.clientY - this.domElement.getBoundingClientRect().top) /  this.height) * 2 + 1
     );
 
     var target = null;
@@ -528,11 +498,14 @@ SIMU.View.prototype.getMouseIntersection = function(event){
         }
     }
     if(target){
-        negate(target.renderableData.pointCloud.geometry.attributes.color, target.index);
+        negate(target.renderableData.data/*pointCloud.geometry.attributes*/.color, target.index);
         this.showInfo(target);
+        target.renderableData.pointCloud.geometry.attributes.color.needsUpdate = true;
     }
     if(this.scene.target) {
-        negate(this.scene.target.renderableData.pointCloud.geometry.attributes.color, this.scene.target.index);
+        negate(this.scene.target.renderableData.data/*pointCloud.geometry.attributes*/.color, this.scene.target.index);
+        this.scene.target.renderableData.pointCloud.geometry.attributes.color.needsUpdate = true;
+
     }
     this.scene.target = target;
 };

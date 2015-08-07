@@ -29,7 +29,7 @@ SIMU.Timeline = function()
     this.cursor             = null;
     this.interval           = 0;
     this.playButton         = null;
-}
+};
 
 /**
  * Sets up the properties of Timeline creating the HTML & CSS elements
@@ -55,7 +55,7 @@ SIMU.Timeline.prototype.setup = function()
 
     this.html.appendChild(this.cursor.html);
     this.html.appendChild(this.playButton);
-}
+};
 
 /**
  * Creates and adds a snapshot breakpoint on the timeline and allows cursor dragging when the second breakpoint is created
@@ -88,7 +88,7 @@ SIMU.Timeline.prototype.addSnapshot = function()
     {
         this.cursor.allowDragging();
     }
-}
+};
 
 /**
  * Computes and sets the new position of all snapshots and updates interval property
@@ -114,7 +114,7 @@ SIMU.Timeline.prototype.replaceSnapshots = function()
             }
             break;
     }
-}
+};
 
 /**
  * Computes and sets the new position of the snapshot breakpoint of index 'i'
@@ -128,7 +128,7 @@ SIMU.Timeline.prototype.replaceSnapshots = function()
 SIMU.Timeline.prototype.replaceSnapshot = function(i, step)
 {
     this.snapshots[i].setOffset(i*step + '%');
-}
+};
 
 /**
  * Moves the cursor on the snapshot breakpoint 'snap'
@@ -141,7 +141,7 @@ SIMU.Timeline.prototype.replaceSnapshot = function(i, step)
 SIMU.Timeline.prototype.moveCursorOnSnapshot = function(snap)
 {
     this.cursor.setOffset(snap.getOffset() - 10);
-}
+};
 
 /**
  * Updates currentSnapshot property with 'id'
@@ -154,7 +154,7 @@ SIMU.Timeline.prototype.moveCursorOnSnapshot = function(snap)
 SIMU.Timeline.prototype.setCurrentSnapshotId = function(id)
 {
     this.currentSnapshot = id;
-}
+};
 
 /**
  * Updates the current snapshot and moves cursor on it
@@ -164,12 +164,12 @@ SIMU.Timeline.prototype.setCurrentSnapshotId = function(id)
  *
  * @param {number}     id      - Index of the new current snapshot breakpoint
  */
-SIMU.Timeline.prototype.changeCurrentSnapshot = function(id)
+SIMU.Timeline.prototype.handleCurrentSnapshotChangeEvent = function(id)
 {
     var snap = this.getSnapById(id);
     this.moveCursorOnSnapshot(snap);
     this.setCurrentSnapshotId(id);
-}
+};
 
 /**
  * Returns the SnapshotBreakpoint object referenced by 'id'
@@ -183,7 +183,7 @@ SIMU.Timeline.prototype.changeCurrentSnapshot = function(id)
 SIMU.Timeline.prototype.getSnapById = function(id)
 {
     return this.snapshots[id];
-}
+};
 
 /**
  * Computes and updates cursor position during animation
@@ -198,7 +198,7 @@ SIMU.Timeline.prototype.animate = function(t)
     var position = t * this.interval;
 
     this.cursor.setOffset(this.getSnapById(this.currentSnapshot).getOffset() + position -10);
-}
+};
 
 /**
  * Computes and updates the interval property with 'step' value
@@ -211,7 +211,7 @@ SIMU.Timeline.prototype.animate = function(t)
 SIMU.Timeline.prototype.setInterval = function(step)
 {
     this.interval = ( step * this.html.offsetWidth ) / 100;
-}
+};
 
 /**
  * Looks for the current snapshot breakpoint based on the position of the cursor and returns its index
@@ -249,7 +249,7 @@ SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
     }
 
     return result;
-}
+};
 
 /**
  * Updates id of playButton HTML element to display a play button
@@ -260,7 +260,7 @@ SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
 SIMU.Timeline.prototype.setPlayButton = function()
 {
     this.playButton.firstElementChild.id = 'play-button';
-}
+};
 
 /**
  * Updates id of playButton HTML element to display a stop button
@@ -271,7 +271,7 @@ SIMU.Timeline.prototype.setPlayButton = function()
 SIMU.Timeline.prototype.setStopButton = function()
 {
     this.playButton.firstElementChild.id = 'stop-button';
-}
+};
 
 /**
  * Represents the cursor of the timeline
@@ -295,7 +295,7 @@ SIMU.Cursor = function()
     this.dragCursorEvent            = null;
     this.stopDraggingEvent          = null;
     this.positionHasToBeComputed    = false;
-}
+};
 
 /**
  * Sets up the properties of SnapshotBreakpoint creating the HTML & CSS elements
@@ -317,7 +317,7 @@ SIMU.Cursor.prototype.setup = function()
         '    <div id=\"cursor-hair-bottom-right\" class=\"cursor-hair\"></div>',
         '</div>',
     ].join('');
-}
+};
 
 /**
  * Adds the event which controls the possibility to drag the cursor on the HTML element
@@ -329,7 +329,7 @@ SIMU.Cursor.prototype.allowDragging = function()
 {
     this.dragCursorEvent = this.dragCursor.bind(this);
     this.html.addEventListener('mousedown', this.dragCursorEvent, false);
-}
+};
 
 /**
  * Removes the event wich controls the possibility to drag the cursor on the HTML element
@@ -340,7 +340,7 @@ SIMU.Cursor.prototype.allowDragging = function()
 SIMU.Cursor.prototype.removeDragging = function()
 {
     this.html.removeEventListener('mousedown', this.dragCursorEvent);
-}
+};
 
 /**
  * Removes events used when the cursor is moving and updates the isMoving property
@@ -353,7 +353,7 @@ SIMU.Cursor.prototype.stopDragging = function()
     this.isMoving = false;
     document.removeEventListener('mousemove', this.moveCursor);
     document.removeEventListener('mouseup', this.stopDraggingEvent);
-}
+};
 
 /**
  * Starts the cursor move initializing all the needed values, prevents default behaviour and adds events which control the move of the cursor
@@ -392,7 +392,7 @@ SIMU.Cursor.prototype.dragCursor = function(e)
     /* Ajout de l'événement d'arrêt du daplacement du curseur lors du relaĉhement de la souris au DOM */
     this.stopDraggingEvent = this.stopDragging.bind(this);
     document.addEventListener('mouseup', this.stopDraggingEvent, false);
-}
+};
 
 /**
  * Moves the cursor on each mouse move
@@ -419,7 +419,7 @@ SIMU.Cursor.prototype.moveCursor = function(e)
             this.setOffset(newPosition);
         }
     }
-}
+};
 
 /**
  * Updates the cursor position
@@ -432,7 +432,7 @@ SIMU.Cursor.prototype.moveCursor = function(e)
 SIMU.Cursor.prototype.setOffset = function(offset)
 {
     this.html.style.left = offset + "px";
-}
+};
 
 /**
  * Returns the position (left offset) of the cursor
@@ -445,7 +445,7 @@ SIMU.Cursor.prototype.setOffset = function(offset)
 SIMU.Cursor.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
-}
+};
 
 /**
  * Represents a snapshot breakpoint on the timeline. You need to provide an index to create it.
@@ -470,7 +470,7 @@ SIMU.SnapshotBreakpoint = function(id)
     this.html.appendChild(label);
 
     this.setId(id);
-}
+};
 
 /**
  * Returns the id of the HTML element of the snapshot breakpoint. The id looks like 'snap-$id'
@@ -483,7 +483,7 @@ SIMU.SnapshotBreakpoint = function(id)
 SIMU.SnapshotBreakpoint.prototype.getId = function()
 {
     return this.html.id;
-}
+};
 
 /**
  * Updates id of the HTML element of the snapshot breakpoint and updates id of the child with only the index
@@ -497,7 +497,7 @@ SIMU.SnapshotBreakpoint.prototype.setId = function(id)
 {
     this.html.id = 'snap-' + id;
     this.html.firstElementChild.id = id;
-}
+};
 
 /**
  * Returns the position (left offset) of the snapshot breakpoint
@@ -510,7 +510,7 @@ SIMU.SnapshotBreakpoint.prototype.setId = function(id)
 SIMU.SnapshotBreakpoint.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
-}
+};
 
 /** Creates CSS elements and appends them to DOM
  *
@@ -611,7 +611,7 @@ SIMU.Timeline.prototype.setCSS = function()
     ].join('');
 
     document.head.appendChild(css);
-}
+};
 
 /** Creates CSS elements and appends them to DOM
  *
@@ -684,7 +684,7 @@ SIMU.Cursor.prototype.setCSS = function()
     ].join('\n');
 
     document.head.appendChild(css);
-}
+};
 
 /**
  * Updates the position (left offset) of the snapshot breakpoint
@@ -698,7 +698,7 @@ SIMU.Cursor.prototype.setCSS = function()
 SIMU.SnapshotBreakpoint.prototype.setOffset = function(offset)
 {
     this.html.style.left = offset;
-}
+};
 
 /**
  * Returns the index included in the id of the HTML element of the snapshot breakpoint

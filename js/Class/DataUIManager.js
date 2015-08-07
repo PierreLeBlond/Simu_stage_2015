@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 31/07/15.
+ * @description This class gives us an interface in order to manage the loaded file and data
  */
 
 var SIMU = SIMU || {};
@@ -111,14 +112,14 @@ SIMU.DataUIManager.prototype.setupUI = function(){
 };
 
 /**
- * @description Hide the dom element
+ * Hide the dom element
  */
 SIMU.DataUIManager.prototype.hide = function(){
     this.domElement.style.display = "none";
 };
 
 /**
- * @description Show the dom element
+ * Show the dom element
  */
 SIMU.DataUIManager.prototype.show = function(){
     this.domElement.style.display = "block";

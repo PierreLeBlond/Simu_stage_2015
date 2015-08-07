@@ -2,7 +2,7 @@
  * Created by lespingal on 08/07/15.
  */
 
-importScripts('../lib/async.js');
+importScripts('../../lib/async.js');
 
 var octree = null;
 var position = null;

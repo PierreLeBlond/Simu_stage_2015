@@ -72,10 +72,10 @@ SIMU.octanToFace = [
     ]];
 
 function negate(color, index){
-    color.array[index * 3] = 1 - color.array[index * 3];
-    color.array[index * 3 + 1] = 1 - color.array[index * 3 + 1];
-    color.array[index * 3 + 2] = 1 - color.array[index * 3 + 2];
-    color.needsUpdate = true;
+    color/*.array*/[index * 3] = 1 - color/*.array*/[index * 3];
+    color/*.array*/[index * 3 + 1] = 1 - color/*.array*/[index * 3 + 1];
+    color/*.array*/[index * 3 + 2] = 1 - color/*array*/[index * 3 + 2];
+    //color.needsUpdate = true;
 }
 
 SIMU.LoadingBarSingleton = (function(){

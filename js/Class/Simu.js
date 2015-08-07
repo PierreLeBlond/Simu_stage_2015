@@ -78,16 +78,6 @@ SIMU.Simu.prototype.setDomElement = function(el){
     this.domElement = el;
 };
 
-SIMU.Simu.prototype.setWidth = function(width){
-    this.width = width;
-    this.domElement.style.width = width + 'px';
-};
-
-SIMU.Simu.prototype.setHeight = function(height){
-    this.height = height;
-    this.domElement.style.height = height + 'px';
-};
-
 /**
  * @description Add a script
  * @param {string} name Name of the script
@@ -132,10 +122,10 @@ SIMU.Simu.prototype.addViewWithNewScene = function(){
         scene.addRenderableData(renderableData);
     }
     if(this.currentDataId >= 0) {
-        scene.setCurrentRenderableDataId(this.currentDataId);
+        scene.setCurrentRenderableData(this.currentDataId);
     }
     if(this.currentSnapshotId >= 0){
-        scene.setCurrentRenderableSnapshotId(this.currentSnapshotId);
+        scene.setCurrentRenderableSnapshot(this.currentSnapshotId);
     }
 
 
@@ -392,9 +382,6 @@ SIMU.Simu.prototype.setupGui = function(){
     perfFolder.add(this.parameters, 'octreeprecision', 0, 5).name("Octree Precision");
 
     this.setupEvents();
-
-    //document.getElementById('fileLoadingProgress').style.display = "none";
-
     this.hideUI();
 };
 
@@ -435,10 +422,10 @@ SIMU.Simu.prototype.animate = function(){
             this.currentSnapshotId++;
 
             this.setUICurrentSnapshot(this.currentSnapshotId);
-            this.setCurrentSnapshotId(this.currentSnapshotId);
+            this.setCurrentSnapshot(this.currentSnapshotId);
 
             // Modifie la valeur du snapshot actuellement sélectionné dans l'objet Timeline
-            this.timeline.changeCurrentSnapshot(this.currentSnapshotId);
+            this.timeline.handleCurrentSnapshotChangeEvent(this.currentSnapshotId);
 
             if (this.currentSnapshotId >= this.info.nbSnapShot - 1) {
                 this.parameters.play = false;
@@ -538,14 +525,14 @@ SIMU.Simu.prototype.setUICurrentData = function(id){
  * @description Set the current data within the application, i.e. for each views, by its id
  * @param id
  */
-SIMU.Simu.prototype.setCurrentDataId = function(id){
+SIMU.Simu.prototype.setCurrentData = function(id){
     var i;
     this.currentDataId = id;
     for(i = 0; i < this.scenes.length;i++){
-        this.scenes[i].setCurrentRenderableDataId(this.currentDataId);
+        this.scenes[i].setCurrentRenderableData(this.currentDataId);
     }
     for(i = 0; i < this.views.length;i++){
-        this.views[i].setCurrentRenderableDataId(this.currentDataId);
+        this.views[i].setCurrentRenderableData(this.currentDataId);
     }
 };
 
@@ -555,7 +542,7 @@ SIMU.Simu.prototype.setCurrentDataId = function(id){
  */
 SIMU.Simu.prototype.changeCurrentData = function(event){
     this.setUICurrentData(event.target.id);
-    this.setCurrentDataId(event.target.id);
+    this.setCurrentData(event.target.id);
 };
 
 /**
@@ -588,14 +575,14 @@ SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
  * @description Set the current snapshot within the application, i.e. for each views, by its id
  * @param id
  */
-SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
+SIMU.Simu.prototype.setCurrentSnapshot = function(id){
     var i;
     this.currentSnapshotId = id;
     for(i = 0; i < this.datas.length;i++){
-        this.datas[i].changeSnapshot(this.currentSnapshotId);
+        this.datas[i].setCurrentSnapshot(this.currentSnapshotId);
     }
     for(i = 0; i < this.scenes.length;i++){
-        this.scenes[i].setCurrentRenderableSnapshotId(this.currentSnapshotId);
+        this.scenes[i].setCurrentRenderableSnapshot(this.currentSnapshotId);
     }
 };
 
@@ -603,12 +590,23 @@ SIMU.Simu.prototype.setCurrentSnapshotId = function(id){
  * @description Handle the event in which we change the current snapshot
  * @param event
  */
-SIMU.Simu.prototype.changeCurrentSnapshot = function(event){
-    this.setUICurrentSnapshot(event.target.id);
-    this.setCurrentSnapshotId(event.target.id);
-    this.timeline.changeCurrentSnapshot(event.target.id);
+SIMU.Simu.prototype.handleCurrentSnapshotChangeEvent = function(event){
+    var i;
+
     this.parameters.t = 0.0001;
-    this.updateDataOnTimeChange();
+
+    for (i = 0; i < this.scenes.length; i++) {
+        this.scenes[i].setTime(this.parameters.t);
+    }
+    for (i = 0; i < this.datas.length; i++) {
+        this.datas[i].setTime(this.parameters.t);
+    }
+
+    this.setCurrentSnapshot(event.target.id);
+
+    this.setUICurrentSnapshot(event.target.id);
+    this.timeline.handleCurrentSnapshotChangeEvent(event.target.id);
+
 };
 
 /**
@@ -642,7 +640,7 @@ SIMU.Simu.prototype.addColumn = function(){
     //Set new data as current
     this.addData();
     this.setUICurrentData(this.info.nbData - 1);
-    this.setCurrentDataId(this.info.nbData - 1);
+    this.setCurrentData(this.info.nbData - 1);
 };
 
 /**
@@ -663,7 +661,7 @@ SIMU.Simu.prototype.addRow = function(){
         node.innerHTML = "Snap " + id;
         node.id = id - 1;
         node.className = "snap_head";
-        node.addEventListener('click', this.changeCurrentSnapshot.bind(this), false);
+        node.addEventListener('click', this.handleCurrentSnapshotChangeEvent.bind(this), false);
         tr.insertBefore(node, tr.lastElementChild);
         for (var i = 1; i < this.info.nbData + 1; i++) {
             node = document.createElement("td");
@@ -676,7 +674,7 @@ SIMU.Simu.prototype.addRow = function(){
         this.timeline.addSnapshot();
 
         /* Ajout de l'événement de mise à jour du snapshot sélectionné au clic de souris sur le snapshot */
-        this.timeline.snapshots[id-1].html.addEventListener('click', this.changeCurrentSnapshot.bind(this), false);
+        this.timeline.snapshots[id-1].html.addEventListener('click', this.handleCurrentSnapshotChangeEvent.bind(this), false);
 
 
 
@@ -685,7 +683,7 @@ SIMU.Simu.prototype.addRow = function(){
 
         //Set new Snap as current
         this.setUICurrentSnapshot(id - 1);
-        this.setCurrentSnapshotId(id - 1);
+        this.setCurrentSnapshot(id - 1);
     }
 };
 
@@ -719,13 +717,13 @@ SIMU.Simu.prototype.browse = function(event){
     var id = el.id.split("_");
 
     this.setUICurrentData(id[1] - 1);
-    this.setCurrentDataId(id[1] - 1);
+    this.setCurrentData(id[1] - 1);
 
     this.setUICurrentSnapshot(id[0] - 1);
-    this.setCurrentSnapshotId(id[0] - 1);
+    this.setCurrentSnapshot(id[0] - 1);
 
     /* Mise à jour de la timeline */
-    this.timeline.changeCurrentSnapshot(id[0] -1);
+    this.timeline.handleCurrentSnapshotChangeEvent(id[0] -1);
 
     document.getElementById('files').click(event);
 
@@ -783,7 +781,7 @@ SIMU.Simu.prototype.onMultiviewWindowResize = function(){
 };
 
 /**
- * @description Handle keyboard event
+ * Handle keyboard event
  * @param event
  */
 SIMU.Simu.prototype.onKeyDown = function(event){
@@ -791,7 +789,7 @@ SIMU.Simu.prototype.onKeyDown = function(event){
         case 80 ://p
             this.onPlay();
             break;
-        case 27 :       // Echap
+        case 27 ://escape
             if(this.menu.isDisplayed){
                 for(var i = 0; i < this.views.length;i++){
                     if(this.views[i].isShown){
@@ -820,7 +818,7 @@ SIMU.Simu.prototype.onKeyDown = function(event){
             }
             this.hideUI();
             break;
-        case 83 ://s
+        case 85 ://t
             for(i = 0; i < this.views.length;i++){
                 this.views[i].showGui();
             }
@@ -845,7 +843,7 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
 
         /* Mise à jour du snapshot sélectionné */
         this.setUICurrentSnapshot(id);
-        this.setCurrentSnapshotId(id);
+        this.setCurrentSnapshot(id);
         this.timeline.setCurrentSnapshotId(id);
 
         /* Calcul du temps en fonction de la position du curseur */
@@ -880,12 +878,12 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
          this.setCurrentSnapshotId(i);
 
          /* Mise à jour de la timeline
-         this.timeline.changeCurrentSnapshot(i);
+         this.timeline.handleCurrentSnapshotChangeEvent(i);
          }
          }
          */
     }
-}
+};
 
 /**
  * Updates datas based on time in parameters property
@@ -912,7 +910,7 @@ SIMU.Simu.prototype.updateDataOnTimeChange = function()
             this.scenes[i].dataHasChanged();
         }
     }
-}
+};
 
 /**
  * Computes and updates time in parameters property based on the cursor position when the cursor is moving. Dynamically change the current snapshot too.
@@ -978,6 +976,7 @@ SIMU.Simu.prototype.onPlay = function()
                 }else if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.PARAMETRICSTATIC){
                     this.scenes[i].setShaderType(SIMU.ShaderType.PARAMETRICANIMATED);
                 }
+
             }
         }
     }
