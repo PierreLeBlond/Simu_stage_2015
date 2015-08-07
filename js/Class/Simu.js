@@ -42,22 +42,8 @@ SIMU.Simu = function(){
     this.currentDataId          = -1;
     this.currentSnapshotId      = -1;
 
-
-
-    /* List of different types of display, useful to remember the current display */
-    this.DisplayType            = {
-        UNKNOWN : 0,
-        SIMPLEVIEW : 1,
-        MULTIVIEW : 2,
-        OCULUS : 3,
-        CARDBOARD : 4
-    };
-
     //This camera is used to have different views with the same point of view
     this.globalCamera           = null;
-
-    /* Used to remember the current display */
-    this.currentDisplay         = this.DisplayType.UNKNOWN;
 
     this.scripts                = [];
     this.texture                = [];
@@ -230,6 +216,9 @@ SIMU.Simu.prototype.switchToOculusview = function(){
     this.animate();
 };
 
+/**
+ * @description Enter cardboard view mode
+ */
 SIMU.Simu.prototype.switchToCardboardview = function(){
 
     this.menu.hideMenu();
@@ -393,7 +382,6 @@ SIMU.Simu.prototype.setupGui = function(){
     perfFolder.add(this.parameters, 'octreeprecision', 0, 5).name("Octree Precision");
 
     this.setupEvents();
-
     this.hideUI();
 };
 
@@ -793,7 +781,7 @@ SIMU.Simu.prototype.onMultiviewWindowResize = function(){
 };
 
 /**
- * @description Handle keyboard event
+ * Handle keyboard event
  * @param event
  */
 SIMU.Simu.prototype.onKeyDown = function(event){
@@ -839,16 +827,11 @@ SIMU.Simu.prototype.onKeyDown = function(event){
     }
 };
 
-/* Fonction updateTimeOnCursorRelease
+/**
+ * Computes and updates time in parameters property based on the cursor position when it's released. Change current snapshot and updates datas too.
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de mettre à jour le paramètre temps de l'interface en fonction de la position du curseur.
- * Elle s'occupera également :
- * - de mettre à jour le snapshot actuellement sélectionné
- * - de mettre à jour le snapshot actuellement sélectionné sur l'interface
- * - de mettre à jour les données afin d'afficher le rendu correspondant au temps
+ * @name Simu#updateTimeOnCursorRelease
+ * @method
  */
 SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
 {
@@ -878,7 +861,7 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
         /* Il n'est plus nécessaire de mettre à jour avant le prochain déplacement du curseur */
         this.timeline.cursor.positionHasToBeComputed = false;
 
-        /*
+        /* @todo : keep it, it can be useful for improve the application. But it's not absolutely necessary.
          // Fonction catch qui permet d'attraper le curseur lorsque celui-ci est très proche d'un snapshot.
          // Peut toujours être utile, à conserver si nécessaire.
          // Exemple : En général, il est très compliqué de drag & drop le curseur pile sur un snapshot, on sera toujours à un pixel à côté. Cette fonctionnalité serait indispensable pour l'expérience utilisateur si un clic ne permettait pas de positionner le curseur sur un snapshot.
@@ -902,12 +885,11 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
     }
 };
 
-/* Fonction updateDataOnTimeChange
+/**
+ * Updates datas based on time in parameters property
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de mettre à jour les données en fonction du temps actuellement sélectionné.
+ * @name Simu#updateDataOnTimeChange
+ * @method
  */
 SIMU.Simu.prototype.updateDataOnTimeChange = function()
 {
@@ -930,13 +912,11 @@ SIMU.Simu.prototype.updateDataOnTimeChange = function()
     }
 };
 
-/* Fonction updateTimeOnCursorMove
+/**
+ * Computes and updates time in parameters property based on the cursor position when the cursor is moving. Dynamically change the current snapshot too.
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de répercuter les déplacements du curseur de la timeline sur le paramètre temps de l'interface.
- * Elle s'occupera également de modifier visuellement le snapshot sélectionné dans le tableau.
+ * @name Simu#updateTimeOnCursorMove
+ * @method
  */
 SIMU.Simu.prototype.updateTimeOnCursorMove = function()
 {
@@ -960,18 +940,12 @@ SIMU.Simu.prototype.updateTimeOnCursorMove = function()
     }
 };
 
-/* Fonction onPlay
+/**
+ * Initilalizes or interrumpts the animation when play event is fired
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour d'initialiser ou d'interrompre l'animation.
- * Elle s'occupera également :
- * - De modifier le CSS du bouton play
- * - De mettre à jour les données
- * - De calculer les positions dans le cas de l'interruption de l'animation
+ * @name Simu#onPlay
+ * @method
  */
-
 SIMU.Simu.prototype.onPlay = function()
 {
     if(this.currentSnapshotId >= 0 && this.currentSnapshotId < this.info.nbSnapShot - 1) {
@@ -985,23 +959,23 @@ SIMU.Simu.prototype.onPlay = function()
                 }
             }
             for (i = 0; i < this.scenes.length; i++) {
+                this.scenes[i].dataHasChanged();
                 if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.ANIMATED){
                     this.scenes[i].setShaderType(SIMU.ShaderType.STATIC);
                 }else if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.PARAMETRICANIMATED){
                     this.scenes[i].setShaderType(SIMU.ShaderType.PARAMETRICSTATIC);
                 }
-                this.scenes[i].dataHasChanged();
             }
         } else {
             this.parameters.play = true;
             this.timeline.setStopButton();
             for (i = 0; i < this.scenes.length; i++) {
+                this.scenes[i].dataHasChanged();
                 if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.STATIC){
                     this.scenes[i].setShaderType(SIMU.ShaderType.ANIMATED);
                 }else if(this.scenes[i].parameters.shaderType == SIMU.ShaderType.PARAMETRICSTATIC){
                     this.scenes[i].setShaderType(SIMU.ShaderType.PARAMETRICANIMATED);
                 }
-                this.scenes[i].dataHasChanged();
 
             }
         }

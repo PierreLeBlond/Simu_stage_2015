@@ -1,32 +1,28 @@
 /**
- * Created by buecher on 22/07/15.
+ * Created by Nicolas Buecher on 22/07/15.
  */
 
-/* Espace de nom */
+/**
+ * @namespace SIMU
+ */
 var SIMU = SIMU || {};
 
-/* Classe Timeline
-*
-*  nbSnapshots              : entier correspondant au nombre de snapshots actuellement chargés, soit la taille du tableau snapshots
-*  snapshots                : tableau contenant les références aux objets SnapshotBreakpoint actuellement chargés
-*  currentSnapshot          : entier correspondant à l'id du snapshot actuellement sélectionné
-*  html                     : élement HTML correspondant à la timeline qui englobe également le curseur, les différents snapshots et le bouton play/stop
-*  cursor                   : objet correspondant au curseur de la timeline
-*  interval                 : réel correspondant au nombre de pixels entre chaque snapshot sur la timeline
-*  playButton               : élément HTML correspondant au bouton play/stop
-*
-*  La classe Timeline a pour but de gérer les différents événements menant à changer son aspect visuel :
-*  - L'ajout d'un snapshot
-*  - La suppression d'un snapshot
-*  - Le positionnement proportionnel des snapshots
-*  - La sélection d'un snapshot
-*
-*  Elle permet de gérer l'affectation des ids de snapshot, d'autoriser ou d'interdire le dragging du curseur
-*  et en règle générale de superviser les actions apportées sur les snapshots et le curseur.
-*
-*  Note : Certains tests comme l'autorisation de dragging ne semblent pas être à leur place.
-*  Note : Penser à calculer la position du curseur en fonction du nombre de snapshots afin que cette fonction soit réutilisée dans Simu pour binder avec le temps.
-*/
+/**
+ * Represents the timeline of the application
+ *
+ * @name Timeline
+ * @class
+ *
+ * @property {number}                   nbSnapshots         - Number of loaded snapshots and length of snapshots array
+ * @property {Array|SnapshotBreakpoint} snapshots           - Array of SnapshotBreakpoint objects
+ * @property {number}                   currentSnapshot     - Index of the SnapshotBreakpoint currently picked
+ * @property {HTML}                     html                - HTML element of the timeline
+ * @property {Cursor}                   cursor              - Cursor object of the timeline
+ * @property {number}                   interval            - Number of pixels between each snapshot on the timeline (can be a float for computing)
+ * @property {HTML}                     playButton          - HTML element of the play button of the timeline
+ *
+ * @constructor
+ */
 SIMU.Timeline = function()
 {
     this.nbSnapshots        = 0;
@@ -38,14 +34,12 @@ SIMU.Timeline = function()
     this.playButton         = null;
 };
 
-/* Fonction setup
+/**
+ * Sets up the properties of Timeline creating the HTML & CSS elements
  *
-    * Paramètres : null
-* Retourne : null
-*
-* Cette fonction a pour but d'initialiser les paramètres de Timeline et d'appliquer ses éléments HTML au DOM.
-* Elle fait également appel à la fonction setCSS afin d'appliquer le CSS.
-*/
+ * @name Timeline#setup
+ * @method
+ */
 SIMU.Timeline.prototype.setup = function()
 {
     this.setCSS();
@@ -66,17 +60,12 @@ SIMU.Timeline.prototype.setup = function()
     this.html.appendChild(this.playButton);
 };
 
-/* Fonction addSnapshot
-*
-*  Paramètres : null
-*  Retourne : null
-*
-*  Cette fonction a pour but d'ajouter un snapshot sur la timeline.
-*  Elle permettra également :
-*  - d'ajouter le snapshot au tableau de snapshots
-*  - de créer l'événement de suppression de snapshot relié au snapshot
-*  - de tester l'autorisation de dragging du curseur
-*/
+/**
+ * Creates and adds a snapshot breakpoint on the timeline and allows cursor dragging when the second breakpoint is created
+ *
+ * @name Timeline#addSnapshot
+ * @method
+ */
 SIMU.Timeline.prototype.addSnapshot = function()
 {
     /* Création d'un nouvel objet SnapshotBreakpoint */
@@ -94,17 +83,6 @@ SIMU.Timeline.prototype.addSnapshot = function()
     /* Repositionnement des snapshots sur la timeline */
     this.replaceSnapshots();
 
-    /* Si un snapshot est actuellement sélectionné, on repositionne le curseur sur celui-ci
-    if (this.currentSnapshot !== 'undefined')
-    {
-        this.cursor.setOffset(this.snapshots[this.currentSnapshot].getOffset() - 10);
-    }
-    */
-
-    /* Ajout de l'événement de suppression de snapshot au clic droit de la souris sur un snapshot */
-    var that = this;
-    snapshot.html.addEventListener('contextmenu', function(e) { that.removeSnapshot(e, snapshot); }, false);
-
     // Repositionnement du curseur sur le nouveau snapshot automatiquement sélectionné */
     this.moveCursorOnSnapshot(snapshot);
 
@@ -115,14 +93,12 @@ SIMU.Timeline.prototype.addSnapshot = function()
     }
 };
 
-/* Fonction replaceSnapshots
-*
-*  Paramètres : null
-*  Retourne : null
-*
-*  Cette fonction a pour but de calculer la nouvelle position des snapshots en fonction de leur nombre.
-*  Elle s'occupera également de mettre à jour l'attribut intervald e la timeline.
-*/
+/**
+ * Computes and sets the new position of all snapshots and updates interval property
+ *
+ * @name Timeline#replaceSnapshots
+ * @method
+ */
 SIMU.Timeline.prototype.replaceSnapshots = function()
 {
     switch (this.nbSnapshots)
@@ -143,134 +119,53 @@ SIMU.Timeline.prototype.replaceSnapshots = function()
     }
 };
 
-/* Fonction replaceSnapshot
-*
-*  Paramètres :
-*   i       : entier correspondant à l'id du snapshot à repositionner
-*   step    : réel correspondant au pas entre chaque snapshot, en pourcentage
-*
-*  Retourne : null
-*
-*  Cette fonction a pour but de repositionner le snapshot identifié par i sur la timeline à l'aide du pas step renseigné.
+/**
+ * Computes and sets the new position of the snapshot breakpoint of index 'i'
+ *
+ * @name Timeline#replaceSnapshot
+ * @method
+ *
+ * @param {number}      i       - Index of the snapshot to replace
+ * @param {number}      step    - Number of pixels between each snapshot breakpoint on the timeline (can be a float for computing)
  */
 SIMU.Timeline.prototype.replaceSnapshot = function(i, step)
 {
     this.snapshots[i].setOffset(i*step + '%');
 };
 
-/* Fonction removeSnapshot
-*
-*  Paramètres :
-*   e       : événement correspondant normalement à un événement de type contextmenu
-*   snap    : objet SnapshotBreakpoint correspondant au snapshot à supprimer
-*
-*  Retourne : null
-*
-*  Cette fonction a pour but de supprimer un snapshot de la timeline.
-*  Elle permettra également :
-*  - D'empêcher le menu contextuel d'apparaître lors du clic droit
-*  - De réattribuer les ids des snapshots
-*  - De mettre à jour le tableau snapshots
-*  - De tester l'interdiction de dragging du curseur
-*
-*  TODO : Le test de current Snapshot est-il toujours pertinent ?
-*  TODO : Est-ce que chaque partie de cette fonction ne devrait pas être une fonction en soi ?
-*  TODO : Suppression de cette fonction si jamais utilisée.
- */
-SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
-{
-    /* Récupération de l'événement avec compatibilité IE */
-    var evtobj = window.event ? window.event : e;
-
-    /* Désactivation de l'apparition du menu contextuel lors du clic droit */
-    if ( evtobj.preventDefault )
-    {
-        evtobj.preventDefault();
-    }
-
-    /* Récpération de l'id du snapshot */
-    var id = snap.getIdNumber();
-
-    /* Suppression de l'élément HTML du snapshot du DOM */
-    this.html.removeChild(snap.html);
-
-    /* Boucle sur le tableau de snapshots pour décaler les objets de un afin d'écraser le snapshot à supprimer et réattribution des ids */
-    for ( var i = id; i < this.nbSnapshots - 1; i++ )
-    {
-        this.snapshots[i] = this.snapshots[i+1];
-        this.snapshots[i].setId(i);
-    }
-
-    /* Elimination du dernier élément du tableau snapshots */
-    this.snapshots.pop();
-
-    /* Réaffectation du nombre de snapshots */
-    this.nbSnapshots = this.snapshots.length;
-
-    /* Repositionnement des snapshots sur la timeline */
-    this.replaceSnapshots();
-
-    /* Si le snapshot supprimé était celui sélectionné, on affecte 'undefined' à currentSnapshot */
-    if (this.currentSnapshot == id)
-    {
-        this.currentSnapshot = 'undefined';
-    }
-    /* Sinon, s'il était à une position inférieure au snapshot sélectionné, on réttribue le bon id à currentSnapshot */
-    else if (this.currentSnapshot > id)
-    {
-        this.currentSnapshot -= 1;
-    }
-
-    /* Si un snapshot est encore sélectionné, on repositionne le curseur sur celui-ci */
-    if (this.currentSnapshot !== 'undefined')
-    {
-        this.cursor.setOffset(this.snapshots[this.currentSnapshot].getOffset() - 10);
-    }
-
-    /* S'il ne reste plus qu'un snapshot, on désactive la navigation sur la timeline et on replace le curseur sur le snapshot restant */
-    if ( this.nbSnapshots == 1 )
-    {
-        this.cursor.removeDragging();
-        this.moveCursorOnSnapshot(this.snapshots[this.nbSnapshots - 1]);
-    }
-};
-
-/* Fonction moveCursorOnSnapshot
-*
-*  Paramètres :
-*   snap    : objet SnapshotBreakpoint correspondant au snapshot sur lequel positionner le curseur
-*
-*  Retourne : null
-*
-*  Cette fonction a pour but de déplacer le curseur sur le snapshot renseigné.
+/**
+ * Moves the cursor on the snapshot breakpoint 'snap'
+ *
+ * @name Timeline#moveCursorOnSnapshot
+ * @method
+ *
+ * @param {SnapshotBreakpoint}  snap    - References the snapshot breakpoint object on which move the cursor
  */
 SIMU.Timeline.prototype.moveCursorOnSnapshot = function(snap)
 {
     this.cursor.setOffset(snap.getOffset() - 10);
 };
 
-/* Fonction setCurrentSnapshotId
+/**
+ * Updates currentSnapshot property with 'id'
  *
- * Paramètres :
- *  id      : entier correspondant à l'identifiant du snapshot à sélectionner
+ * @name Timeline#setCurrentSnapshotId
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de mettre à jour le snapshot actuellement sélectionné.
+ * @param {number}     id      - Index of the new current snapshot breakpoint
  */
 SIMU.Timeline.prototype.setCurrentSnapshotId = function(id)
 {
     this.currentSnapshot = id;
 };
 
-/* Fonction handleCurrentSnapshotChangeEvent
+/**
+ * Updates the current snapshot and moves cursor on it
  *
- * Paramètres :
- *  id      : entier correspondant à l'identifiant du snapshot à sélectionner.
+ * @name Timeline#changeCurrentSnapshot
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de mettre à jour le snapshot actuellement sélectionné tout en déplacant le curseur sur celui-ci.
+ * @param {number}     id      - Index of the new current snapshot breakpoint
  */
 SIMU.Timeline.prototype.handleCurrentSnapshotChangeEvent = function(id)
 {
@@ -279,28 +174,27 @@ SIMU.Timeline.prototype.handleCurrentSnapshotChangeEvent = function(id)
     this.setCurrentSnapshotId(id);
 };
 
-/* Fonction getSnapById
+/**
+ * Returns the SnapshotBreakpoint object referenced by 'id'
  *
- * Paramètres :
- *  i       : id du snapshot à récupérer
+ * @name Timeline#getSnapById
+ * @method
  *
- * Retourne :   Un objet SnapshotBreakpoint correspondant à l'id renseigné.
- *
- * Cette fonction a pour but de renvoyer l'objet SnapshotBreakpoint d'id id.
+ * @param   {number}        id      - Index of the snapshot breakpoint to get
+ * @returns {SnapshotBreakpoint}
  */
 SIMU.Timeline.prototype.getSnapById = function(id)
 {
     return this.snapshots[id];
 };
 
-/* Fonction animate
+/**
+ * Computes and updates cursor position during animation
  *
- * Paramètres :
- *  t       : réel correspondant au temps écoulé entre deux snapshots.
+ * @name Timeline#animate
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de calculer et de mettre à jour la position du curseur en fonction du temps lors de l'animation.
+ * @param {number}       t       - Time which represents where is the animation between two snapshots
  */
 SIMU.Timeline.prototype.animate = function(t)
 {
@@ -309,28 +203,26 @@ SIMU.Timeline.prototype.animate = function(t)
     this.cursor.setOffset(this.getSnapById(this.currentSnapshot).getOffset() + position -10);
 };
 
-/* Fonction setInterval
+/**
+ * Computes and updates the interval property with 'step' value
  *
- * Paramètres :
- *  step    : réel correspondant au pourcentage de la timeline entre chaque snapshot
+ * @name Timeline#setInterval
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de mettre à jour l'intervalle en pixels entre chaque snapshot en fonction du pas en pourcentage entre ceux-ci.
+ * @param {number}   step    - Distance in pixels between each snapshot breakpoint (can be a float for computing)
  */
 SIMU.Timeline.prototype.setInterval = function(step)
 {
     this.interval = ( step * this.html.offsetWidth ) / 100;
 };
 
-/* Fonction lookForCurrentSnapshot
+/**
+ * Looks for the current snapshot breakpoint based on the position of the cursor and returns its index
  *
- * Paramètres :
+ * @name Timeline#lookForCurrentSnapshot
+ * @method
  *
- * Retourne : un entier correspondant à l'identifiant du snapshot le plus proche du curseur (sur sa gauche).
- *
- * Cette fonction a pour but de rechercher le snapshot courant en fonction de la position du curseur afin, par exemple d'effectuer des calculs sur la position du curseur en fonction de l'intervalle dans le quel il se situe, et ce , sans modifier le snapshot actuellement sélectionné.
- * La fonction retourne -1 en cas d'erreur.
+ * @returns {number}
  */
 SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
 {
@@ -362,50 +254,48 @@ SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
     return result;
 };
 
-/* Fonction setPlayButton
+/**
+ * Updates id of playButton HTML element to display a play button
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de modifier l'identifiant de l'élément HTML du bouton Play/Stop afin d'afficher un bouton Play.
+ * @name Timeline#setPlayButton
+ * @method
  */
 SIMU.Timeline.prototype.setPlayButton = function()
 {
     this.playButton.firstElementChild.id = 'play-button';
 };
 
-/* Fonction setStopButton
+/**
+ * Updates id of playButton HTML element to display a stop button
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de modifier l'identifiant de l'élément HTML du bouton Play/Stop afin d'afficher un bouton Stop.
+ * @name Timeline#setStopButton
+ * @method
  */
 SIMU.Timeline.prototype.setStopButton = function()
 {
     this.playButton.firstElementChild.id = 'stop-button';
 };
 
-/* Classe Cursor
+/**
+ * Represents the cursor of the timeline
  *
- * html                     : élément HTML correspondant au curseur
- * cursorOffsetOrigin       : entier correspondant à l'offset du curseur avant déplacement
- * isMoving                 : booléen contrôlant la permission de dragger le curseur ou non
- * mouseOffsetOrigin        : entier correspondant à l'abscisse de la souris lors du premier clic
- * dragCursorEvent          : événement correspondant à l'appel de la fonction dragCursor après un événement de type mousedown
- * stopDraggingEvent        : événement correspondant à l'appel de la fonction stopDragging après un événement de type mouseup
- * positionHasToBeComputed  : booléen contrôlant si la position du curseur doit être calculée ou non après événement de la souris
+ * @name Cursor
+ * @class
  *
- * La classe Cursor a pour but de gérer l'élément HTML correspondant en fonction des différents événements de déplacement du curseur.
+ * @property {HTML}    html                        - HTML element of the cursor
+ * @property {number}  cursorOffsetOrigin          - Position (left offset in pixels) of the cursor before any drag
+ * @property {boolean} isMoving                    - If the cursor is currently dragged or not
+ * @property {number}  mouseOffsetOrigin           - Position (left offset in pixels) of the mouse click before any drag
+ * @property {event}   dragCursorEvent             - Event of type 'mousedown'
+ * @property {event}   stopDraggingEvent           - Event of type 'mouseup'
+ * @property {boolean} positionHasToBeComputed     - If the cursor just moved and its position needs to be computed or not
  *
- * Elle gère l'autorisation et l'interdiction de déplacement (dragging) du curseur.
- * Elle gère le dragging et l'arrêt du dragging.
- * Elle permet de récupérer des informations su rla position de l'élément HTML du curseur.
+ * @constructor
  */
 SIMU.Cursor = function()
 {
-    this.html                       = null;//document.getElementById('cursor');
-    this.cursorOffsetOrigin         = 0;//this.html.offsetLeft;
+    this.html                       = null;
+    this.cursorOffsetOrigin         = 0;
     this.isMoving                   = false;
     this.mouseOffsetOrigin          = 0;
     this.dragCursorEvent            = null;
@@ -413,80 +303,33 @@ SIMU.Cursor = function()
     this.positionHasToBeComputed    = false;
 };
 
-SIMU.Cursor.prototype.setCSS = function()
+/**
+ * Sets up the properties of SnapshotBreakpoint creating the HTML & CSS elements
+ *
+ * @name Cursor#setup
+ * @method
+ */
+SIMU.Cursor.prototype.setup = function()
 {
-    var css = document.createElement('style');
+    this.setCSS();
 
-    css.innerHTML = [
-        '/* Style du curseur */',
-        '',
-        '#cursor {',
-        '   display: block;',
-        '   position: absolute;',
-        '   width: 20px;',
-        '   left: -10px;',
-        '   height: 20px;',
-        '   top: -6px;',
-        '   background-color: rgba(255,255,255,0);',
-        '   cursor: move;',
-        '   z-index: 1;',
-        '}',
-        '',
-        '#cursor-head {',
-        '   display: block;',
-        '   position: absolute;',
-        '   width: 10px;',
-        '   height: 10px;',
-        '   border: 5px solid #eee;',
-        '   border-radius: 50%;',
-        '   background-color: red;',
-        '}',
-        '',
-        '.cursor-hair {',
-        '   position: absolute;',
-        '   width: 10px;',
-        '   height: 5px;',
-        '   border-radius: 50%;',
-        '}',
-        '',
-        '#cursor-hair-top-left {',
-        '   border-top: 3px solid #eee;',
-        '   border-left: 3px solid #eee;',
-        '   top: -10px;',
-        '   left: -10px;',
-        '}',
-        '',
-        '#cursor-hair-top-right {',
-        '   border-top: 3px solid #eee;',
-        '   border-right: 3px solid #eee;',
-        '   top: -10px;',
-        '   right: -10px;',
-        '}',
-        '',
-        '#cursor-hair-bottom-left {',
-        '   border-bottom: 3px solid #eee;',
-        '   border-left: 3px solid #eee;',
-        '   bottom: -10px;',
-        '   left: -10px;',
-        '}',
-        '',
-        '#cursor-hair-bottom-right {',
-        '   border-bottom: 3px solid #eee;',
-        '   border-right: 3px solid #eee;',
-        '   bottom: -10px;',
-        '   right: -10px;',
-        '}'
-    ].join('\n');
-
-    document.head.appendChild(css);
+    this.html = document.createElement('div');
+    this.html.id = 'cursor';
+    this.html.innerHTML = [
+        '<div id=\"cursor-head\">',
+        '    <div id=\"cursor-hair-top-left\" class=\"cursor-hair\"></div>',
+        '    <div id=\"cursor-hair-top-right\" class=\"cursor-hair\"></div>',
+        '    <div id=\"cursor-hair-bottom-left\" class=\"cursor-hair\"></div>',
+        '    <div id=\"cursor-hair-bottom-right\" class=\"cursor-hair\"></div>',
+        '</div>',
+    ].join('');
 };
 
-/* Fonction allowDragging
+/**
+ * Adds the event which controls the possibility to drag the cursor on the HTML element
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but d'ajouter à l'élément HTML du curseur l'événement qui permettra de le déplacer.
+ * @name Cursor#allowDragging
+ * @method
  */
 SIMU.Cursor.prototype.allowDragging = function()
 {
@@ -494,24 +337,22 @@ SIMU.Cursor.prototype.allowDragging = function()
     this.html.addEventListener('mousedown', this.dragCursorEvent, false);
 };
 
-/* Fonction removeDragging
+/**
+ * Removes the event wich controls the possibility to drag the cursor on the HTML element
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de supprimer l'événement qui permet de déplacer le curseur.
+ * @name Cursor#removeDragging
+ * @method
  */
 SIMU.Cursor.prototype.removeDragging = function()
 {
     this.html.removeEventListener('mousedown', this.dragCursorEvent);
 };
 
-/* Fonction stopDragging
+/**
+ * Removes events used when the cursor is moving and updates the isMoving property
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but de supprimer les événements actifs lors du déplacement du curseur afin qu'ils ne soient pas appelés inutilement.
+ * @name Cursor#stopDragging
+ * @method
  */
 SIMU.Cursor.prototype.stopDragging = function()
 {
@@ -520,18 +361,13 @@ SIMU.Cursor.prototype.stopDragging = function()
     document.removeEventListener('mouseup', this.stopDraggingEvent);
 };
 
-/* Fonction dragCursor
+/**
+ * Starts the cursor move initializing all the needed values, prevents default behaviour and adds events which control the move of the cursor
  *
- * Paramètres :
- *  e       : événement correspondant normalement à un événement de type mousedown
+ * @name Cursor#dragCursor
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de démarrer le déplacement du curseur en initialisant toutes les valeurs nécessaires.
- * Elle s'occupera également :
- * - D'empêcher un autre possible autre comportement de l'événement
- * - D'indiquer que la position du curseur aura besoin d'être calculée après déplacement.
- * - D'ajouter les événements permettant le déplacement du curseur
+ * @param {event}   e       - Event of type 'mousedown'
  */
 SIMU.Cursor.prototype.dragCursor = function(e)
 {
@@ -564,14 +400,13 @@ SIMU.Cursor.prototype.dragCursor = function(e)
     document.addEventListener('mouseup', this.stopDraggingEvent, false);
 };
 
-/* Fonction moveCursor
+/**
+ * Moves the cursor on each mouse move
  *
- * Paramètres :
- *  e       : événement correspondant normalement à un événement de type mousemove
+ * @name Cursor#moveCursor
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de déplacer le curseur à chaque mouvement de la souris.
+ * @param {event}   e       - Event of type 'mousemove'
  */
 SIMU.Cursor.prototype.moveCursor = function(e)
 {
@@ -592,40 +427,43 @@ SIMU.Cursor.prototype.moveCursor = function(e)
     }
 };
 
-/* Fonction setOffset
+/**
+ * Updates the cursor position
  *
- * Paramètres :
- *  offset  : entier correspondant à la position en pixels par rapport au bord gauche de la timeline à appliquer
+ * @name Cursor#setOffset
+ * @method
  *
- *  Retourne : null
- *
- *  Cette fonction a pour but d'affecter une nouvelle position à l'élément HTML du curseur.
+ * @param {number}      offset      - Position (left offset in pixels) of the cursor to set
  */
 SIMU.Cursor.prototype.setOffset = function(offset)
 {
     this.html.style.left = offset + "px";
 };
 
-/* Fonction getOffset
+/**
+ * Returns the position (left offset) of the cursor
  *
- * Paramètres : null
+ * @name Cursor#getOffset
+ * @method
  *
- * Retourne : La position de l'élément HTML du curseur par rapport au bord gauche de la timeline.
- *
- * Cette fonction a pour but de renvoyer la position de l'élément HTML du curseur.
+ * @returns {number}
  */
 SIMU.Cursor.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
 };
 
-/* Classe SnapshotBreakpoint
+/**
+ * Represents a snapshot breakpoint on the timeline. You need to provide an index to create it.
  *
- * html     : élément HTML correspondant au snapshot de la timeline
+ * @name SnapshotBreakpoint
+ * @class
  *
- * La classe SnapshotBreakpoint a pour but de gérer l'identifiant et la position de son élément HTML.
+ * @property {HTML}     html        - HTML element of the snapshot breakpoint
  *
- * Un objet SnapshotBreakpoint doit obligatoirement être créé à l'aide d'un entier id représentant l'identifiant du snapshot.
+ * @param {number}      id          - Index of the new snapshot
+ *
+ * @constructor
  */
 SIMU.SnapshotBreakpoint = function(id)
 {
@@ -643,29 +481,26 @@ SIMU.SnapshotBreakpoint = function(id)
     this.setId(id);
 };
 
-/* Fonction getId
+/**
+ * Returns the id of the HTML element of the snapshot breakpoint. The id looks like 'snap-$id'
  *
- * Paramètres : null
+ * @name SnapshotBreakpoint#getId
+ * @method
  *
- * Retourne : L'identifiant de l'élément HTML du snapshot de type 'snap-id'
- *
- * Cette fonction a pour but de renvoyer l'identifiant de l'élément HTML du snapshot.
+ * @returns {string}
  */
 SIMU.SnapshotBreakpoint.prototype.getId = function()
 {
     return this.html.id;
 };
 
-/* Fonction setId
+/**
+ * Updates id of the HTML element of the snapshot breakpoint and updates id of the child with only the index
  *
- * Paramètres :
- *  id      : entier correspondant à l'identifiant du snapshot à appliquer.
+ * @name SnapshotBreakpoint#setId
+ * @method
  *
- * Retourne : null
- *
- * Cette fonction a pour but de mettre à jour l'identifiant du snaphot à l'aide de l'id renseigné.
- * Elle permet également d'attribuer un identifiant purement numérique à l'élément HTML breakpoint associé au snapshot.
- * Ceci parce qu'un événement mouse sur le snapshot est généralement associé au breakpoint.
+ * @param {number}      id      - Index to set to the snapshot breakpoint
  */
 SIMU.SnapshotBreakpoint.prototype.setId = function(id)
 {
@@ -673,59 +508,23 @@ SIMU.SnapshotBreakpoint.prototype.setId = function(id)
     this.html.firstElementChild.id = id;
 };
 
-/* Fonction getIdNumber
+/**
+ * Returns the position (left offset) of the snapshot breakpoint
  *
- * Paramètres : null
+ * @name SnapshotBreakpoint#getOffset
+ * @method
  *
- * Retourne : La valeur numérique de l'identifiant du snapshot. Renvoie -1 en cas d'erreur.
- *
- * Cette fonction a pour but de renvoyer uniquement le nombre contenu dans l'identifiant du snapshot.
- */
-SIMU.SnapshotBreakpoint.prototype.getIdNumber = function()
-{
-    var result = -1;
-
-    if ( !isNaN( parseInt( this.getId().substr( 5 ) ) ) )
-    {
-        result = parseInt( this.getId().substr( 5 ) );
-    }
-
-    return result;
-};
-
-/* Fonction getOffset
- *
- * Paramètres : null
- *
- * Retourne : La position de l'élément HTML en pixels en fonction du  bord gauche de la timeline.
- *
- * Cette fonction a pour but de renvoyer la position de l'élément HTML.
+ * @returns {number}
  */
 SIMU.SnapshotBreakpoint.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
 };
 
-/* Fonction setOffset
+/** Creates CSS elements and appends them to DOM
  *
- * Paramètres :
- *  offset  : entier correspondant à la position en pixels par rapport au bord gauche de la timeline à appliquer.
- *
- * Retourne : null
- *
- * Cette fonction a pour but d'affecter une nouvelle position à l'élément HTML du snapshot.
- */
-SIMU.SnapshotBreakpoint.prototype.setOffset = function(offset)
-{
-    this.html.style.left = offset;
-};
-
-/* Fonction setCSS
- *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but d'appliquer le CSS en l'insérant dans le DOM dans une balise <style>
+ * @name Timeline#setCSS
+ * @method
  */
 SIMU.Timeline.prototype.setCSS = function()
 {
@@ -823,25 +622,187 @@ SIMU.Timeline.prototype.setCSS = function()
     document.head.appendChild(css);
 };
 
-/* Fonction setCSS
+/** Creates CSS elements and appends them to DOM
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but d'appliquer le CSS en l'insérant dans le DOM dans une balise <style>
+ * @name Cursor#setCSS
+ * @method
  */
-SIMU.Cursor.prototype.setup = function()
+SIMU.Cursor.prototype.setCSS = function()
 {
-    this.setCSS();
+    var css = document.createElement('style');
 
-    this.html = document.createElement('div');
-    this.html.id = 'cursor';
-    this.html.innerHTML = [
-        '<div id=\"cursor-head\">',
-        '    <div id=\"cursor-hair-top-left\" class=\"cursor-hair\"></div>',
-        '    <div id=\"cursor-hair-top-right\" class=\"cursor-hair\"></div>',
-        '    <div id=\"cursor-hair-bottom-left\" class=\"cursor-hair\"></div>',
-        '    <div id=\"cursor-hair-bottom-right\" class=\"cursor-hair\"></div>',
-        '</div>',
-    ].join('');
+    css.innerHTML = [
+        '/* Style du curseur */',
+        '',
+        '#cursor {',
+        '   display: block;',
+        '   position: absolute;',
+        '   width: 20px;',
+        '   left: -10px;',
+        '   height: 20px;',
+        '   top: -6px;',
+        '   background-color: rgba(255,255,255,0);',
+        '   cursor: move;',
+        '   z-index: 1;',
+        '}',
+        '',
+        '#cursor-head {',
+        '   display: block;',
+        '   position: absolute;',
+        '   width: 10px;',
+        '   height: 10px;',
+        '   border: 5px solid #eee;',
+        '   border-radius: 50%;',
+        '   background-color: red;',
+        '}',
+        '',
+        '.cursor-hair {',
+        '   position: absolute;',
+        '   width: 10px;',
+        '   height: 5px;',
+        '   border-radius: 50%;',
+        '}',
+        '',
+        '#cursor-hair-top-left {',
+        '   border-top: 3px solid #eee;',
+        '   border-left: 3px solid #eee;',
+        '   top: -10px;',
+        '   left: -10px;',
+        '}',
+        '',
+        '#cursor-hair-top-right {',
+        '   border-top: 3px solid #eee;',
+        '   border-right: 3px solid #eee;',
+        '   top: -10px;',
+        '   right: -10px;',
+        '}',
+        '',
+        '#cursor-hair-bottom-left {',
+        '   border-bottom: 3px solid #eee;',
+        '   border-left: 3px solid #eee;',
+        '   bottom: -10px;',
+        '   left: -10px;',
+        '}',
+        '',
+        '#cursor-hair-bottom-right {',
+        '   border-bottom: 3px solid #eee;',
+        '   border-right: 3px solid #eee;',
+        '   bottom: -10px;',
+        '   right: -10px;',
+        '}'
+    ].join('\n');
+
+    document.head.appendChild(css);
 };
+
+/**
+ * Updates the position (left offset) of the snapshot breakpoint
+ *
+ * @name SnapshotBreakpoint#setOffset
+ * @method
+ *
+ * @param {string}      offset      - Position (left offset) of the snapshot breakpoint to set (should be in %)
+ * @todo Useless method : to delete ? (Position of snapshot is in %, not in pixels)
+ */
+SIMU.SnapshotBreakpoint.prototype.setOffset = function(offset)
+{
+    this.html.style.left = offset;
+};
+
+/**
+ * Returns the index included in the id of the HTML element of the snapshot breakpoint
+ *
+ * @name SnapshotBreakpoint#getIdNumber
+ * @method
+ *
+ * @returns {number}
+ * @todo : This method is not used : to delete ?
+ */
+SIMU.SnapshotBreakpoint.prototype.getIdNumber = function()
+{
+    var result = -1;
+
+    if ( !isNaN( parseInt( this.getId().substr( 5 ) ) ) )
+    {
+        result = parseInt( this.getId().substr( 5 ) );
+    }
+
+    return result;
+}
+
+/* Fonction removeSnapshot
+ *
+ *  Paramètres :
+ *   e       : événement correspondant normalement à un événement de type contextmenu
+ *   snap    : objet SnapshotBreakpoint correspondant au snapshot à supprimer
+ *
+ *  Retourne : null
+ *
+ *  Cette fonction a pour but de supprimer un snapshot de la timeline.
+ *  Elle permettra également :
+ *  - D'empêcher le menu contextuel d'apparaître lors du clic droit
+ *  - De réattribuer les ids des snapshots
+ *  - De mettre à jour le tableau snapshots
+ *  - De tester l'interdiction de dragging du curseur
+ *
+ *  TODO : Le test de current Snapshot est-il toujours pertinent ?
+ *  TODO : Est-ce que chaque partie de cette fonction ne devrait pas être une fonction en soi ?
+ *  TODO : Suppression de cette fonction si jamais utilisée.
+ *
+ SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
+ {
+ /* Récupération de l'événement avec compatibilité IE
+ var evtobj = window.event ? window.event : e;
+
+ /* Désactivation de l'apparition du menu contextuel lors du clic droit
+ if ( evtobj.preventDefault )
+ {
+ evtobj.preventDefault();
+ }
+
+ /* Récpération de l'id du snapshot
+ var id = snap.getIdNumber();
+
+ /* Suppression de l'élément HTML du snapshot du DOM
+ this.html.removeChild(snap.html);
+
+ /* Boucle sur le tableau de snapshots pour décaler les objets de un afin d'écraser le snapshot à supprimer et réattribution des ids
+ for ( var i = id; i < this.nbSnapshots - 1; i++ )
+ {
+ this.snapshots[i] = this.snapshots[i+1];
+ this.snapshots[i].setId(i);
+ }
+
+ /* Elimination du dernier élément du tableau snapshots
+ this.snapshots.pop();
+
+ /* Réaffectation du nombre de snapshots
+ this.nbSnapshots = this.snapshots.length;
+
+ /* Repositionnement des snapshots sur la timeline
+ this.replaceSnapshots();
+
+ /* Si le snapshot supprimé était celui sélectionné, on affecte 'undefined' à currentSnapshot
+ if (this.currentSnapshot == id)
+ {
+ this.currentSnapshot = 'undefined';
+ }
+ /* Sinon, s'il était à une position inférieure au snapshot sélectionné, on réttribue le bon id à currentSnapshot
+ else if (this.currentSnapshot > id)
+ {
+ this.currentSnapshot -= 1;
+ }
+
+ /* Si un snapshot est encore sélectionné, on repositionne le curseur sur celui-ci
+ if (this.currentSnapshot !== 'undefined')
+ {
+ this.cursor.setOffset(this.snapshots[this.currentSnapshot].getOffset() - 10);
+ }
+
+ /* S'il ne reste plus qu'un snapshot, on désactive la navigation sur la timeline et on replace le curseur sur le snapshot restant
+ if ( this.nbSnapshots == 1 )
+ {
+ this.cursor.removeDragging();
+ this.moveCursorOnSnapshot(this.snapshots[this.nbSnapshots - 1]);
+ }
+ }*/

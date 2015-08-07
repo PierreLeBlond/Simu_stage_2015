@@ -122,6 +122,19 @@ SIMU.LoadingBarSingleton = (function(){
 
 })();
 
+/**
+ * Contains all the functions necessary to know if the current device is a mobile device or not and which type of OS is used
+ *
+ * @name isMobile
+ * @global
+ *
+ * @property {function} Android     - Returns true if it's an android device, false otherwise
+ * @property {function} BlackBerry  - Returns true if it's a blackberry device, false otherwise
+ * @property {function} iOS         - Returns true if it's an iOS device, false otherwise
+ * @property {function} Opera       - Returns true if it's an opera device, false otherwise
+ * @property {function} Windows     - Returns true if it's a windows device, false otherwise
+ * @property {function} any         - Returns true if it's any of android, blackberry, iOS, opera or windows device, false otherwise
+ */
 SIMU.isMobile = {
     Android: function() {
         return navigator.userAgent.match(/Android/i);

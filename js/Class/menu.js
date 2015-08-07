@@ -2,34 +2,24 @@
  * Created by Nicolas Buecher on 22/07/15.
  */
 
-/* Espace de nom */
-
+/**
+ * @namespace SIMU
+ */
 var SIMU = SIMU || {};
 
-/* Classe Menu
+/**
+ * Represents the menu of the application
  *
- * simpleView           : élément HTML correspondant à la div simpleview
- * multiView            : élément HTML correspondant à la div multiview
- * oculus               : élément HTML correspondant à la div oculus
- * cardboard            : élément HTML correspondant à la div cardboard
+ * @name Menu
+ * @class
  *
- * blocker              : élément HTML correspondant à la div blocker
- * isDisplayed          : booléen contrôlant l'affichage du menu
- *
- * La classe menu a pour but de permettre de naviguer entre différents types d'affichage :
- * - SimpleView         : Une seule vue navigable pour toutes les plateformes
- * - MultiView          : Plusieurs vues indépendantes navigables pour desktop
- * - Oculus             : Vue en rélalité virtuelle navigable pour Oculus Rift
- * - Cardboard          : Vue stéréo navigable pour Google Cardboard
- *
- * Elle permet de gérer l'allouement et le désallouement des différents éléments en fonction du mode choisi.
- * Elle permet de limiter le nombre de modes d'affichages disponibles en fonction de l'appareil détecté.
- *
- * Note : Penser à la détection d'appareil, sa place est-elle vraiment dans Menu ?
- * Note : Une classe est-elle nécessaire pour chaque type d'affichage ?
- *
+ * @property {HTML}     simpleview      - HTML element of the simpleview div in DOM
+ * @property {HTML}     multiview       - HTML element of the multiview div in DOM
+ * @property {HTML}     oculus          - HTML element of the oculus div in DOM
+ * @property {HTML}     cardboard       - HTML element of the cardboard div in DOM
+ * @property {HTML}     blocker         - HTML element of the blocker div in DOM
+ * @property {boolean}  isDisplayed     - If the menu is visible or not
  */
-
 SIMU.Menu = function()
 {
     this.simpleView         = null;
@@ -41,13 +31,11 @@ SIMU.Menu = function()
     this.isDisplayed        = false;
 };
 
-/* Fonction setup
+/**
+ * Sets up the properties of Menu creating the HTML & CSS elements
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but d'initialiser les paramètres de Menu et d'appliquer ses éléments HTML au DOM.
- * Elle fait également appel à la fonction setCSS afin d'appliquer le CSS.
+ * @name Menu#setup
+ * @method
  */
 SIMU.Menu.prototype.setup = function()
 {
@@ -97,12 +85,14 @@ SIMU.Menu.prototype.setup = function()
     this.blocker.firstElementChild.appendChild(this.cardboard);
 };
 
-/* Fonction permettant d'alterner l'affichage du menu
-*
-* Elle est appelée suite à un événement de type keydown
-*
-* */
-
+/**
+ * Displays menu if it's hidden or hides menu if it's displayed after escape key is pressed.
+ *
+ * @name Menu#switchMenu
+ * @method
+ *
+ * @param {event} e - Event of type 'keydown'
+ */
 SIMU.Menu.prototype.switchMenu = function(e)
 {
     var evt = window.event ? window.event : e;
@@ -124,28 +114,33 @@ SIMU.Menu.prototype.switchMenu = function(e)
     }
 };
 
-/* Fonction permettant d'afficher le menu et de mettre en pause le rendu */
-
+/**
+ * Makes the blocker div visible
+ *
+ * @name Menu#displayMenu
+ * @method
+ */
 SIMU.Menu.prototype.displayMenu = function()
 {
     this.blocker.style.display = 'initial';
     this.isDisplayed = true;
 };
 
-/* Fonction permettant de cacher le menu et de reprendre le rendu */
-
+/** Hides the blocker div
+ *
+ * @name Menu#hideMenu
+ * @method
+ */
 SIMU.Menu.prototype.hideMenu = function()
 {
     this.blocker.style.display = 'none';
     this.isDisplayed = false;
 };
 
-/* Fonction setCSS
+/** Creates CSS elements and appends them to DOM
  *
- * Paramètres : null
- * Retourne : null
- *
- * Cette fonction a pour but d'appliquer le CSS en l'insérant dans le DOM dans une balise <style>
+ * @name Menu#setCSS
+ * @method
  */
 SIMU.Menu.prototype.setCSS = function()
 {
