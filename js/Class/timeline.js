@@ -36,7 +36,7 @@ SIMU.Timeline = function()
     this.cursor             = null;
     this.interval           = 0;
     this.playButton         = null;
-}
+};
 
 /* Fonction setup
  *
@@ -64,7 +64,7 @@ SIMU.Timeline.prototype.setup = function()
 
     this.html.appendChild(this.cursor.html);
     this.html.appendChild(this.playButton);
-}
+};
 
 /* Fonction addSnapshot
 *
@@ -113,7 +113,7 @@ SIMU.Timeline.prototype.addSnapshot = function()
     {
         this.cursor.allowDragging();
     }
-}
+};
 
 /* Fonction replaceSnapshots
 *
@@ -141,7 +141,7 @@ SIMU.Timeline.prototype.replaceSnapshots = function()
             }
             break;
     }
-}
+};
 
 /* Fonction replaceSnapshot
 *
@@ -156,7 +156,7 @@ SIMU.Timeline.prototype.replaceSnapshots = function()
 SIMU.Timeline.prototype.replaceSnapshot = function(i, step)
 {
     this.snapshots[i].setOffset(i*step + '%');
-}
+};
 
 /* Fonction removeSnapshot
 *
@@ -233,7 +233,7 @@ SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
         this.cursor.removeDragging();
         this.moveCursorOnSnapshot(this.snapshots[this.nbSnapshots - 1]);
     }
-}
+};
 
 /* Fonction moveCursorOnSnapshot
 *
@@ -247,7 +247,7 @@ SIMU.Timeline.prototype.removeSnapshot = function(e, snap)
 SIMU.Timeline.prototype.moveCursorOnSnapshot = function(snap)
 {
     this.cursor.setOffset(snap.getOffset() - 10);
-}
+};
 
 /* Fonction setCurrentSnapshotId
  *
@@ -261,9 +261,9 @@ SIMU.Timeline.prototype.moveCursorOnSnapshot = function(snap)
 SIMU.Timeline.prototype.setCurrentSnapshotId = function(id)
 {
     this.currentSnapshot = id;
-}
+};
 
-/* Fonction changeCurrentSnapshot
+/* Fonction handleCurrentSnapshotChangeEvent
  *
  * Paramètres :
  *  id      : entier correspondant à l'identifiant du snapshot à sélectionner.
@@ -272,12 +272,12 @@ SIMU.Timeline.prototype.setCurrentSnapshotId = function(id)
  *
  * Cette fonction a pour but de mettre à jour le snapshot actuellement sélectionné tout en déplacant le curseur sur celui-ci.
  */
-SIMU.Timeline.prototype.changeCurrentSnapshot = function(id)
+SIMU.Timeline.prototype.handleCurrentSnapshotChangeEvent = function(id)
 {
     var snap = this.getSnapById(id);
     this.moveCursorOnSnapshot(snap);
     this.setCurrentSnapshotId(id);
-}
+};
 
 /* Fonction getSnapById
  *
@@ -291,7 +291,7 @@ SIMU.Timeline.prototype.changeCurrentSnapshot = function(id)
 SIMU.Timeline.prototype.getSnapById = function(id)
 {
     return this.snapshots[id];
-}
+};
 
 /* Fonction animate
  *
@@ -307,7 +307,7 @@ SIMU.Timeline.prototype.animate = function(t)
     var position = t * this.interval;
 
     this.cursor.setOffset(this.getSnapById(this.currentSnapshot).getOffset() + position -10);
-}
+};
 
 /* Fonction setInterval
  *
@@ -321,7 +321,7 @@ SIMU.Timeline.prototype.animate = function(t)
 SIMU.Timeline.prototype.setInterval = function(step)
 {
     this.interval = ( step * this.html.offsetWidth ) / 100;
-}
+};
 
 /* Fonction lookForCurrentSnapshot
  *
@@ -360,7 +360,7 @@ SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
     }
 
     return result;
-}
+};
 
 /* Fonction setPlayButton
  *
@@ -372,7 +372,7 @@ SIMU.Timeline.prototype.lookForCurrentSnapshot = function()
 SIMU.Timeline.prototype.setPlayButton = function()
 {
     this.playButton.firstElementChild.id = 'play-button';
-}
+};
 
 /* Fonction setStopButton
  *
@@ -384,7 +384,7 @@ SIMU.Timeline.prototype.setPlayButton = function()
 SIMU.Timeline.prototype.setStopButton = function()
 {
     this.playButton.firstElementChild.id = 'stop-button';
-}
+};
 
 /* Classe Cursor
  *
@@ -411,7 +411,7 @@ SIMU.Cursor = function()
     this.dragCursorEvent            = null;
     this.stopDraggingEvent          = null;
     this.positionHasToBeComputed    = false;
-}
+};
 
 SIMU.Cursor.prototype.setCSS = function()
 {
@@ -479,7 +479,7 @@ SIMU.Cursor.prototype.setCSS = function()
     ].join('\n');
 
     document.head.appendChild(css);
-}
+};
 
 /* Fonction allowDragging
  *
@@ -492,7 +492,7 @@ SIMU.Cursor.prototype.allowDragging = function()
 {
     this.dragCursorEvent = this.dragCursor.bind(this);
     this.html.addEventListener('mousedown', this.dragCursorEvent, false);
-}
+};
 
 /* Fonction removeDragging
  *
@@ -504,7 +504,7 @@ SIMU.Cursor.prototype.allowDragging = function()
 SIMU.Cursor.prototype.removeDragging = function()
 {
     this.html.removeEventListener('mousedown', this.dragCursorEvent);
-}
+};
 
 /* Fonction stopDragging
  *
@@ -518,7 +518,7 @@ SIMU.Cursor.prototype.stopDragging = function()
     this.isMoving = false;
     document.removeEventListener('mousemove', this.moveCursor);
     document.removeEventListener('mouseup', this.stopDraggingEvent);
-}
+};
 
 /* Fonction dragCursor
  *
@@ -562,7 +562,7 @@ SIMU.Cursor.prototype.dragCursor = function(e)
     /* Ajout de l'événement d'arrêt du daplacement du curseur lors du relaĉhement de la souris au DOM */
     this.stopDraggingEvent = this.stopDragging.bind(this);
     document.addEventListener('mouseup', this.stopDraggingEvent, false);
-}
+};
 
 /* Fonction moveCursor
  *
@@ -590,7 +590,7 @@ SIMU.Cursor.prototype.moveCursor = function(e)
             this.setOffset(newPosition);
         }
     }
-}
+};
 
 /* Fonction setOffset
  *
@@ -604,7 +604,7 @@ SIMU.Cursor.prototype.moveCursor = function(e)
 SIMU.Cursor.prototype.setOffset = function(offset)
 {
     this.html.style.left = offset + "px";
-}
+};
 
 /* Fonction getOffset
  *
@@ -617,7 +617,7 @@ SIMU.Cursor.prototype.setOffset = function(offset)
 SIMU.Cursor.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
-}
+};
 
 /* Classe SnapshotBreakpoint
  *
@@ -641,7 +641,7 @@ SIMU.SnapshotBreakpoint = function(id)
     this.html.appendChild(label);
 
     this.setId(id);
-}
+};
 
 /* Fonction getId
  *
@@ -654,7 +654,7 @@ SIMU.SnapshotBreakpoint = function(id)
 SIMU.SnapshotBreakpoint.prototype.getId = function()
 {
     return this.html.id;
-}
+};
 
 /* Fonction setId
  *
@@ -671,7 +671,7 @@ SIMU.SnapshotBreakpoint.prototype.setId = function(id)
 {
     this.html.id = 'snap-' + id;
     this.html.firstElementChild.id = id;
-}
+};
 
 /* Fonction getIdNumber
  *
@@ -691,7 +691,7 @@ SIMU.SnapshotBreakpoint.prototype.getIdNumber = function()
     }
 
     return result;
-}
+};
 
 /* Fonction getOffset
  *
@@ -704,7 +704,7 @@ SIMU.SnapshotBreakpoint.prototype.getIdNumber = function()
 SIMU.SnapshotBreakpoint.prototype.getOffset = function()
 {
     return this.html.offsetLeft;
-}
+};
 
 /* Fonction setOffset
  *
@@ -718,7 +718,7 @@ SIMU.SnapshotBreakpoint.prototype.getOffset = function()
 SIMU.SnapshotBreakpoint.prototype.setOffset = function(offset)
 {
     this.html.style.left = offset;
-}
+};
 
 /* Fonction setCSS
  *
@@ -821,7 +821,7 @@ SIMU.Timeline.prototype.setCSS = function()
     ].join('');
 
     document.head.appendChild(css);
-}
+};
 
 /* Fonction setCSS
  *
@@ -844,4 +844,4 @@ SIMU.Cursor.prototype.setup = function()
         '    <div id=\"cursor-hair-bottom-right\" class=\"cursor-hair\"></div>',
         '</div>',
     ].join('');
-}
+};

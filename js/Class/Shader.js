@@ -38,6 +38,7 @@ SIMU.ShaderManagerSingleton = (function() {
             }
         };
 
+
         this.shaders.parametric.static.vertex =
             [
                 "uniform float size;                                                                            \n",
@@ -126,6 +127,7 @@ SIMU.ShaderManagerSingleton = (function() {
                 "                                                                                                           \n",
                 "attribute vec3 endPosition;                                                                                \n",
                 "attribute vec3 color;                                                                                      \n",
+                "attribute vec3 departure;                                                                                  \n",
                 "attribute float info;                                                                                      \n",
                 "                                                                                                           \n",
                 "varying vec3 position_out;                                                                                 \n",
@@ -134,8 +136,8 @@ SIMU.ShaderManagerSingleton = (function() {
                 "varying float blink_speed;                                                                                 \n",
                 "                                                                                                           \n",
                 "void main(){                                                                                               \n",
-                "   position_out = position;                                                                                \n",
-                "   vec3 pos = position+endPosition*t;                                                                      \n",
+                "   position_out = departure;                                                                                \n",
+                "   vec3 pos = departure+endPosition*t;                                                                      \n",
                 "   mvPosition = modelViewMatrix*vec4(pos, 1.0);                                                            \n",
                 "   gl_PointSize = size/length(mvPosition.xyz);                                                             \n",
                 "   gl_Position = projectionMatrix*mvPosition;                                                              \n",
@@ -170,6 +172,7 @@ SIMU.ShaderManagerSingleton = (function() {
                 "                                                 \n",
                 "attribute vec3 endPosition;                      \n",
                 "attribute vec3 color;                            \n",
+                "attribute vec3 departure;                        \n",
                 "                                                 \n",
                 "varying vec3 position_out;                       \n",
                 "varying vec4 mvPosition;                         \n",
@@ -177,8 +180,7 @@ SIMU.ShaderManagerSingleton = (function() {
                 "                                                 \n",
                 "void main(){                                     \n",
                 "   color_out = color;                            \n",
-                "   position_out = position;                      \n",
-                "   vec3 pos = position+endPosition*t;            \n",
+                "   vec3 pos = departure+endPosition*t;           \n",
                 "   mvPosition = modelViewMatrix*vec4(pos, 1.0);  \n",
                 "   gl_PointSize = size/length(mvPosition.xyz);   \n",
                 "   gl_Position = projectionMatrix*mvPosition;    \n",

@@ -1,67 +1,81 @@
 /**
  * Created by lespingal on 10/07/15.
- * @description Welcome to Class renderableData. Each instance of this class ougth to be link to an instance of Class Data
- * If Data is just a way of storing buffer and information, RenderableData use THREE.js to provide an PointCloud based on the data
- * We can then display the data onto views, i.e. on the screen
- *
- * Each views have a RenderableData for each Data living in the application, so these RenderableData share the same data
- * It let us display the same data in different ways, such as color or point size.
  */
 var SIMU = SIMU || {};
 
 /**
- *
+ * Represent some data set which can be display on screen
+ * @detail Each instance is linked to a {@link Data} object
  * @constructor
+ *
+ * @property {SIMU.Data} this.data                                      - The {@link Data} set we want to render
+ * @property {THREE.PointCloud} this.pointCloud                         - The point-cloud used to render the data
+ * @property {boolean} this.isActive                                    - True if we are displaying the point-cloud on screen
+ * @property {boolean} this.isReady                                     - True if the data is ready itself
+ * @property {Array} this.drawCalls                                     - Array of calls, enable us to perform occlusion
+ * @property {int} this.levelOfDetail                                   - The higher it is, the more particle we are actually rendering
+ * @property {Array} this.defaultColor                                  - The default color used for particle
+ * @property {int} this.idTexture                                       - The id of the currently used texture
+ * @property {int} this.idBlending                                      - The id of the currently used blending type
+ * @property {int} this.idInfo                                          - The id of the currently used information for highlighting
+ * @property {object} this.clock                                        - the clock used to get elapsed time between frame
+ * @property {object} this.animatedAttributes                           - Shader attributes in animated mode
+ * @property {object} this.staticAttributes                             - Shader attributes in static mode
+ * @property {object} this.animatedParametricAttributes                 - Shader attributes in animated mode, with the use of aditionnal information
+ * @property {object} this.staticParametricAttributes                   - Shader attributes in static mode, with the use of aditionnal information
+ * @property {object} this.uniforms                                     - Shader uniforms variables
  */
 SIMU.RenderableData = function(){
-    this.data                               = null;
-    this.pointCloud                         = null;
+    this.data                               = null;                     //** - The {@link Data} set we want to render */
+    this.pointCloud                         = null;                     //** - The point-cloud used to render the data */
 
-    this.isActive                           = false;
-    this.isReady                            = false;//true if the buffer are populated and no error occurred
+    this.isActive                           = false;                    //** - True if we are displaying the point-cloud on screen */
+    this.isReady                            = false;                    //** - True if the data is ready itself */
 
-    this.drawCalls                          = [];
-    this.levelOfDetail                      = 4;
+    this.drawCalls                          = [];                       //** - Array of calls, enable us to perform occlusion */
+    this.levelOfDetail                      = 4;                        //** - The higher it is, the more particle we are actually rendering */
 
-    this.defaultColor                       = [255, 255, 255];
-    this.idTexture                          = 0;
-    this.idBlending                         = 1;
-    this.idInfo                             = 0;
+    this.defaultColor                       = [255, 255, 255];          //** - The default color used for particle */
+    this.idTexture                          = 0;                        //** - The id of the currently used texture */
+    this.idBlending                         = 1;                        //** - The id of the currently used blending type */
+    this.idInfo                             = 0;                        //** - The id of the currently used information for highlighting */
 
-    this.clock                              = new THREE.Clock();
+    this.clock                              = new THREE.Clock();        //** - the clock used to get elapsed time between frame */
 
-    this.animatedAttributes                 = {
+    this.animatedAttributes                 = {                         //** - Shader attributes in animated mode */
+        departure:      {type: 'v3', value: []},
         endPosition:    {type: 'v3', value: []},
         color:          {type: 'v3', value: []}
     };
 
-    this.staticAttributes                   = {
+    this.staticAttributes                   = {                         //** Shader attributes in static mode */
         color:          {type: 'v3', value: []}
     };
-
-    this.animatedParametricAttributes       = {
+//
+    this.animatedParametricAttributes       = {                         //** Shader attributes in animated mode, with the use of aditionnal information */
+        departure:      {type: 'v3', value: []},
         endPosition:    {type: 'v3', value: []},
         info:           {type: 'f', value: []},
         color:          {type: 'v3', value: []}
     };
-
-    this.staticParametricAttributes         = {
+//
+    this.staticParametricAttributes         = {                         //** Shader attributes in static mode, with the use of aditionnal information */
         info:           {type: 'f', value: []},
         color:          {type: 'v3', value: []}
     };
 
-    this.uniforms                           = {
-        t:              { type: 'f', value: 0.001},
-        current_time:   { type: 'f', value: 60.0},
-        size:           { type: 'f', value: 0.5},
-        fogFactor:      { type: 'f', value: 0.9},
-        fogDistance:    { type: 'f', value: 3.4},
-        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},
-        fog:            { type: 'i', value:0},
-        blink:          { type: 'i', value:0},
-        param_type:     { type: 'i', value:0},
-        min_info:       { type: 'f', value:0.0},
-        max_info:       { type: 'f', value:0.0}
+    this.uniforms                           = {                         //** Shader uniforms variables */
+        t:              { type: 'f', value: 0.001},                                                         /** relative time within the application */
+        current_time:   { type: 'f', value: 60.0},                                                          /** Real time given by the computer clock */
+        size:           { type: 'f', value: 0.5},                                                           /** Size of the particle */
+        fogFactor:      { type: 'f', value: 0.9},                                                           /** Strength factor of the scene fog */
+        fogDistance:    { type: 'f', value: 3.4},                                                           /** Attenuation Distance of the scene fog */
+        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},  /** Texture map */
+        fog:            { type: 'i', value: 0},                                                             /** 1 if fog is enabled, else 0 */
+        blink:          { type: 'i', value: 0},                                                             /** 1 if blinking is enabled, else 0 */
+        param_type:     { type: 'i', value: 0},                                                             /** Way of highlighting the info attribute */
+        min_info:       { type: 'f', value: 0.0},                                                           /** Minimum value of the current info attribute */
+        max_info:       { type: 'f', value: 0.0}                                                            /** Maximum value of the current info attribute */
     };
 
     this.animatedShaderMaterial             = new THREE.ShaderMaterial( {
@@ -108,16 +122,10 @@ SIMU.RenderableData = function(){
         fog:            false
     });
 
-    this.staticBufferGeometry                       = new THREE.BufferGeometry();
+    this.bufferGeometry                             = new THREE.BufferGeometry();
+    //this.bufferGeometry.dynamic                     = true;
 
-    this.animatedBufferGeometry                     = new THREE.BufferGeometry();
-
-    this.staticParametricBufferGeometry             = new THREE.BufferGeometry();
-
-    this.animatedParametricBufferGeometry           = new THREE.BufferGeometry();
-
-
-
+    this.pointCloud = new THREE.PointCloud(this.bufferGeometry, this.staticShaderMaterial);
 };
 
 /**
@@ -128,39 +136,45 @@ SIMU.RenderableData = function(){
 SIMU.RenderableData.prototype.setData = function(data){
     this.data = data;
 
-    this.staticBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPositionArray, 3));
-    this.staticBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
+    this.resetData();
+};
 
-    this.staticBufferGeometry.attributes.position.needsUpdate = true;
-    this.staticBufferGeometry.attributes.color.needsUpdate = true;
+/**
+ * @description When the bind data is already loaded, reset the display attributes to see the new change on the screen
+ */
+SIMU.RenderableData.prototype.resetData = function(){
+    if(this.data.isReady) {
 
-    this.staticParametricBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPositionArray, 3));
-    this.staticParametricBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
-    this.staticParametricBufferGeometry.addAttribute('info', new THREE.BufferAttribute(this.data.currentInfo, 1));
+        if(typeof this.bufferGeometry.attributes.departure == 'undefined' && this.data.currentDepartureIsSet){
+            this.bufferGeometry.addAttribute('departure', new THREE.BufferAttribute(this.data.currentDeparture, 3));
+        }else if(this.data.currentDepartureIsSet){
+            this.pointCloud.geometry.attributes.departure.needsUpdate = true;
+        }
 
-    this.staticParametricBufferGeometry.attributes.position.needsUpdate = true;
-    this.staticParametricBufferGeometry.attributes.color.needsUpdate = true;
-    this.staticParametricBufferGeometry.attributes.info.needsUpdate = true;
+        if(typeof this.bufferGeometry.attributes.info == 'undefined' && this.data.currentInfoIsSet){
+            this.bufferGeometry.addAttribute('info', new THREE.BufferAttribute(this.data.currentInfo, 1));
+        }else if(this.data.currentInfoIsSet){
+            this.pointCloud.geometry.attributes.info.needsUpdate = true;
+        }
 
-    this.animatedBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentDeparture, 3));
-    this.animatedBufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
-    this.animatedBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
+        if(this.bufferGeometry.attributes.position == null && this.data.currentPositionIsSet){
+            this.bufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPositionArray, 3));
+        }else if(this.data.currentPositionIsSet){
+            this.pointCloud.geometry.attributes.position.needsUpdate = true;
+        }
 
-    this.animatedBufferGeometry.attributes.position.needsUpdate = true;
-    this.animatedBufferGeometry.attributes.endPosition.needsUpdate = true;
-    this.animatedBufferGeometry.attributes.color.needsUpdate = true;
+        if(this.bufferGeometry.attributes.color == null && this.data.currentColorIsSet){
+            this.bufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
+        }else if(this.data.currentColorIsSet){
+            this.pointCloud.geometry.attributes.color.needsUpdate = true;
+        }
 
-    this.animatedParametricBufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentDeparture, 3));
-    this.animatedParametricBufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
-    this.animatedParametricBufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
-    this.animatedParametricBufferGeometry.addAttribute('info', new THREE.BufferAttribute(this.data.currentInfo, 1));
+        if(typeof this.bufferGeometry.attributes.endPosition == 'undefined' && this.data.currentDirectionIsSet){
+            this.bufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
+        }else if(this.data.currentDirectionIsSet){
+            this.pointCloud.geometry.attributes.endPosition.needsUpdate = true;
+        }
 
-    this.animatedParametricBufferGeometry.attributes.position.needsUpdate = true;
-    this.animatedParametricBufferGeometry.attributes.endPosition.needsUpdate = true;
-    this.animatedParametricBufferGeometry.attributes.color.needsUpdate = true;
-    this.animatedParametricBufferGeometry.attributes.info.needsUpdate = true;
-
-    if(data.isReady) {
         this.isReady = true;
     }else{
         this.isReady = false;
@@ -169,83 +183,46 @@ SIMU.RenderableData.prototype.setData = function(data){
 };
 
 /**
- * @description When the bind data is already loaded, reset the display attributes to see the new change on the screen
- */
-SIMU.RenderableData.prototype.resetData = function(){
-    if(this.data.isReady) {
-        this.staticBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentPositionArray, 3);
-        this.staticBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
-
-        this.staticBufferGeometry.attributes.position.needsUpdate = true;
-        this.staticBufferGeometry.attributes.color.needsUpdate = true;
-
-        this.staticParametricBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentPositionArray, 3);
-        this.staticParametricBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
-        this.staticParametricBufferGeometry.attributes.info = new THREE.BufferAttribute(this.data.currentInfo, 1);
-
-        this.staticParametricBufferGeometry.attributes.position.needsUpdate = true;
-        this.staticParametricBufferGeometry.attributes.color.needsUpdate = true;
-        this.staticParametricBufferGeometry.attributes.info.needsUpdate = true;
-
-        this.animatedBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentDeparture, 3);
-        this.animatedBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(this.data.currentDirection, 3);
-        this.animatedBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
-
-        this.animatedBufferGeometry.attributes.position.needsUpdate = true;
-        this.animatedBufferGeometry.attributes.endPosition.needsUpdate = true;
-        this.animatedBufferGeometry.attributes.color.needsUpdate = true;
-
-        this.animatedParametricBufferGeometry.attributes.position = new THREE.BufferAttribute(this.data.currentDeparture, 3);
-        this.animatedParametricBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(this.data.currentDirection, 3);
-        this.animatedParametricBufferGeometry.attributes.color = new THREE.BufferAttribute(this.data.color, 3);
-        this.animatedParametricBufferGeometry.attributes.info = new THREE.BufferAttribute(this.data.currentInfo, 1);
-
-        this.animatedParametricBufferGeometry.attributes.position.needsUpdate = true;
-        this.animatedParametricBufferGeometry.attributes.endPosition.needsUpdate = true;
-        this.animatedParametricBufferGeometry.attributes.color.needsUpdate = true;
-        this.animatedParametricBufferGeometry.attributes.info.needsUpdate = true;
-
-        this.isReady = true;
-    }else{
-        this.isReady = false;
-    }
-};
-
-/**
- * @description Set the PointCloud in animated mode, i.e. with the position being compute within the shader (GPU)
+ * Set the PointCloud in animated mode, i.e. with the position being compute within the shader (GPU)
  */
 SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
-    this.pointCloud = null;
-    this.pointCloud = new THREE.PointCloud(this.animatedBufferGeometry, this.animatedShaderMaterial);
+    if(this.data.currentDepartureIsSet && this.data.currentDirectionIsSet) {
+        this.pointCloud.material = this.animatedShaderMaterial;
+        this.pointCloud.material.needsUpdate = true;
+    }
+    else
+        console.log("No direction set");
 };
 
 /**
- * @description Set the PointCloud in static mode, i.e. with the position being compute within the CPU
+ * Set the PointCloud in static mode, i.e. with the position being compute within the CPU
  */
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
-    this.pointCloud = null;
-    this.pointCloud = new THREE.PointCloud(this.staticBufferGeometry, this.staticShaderMaterial);
+    this.pointCloud.material = this.staticShaderMaterial;
+    this.pointCloud.material.needsUpdate = true;
+
 };
 
 /**
- * @description Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on CPU side
+ * Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on CPU side
  */
 SIMU.RenderableData.prototype.enableStaticParametricShaderMode = function(){
-    this.pointCloud = null;
-    this.pointCloud = new THREE.PointCloud(this.staticParametricBufferGeometry, this.staticParametricShaderMaterial);
+    this.pointCloud.material = this.staticParametricShaderMaterial;
+    this.pointCloud.material.needsUpdate = true;
+
 };
 
 /**
- * @description Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on GPU side
+ * Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on GPU side
  */
 SIMU.RenderableData.prototype.enableAnimatedParametricShaderMode = function(){
-    this.pointCloud = null;
-    this.pointCloud = new THREE.PointCloud(this.animatedParametricBufferGeometry, this.animatedParametricShaderMaterial);
+    this.pointCloud.material = this.animatedParametricShaderMaterial;
+    this.pointCloud.material.needsUpdate = true;
 };
 
 /**
- * @description Compute the frustum culling, by change the PointCloud draw-calls
- * @param camera
+ * Compute the frustum culling, by change the PointCloud draw-calls
+ * @param {THREE.Camera} camera
  */
 SIMU.RenderableData.prototype.computeCulling = function(camera){
 
@@ -253,6 +230,10 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
     var that = this;
 
+    /**
+     * Compute frustum culling based on the given octree
+     * @param {SIMU.Octree} octree
+     */
     function cullFromFrustum(octree){
 
         var box = octree.box;
@@ -262,6 +243,8 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
         var xMax = box.xMax;
         var yMax = box.yMax;
         var zMax = box.zMax;
+
+        var center = new THREE.Vector3(xMax - xMin, yMax - yMin, zMax - zMin);
 
         var points = [new THREE.Vector3(xMin, yMin, zMin),
             new THREE.Vector3(xMin, yMin, zMax),
@@ -275,9 +258,9 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
         /**
          * @depreciate
-         * @description old function, was testing each point in clip coordinate against frustum
-         * @param pos
-         * @returns {number}
+         * old function, was testing each point in clip coordinate against frustum
+         * @param {THREE.Vector3} pos - Position of the tested point
+         * @returns {int} - 1 if point is inside, else 0
          */
         function testVertice(pos){
             var result = pos.project(camera);
@@ -288,6 +271,13 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             return 0;
         }
 
+        /**
+         * Test the box against one of the frustum plane
+         * @detail Use n-vertex & p-vertex optimisation : see {@link http://www.cescg.org/CESCG-2002/DSykoraJJelinek/}
+         *
+         * @param {THREE.Plane} p - The frustum plane to test against
+         * @returns {int} - Number of point outside the plane ( i.e. on his front side )
+         */
         function testBoxVsPlaneFast(p){
             //TODO just test n-vertex & p-vertex
             var nb = 0;
@@ -305,6 +295,11 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             return nb;
         }
 
+        /**
+         * Test the box against frustum
+         *
+         * @returns {int} - 0 if outside, 1 if partially inside, 2 if completely inside
+         */
         function testBoxVsFrustumFast(){
             var nb = 0;
             var partial = false;
@@ -328,51 +323,6 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
             }
         }
 
-        function testBoxVsPlane(p){
-            var nb = 0;
-            for(i = 0; i < 8; i++){
-                var m = p.normal.dot(points[i]);
-                if(m <= -p.constant){
-                    nb++;
-                }
-            }
-            return nb;
-        }
-
-        function testBoxVsFrustum(){
-            var nb = 0;
-            var partial = false;
-            var i = 0;
-            while(i < 6 && nb != 8){
-                nb = testBoxVsPlane(camera.frustum.planes[i]);
-                if(nb > 0 && nb < 8){
-                    partial = true;
-                }
-                i++;
-            }
-            if(i == 6){
-                if(partial){
-                    return 1;//partial
-                }else{
-                    return 2;//inside
-                }
-            }else{
-                return 0;//outside
-            }
-        }
-
-
-
-        //First test if camera is inside the box
-        /*if(camera.position.x > xMin && camera.position.x < xMax && camera.position.y > yMin && camera.position.y < yMin && camera.position.z > zMin && camera.position.z < zMax){
-         isInside = true;
-         }else{
-         for(i = 0; i < 8;i++){
-         test += testVerticeVsFrustum(points[i]);
-         }
-         }*/
-
-
         test = testBoxVsFrustumFast();
         if(test == 1){
             if(octree.hasChild) {
@@ -380,36 +330,65 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
                     cullFromFrustum(octree.child[i]);
                 }
             }else{
-                that.drawCalls.push({start : octree.start, count : octree.count});
+                /*var levelOfdetailMax = that.data.levelOfDetailMax;
+
+                var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
+                var distance = 0.1;
+                if(diff.length() > 1.0)
+                    distance = 1.0;
+                else if(diff.length() < 0.1)
+                    distance = 0.1;
+                else
+                    distance = diff.length();
+                var levelOfDetail = distance*(1 - levelOfdetailMax) + levelOfdetailMax;
+
+                for (var j = 0; j < levelOfDetail; j++) {
+                    var start = octree.start / levelOfdetailMax + j * that.data.snapshots[that.data.currentSnapshotId].index.length / levelOfdetailMax;
+                    var count = octree.count / levelOfdetailMax;
+                    that.drawCalls.push({start: start, count: count});
+                }*/
+                that.drawCalls.push({start: octree.start, count: octree.count});
             }
         }else if(test == 2){
-            that.drawCalls.push({start : octree.start, count : octree.count});
+            /*var levelOfdetailMax = that.data.levelOfDetailMax;
+
+            var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
+            var distance = 0.1;
+            if(diff.length() > 1.0)
+                distance = 1.0;
+            else if(diff.length() < 0.1)
+                distance = 0.1;
+            else
+                distance = diff.length();
+            var levelOfDetail = distance*(1 - levelOfdetailMax) + levelOfdetailMax;
+
+            for (var j = 0; j < levelOfDetail; j++) {
+                var start = octree.start / levelOfdetailMax + j * that.data.snapshots[that.data.currentSnapshotId].index.length / levelOfdetailMax;
+                var count = octree.count / levelOfdetailMax;
+                that.drawCalls.push({start: start, count: count});
+            }*/
+            that.drawCalls.push({start: octree.start, count: octree.count});
+
         }
-
-
-
-        /*if(isInside || (test > 0 && test < 8)){//partially inside
-         if(octree.hasChild) {
-         for (var i = 0; i < octree.child.length; i++) {
-         cullFromFrustum(octree.child[i]);
-         }
-         }else{
-         that.drawCalls.push({start : octree.start, count : octree.count});
-         }
-         }else if(test == 8){
-         that.drawCalls.push({start : octree.start, count : octree.count});
-         }*/
-
     }
 
     if(this.isReady) {
+
+
+
         cullFromFrustum(this.data.currentOctree);
+
+
+
+
+
+        var levelOfdetailMax = this.data.levelOfDetailMax;
         this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start: 0, count: 0}];
         for (var i = 0; i < this.drawCalls.length; i++) {
             //this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
             for (var j = 0; j < this.levelOfDetail; j++) {
-                var start = this.drawCalls[i].start / 4 + j * this.data.snapshots[this.data.currentSnapshotId].index.length / 4;
-                var count = this.drawCalls[i].count / 4;
+                var start = this.drawCalls[i].start / levelOfdetailMax + j * this.data.snapshots[this.data.currentSnapshotId].index.length / levelOfdetailMax;
+                var count = this.drawCalls[i].count / levelOfdetailMax;
                 this.pointCloud.geometry.addDrawCall(start, count, start);
             }
         }
@@ -420,9 +399,9 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 };
 
 /**
- * @description Search for intersection between the mouse and the PointCloud
- * @param mouse
- * @param camera
+ * Search for intersection between the mouse and the PointCloud
+ * @param {THREE.Vector2} mouse - mouse coordinate in normalized screen space
+ * @param {THREE.PerspectiveCamera} camera
  * @returns {*} An object with info about the intersected point
  */
 SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
@@ -433,23 +412,22 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
         raycaster.setFromCamera(mouse, camera);
 
         var intersectedOctants = this.getIntersectedOctans(camera.position, raycaster.ray.direction);
-        console.log(intersectedOctants);
 
         var i;
         var j = 0;
 
-        this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [];
+        this.pointCloud.geometry.offsets.length = this.pointCloud.geometry.drawcalls.length = 0;
+        var levelOfdetailMax = this.data.levelOfDetailMax;
+
 
         while (j < intersectedOctants.length && target == null) {
             for (var k = 0; k < this.levelOfDetail; k++) {
-                var start = intersectedOctants[j].start/4 + k*this.data.snapshots[this.data.currentSnapshotId].index.length / 4;
-                var end = start + intersectedOctants[j].count/4;//We miss a few point there, between 0 & 3
-                /*if((intersectedOctants[j].count%4) > k){
-                 end++;
-                 }*/
+                var start = Math.floor(intersectedOctants[j].start/levelOfdetailMax + k*this.data.snapshots[this.data.currentSnapshotId].index.length / levelOfdetailMax);
+                var end = start + Math.ceil(intersectedOctants[j].count/levelOfdetailMax);
+
                 this.pointCloud.geometry.addDrawCall(start, end - start, start);
                 for (i = start; i < end; i++) {
-                    //var index = (i % 4) * this.data.snapshots[this.data.currentSnapshotId].index.length / 4 + (i / 4);
+
                     var x = this.data.currentPositionArray[3 * i];
                     var y = this.data.currentPositionArray[3 * i + 1];
                     var z = this.data.currentPositionArray[3 * i + 2];
@@ -479,7 +457,6 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
             }
             j++;
         }
-        console.log(target);
         return target;
     }else{
         return null;
@@ -487,7 +464,7 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
 };
 
 /**
- * @description Search for all the Octree's octant intersecting with the mouse, in order to help the global research for point intersection
+ * Search for all the Octree's octant intersecting with the mouse, in order to help the global research for point intersection
  * @param origin
  * @param ray
  * @returns {Array} Array of all the intersected octant

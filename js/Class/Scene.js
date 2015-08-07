@@ -78,7 +78,7 @@ SIMU.Scene.prototype.setupScene = function(){
 };
 
 /**
- * @description Activate the current RenderableData object
+ * @description Activate the current RenderableData object, if this one wasn't ready, then create the point cloud
  */
 SIMU.Scene.prototype.activateCurrentData = function(){
     var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
@@ -210,7 +210,7 @@ SIMU.Scene.prototype.addRenderableData = function(renderableData)
  * @description Set id of current RenderableData object
  * @param {int} id - The id of the current RenderableData object
  */
-SIMU.Scene.prototype.setCurrentRenderableDataId = function(id){
+SIMU.Scene.prototype.setCurrentRenderableData = function(id){
     this.currentRenderableDataId = id;
 };
 
@@ -219,17 +219,13 @@ SIMU.Scene.prototype.setCurrentRenderableDataId = function(id){
  * @detail Reset the data to refresh the display
  * @param id
  */
-SIMU.Scene.prototype.setCurrentRenderableSnapshotId = function(id){
+SIMU.Scene.prototype.setCurrentRenderableSnapshot = function(id){
     this.currentRenderableSnapshotId = id;
     for(var i = 0; i < this.renderableDatas.length;i++){
         var renderableData = this.renderableDatas[i];
         if(renderableData.isActive) {
-            this.scene.remove(renderableData.pointCloud);
             renderableData.resetData();
             this.enableCurrentDataShaderMode();
-            if(renderableData.isReady) {
-                this.scene.add(renderableData.pointCloud);
-            }
         }
     }
 };
@@ -241,10 +237,8 @@ SIMU.Scene.prototype.setCurrentRenderableSnapshotId = function(id){
 SIMU.Scene.prototype.dataHasChanged = function(){
     for(var i = 0; i < this.renderableDatas.length;i++){
         var renderableData = this.renderableDatas[i];
-        this.scene.remove(renderableData.pointCloud);
-        renderableData.resetData();
-        if(renderableData.isReady){
-            this.scene.add(renderableData.pointCloud);
+        if(renderableData.isActive) {
+            renderableData.resetData();
         }
     }
 };
@@ -257,12 +251,7 @@ SIMU.Scene.prototype.setShaderType = function(type){
     for(var i = 0; i < this.renderableDatas.length;i++){
         var renderableData = this.renderableDatas[i];
         if(renderableData.isActive) {
-            //First remove element from the scene, in order to take the modification in account when we'll put it back
-            this.scene.remove(renderableData.pointCloud);
             this.enableCurrentDataShaderMode();
-            if(renderableData.isReady) {
-                this.scene.add(renderableData.pointCloud);
-            }
         }
     }
 };

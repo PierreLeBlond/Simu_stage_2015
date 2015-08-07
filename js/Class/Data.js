@@ -1,67 +1,94 @@
 /**
  * Created by lespingal on 10/07/15.
- * @description A Data store raw data as the current position in time,
- * as well as other Snapshot object.
+ */
+
+/**
+ *  Global namespace
+ *  @namespace
  */
 var SIMU = SIMU || {};
 
 /**
- *
+ * Represent a whole data set, with all the snapshot related to it and the current used snapshot
  * @constructor
- * @description Data, with all the snapshot related to it and the current used snapshot
+ *
+ * @property {boolean} isReady - True if at least one snapshot is ready, and is the current one
+ * @property {Array} snapshots - Array of Snapshot object
+ * @property Number of snapshot
+ * @property Index of the current snapshot
+ * @property Last files used to populate a snapshot
+ * @property Number of files used to create last snapshot
+ * @property Current script used to load data from files
+ * @property Current buffer of point's departure, used for point animation
+ * @property Current position of the points
+ * @property Current buffer of the point index
+ * @property Current buffer of point's directions, used for point animation
+ * @property Current buffer of point's color
+ * @property Current buffer of other information, used for information highlighting
+ * @property Current used Octree
+ * @property Maximum fraction of particle we can render to improve performance
+ * @property Current time relative to the application
+ * @property Loading bar, used for user feedback about loading time
  */
 SIMU.Data = function(){
-    this.isReady                    = false;    /** True if at least one snapshot is ready, and is the current one **/
-    this.directionIsSet             = false;
+    this.isReady                    = false;                                    //** True if at least one snapshot is ready, and is the current one */
 
-    this.nbSnapShot                 = 0;        /** Number of snapshot **/
-    this.currentSnapshotId          = -1;       /** Index of the current snapshot **/
+    this.snapshots                  = [];                                       //** Array of Snapshot object */
+    this.nbSnapShot                 = 0;                                        //** Number of snapshot */
+    this.currentSnapshotId          = -1;                                       //** Index of the current snapshot */
 
-    this.files                      = 0;        /** Last files used to populate a snapshot **/
-    this.nbFiles                    = 0;        /** Number of files used to create last snapshot **/
-    this.script                     = null;     /** Current script used to load data from files **/
+    this.files                      = 0;                                        //** Last files used to populate a snapshot */
+    this.nbFiles                    = 0;                                        //** Number of files used to create last snapshot */
+    this.script                     = null;                                     //** Current script used to load data from files */
 
-    this.snapshots                  = [];       /** Array of Snapshot object **/
-    this.currentDeparture           = null;     /** Current buffer of point's departure, used for point animation **/
-    this.currentPositionArray       = null;     /** Current position of the points **/
-    this.indexArray                 = null;     /** Current buffer of the point index **/
-    this.currentDirection           = null;     /** Current buffer of point's directions, used for point animation **/
-    this.color                      = null;     /** Current buffer of point's color **/
-    this.currentInfo                = null;
+    this.currentDeparture           = null;                                     //** Current buffer of point's departure, used for point animation */
+    this.currentDepartureIsSet      = false;
+    this.currentPositionArray       = null;                                     //** Current position of the points */
+    this.currentPositionIsSet       = false;
+    this.indexArray                 = null;                                     //** Current buffer of the point index */
+    this.currentIndexIsSet          = false;
+    this.currentDirection           = null;                                     //** Current buffer of point's directions, used for point animation */
+    this.currentDirectionIsSet      = false;
+    this.color                      = null;                                     //** Current buffer of point's color */
+    this.currentColorIsSet          = null;
+    this.currentInfo                = null;                                     //** Current buffer of other information, used for information highlighting */
+    this.currentInfoIsSet           = null;
 
-    this.currentOctree              = null;     /** Current octree **/
+    this.currentOctree              = null;                                     //** Current used Octree */
+    this.levelOfDetailMax           = 4;                                        //** Maximum fraction of particle we can render to improve performance */
 
-    this.t                          = 0;        /** Current time **/
+    this.t                          = 0;                                        //** Current time relative to the application **/
 
-    this.loadBar                    = SIMU.LoadingBarSingleton.getInstance();
+    //TODO Find a better way to use loading bar, for we don't want UI element in this class
+    this.loadBar                    = SIMU.LoadingBarSingleton.getInstance();   //** Loading bar, used for user feedback about loading time */
 };
 
 /**
- * @description Set current time, which will be used when we compute the position within the CPU
- * @param t
+ * Set current time, relative to the application and used to compute particle position
+ * @param {float} t - New relative time
  */
 SIMU.Data.prototype.setTime = function(t){
     this.t = t;
 };
 
 /**
- * @description Set the current script used to load data
- * @param script {SIMU.Script}
+ * Set the current script used to load data
+ * @param {SIMU.Script} script - Current loading script
  */
 SIMU.Data.prototype.setScript = function(script){
     this.script = script;
 };
 
 /**
- * @description Set the current snapshot id
- * @param id
+ * Set the current snapshot index
+ * @param {int} id - Current snapshot index
  */
 SIMU.Data.prototype.setCurrentSnapshotId = function(id){
     this.currentSnapshotId = id;
 };
 
 /**
- * @description Add an empty snapshot
+ * Add an empty snapshot
  */
 SIMU.Data.prototype.addSnapshot = function(){
     var snapshot = new SIMU.Snapshot();
@@ -70,49 +97,58 @@ SIMU.Data.prototype.addSnapshot = function(){
 };
 
 /**
- * @description Compute the timed position within the currents snapshots
+ * Compute the particle position within the current snapshot
+ * //TODO Fix memory leak, occurring when switching between static and animated mode
  */
 SIMU.Data.prototype.computePositions = function(){
-
     //linear interpolation between two snapshots
     var length = this.currentPositionArray.length / 3;
     var i;
-    if(this.currentSnapshotId < (this.nbSnapShot - 1) &&  this.directionIsSet) {
+    if(this.currentSnapshotId < (this.nbSnapShot - 1) && this.currentPositionIsSet && this.currentDepartureIsSet && this.currentDirectionIsSet) {
         for (i = 0; i < length; i++) {
-            this.currentPositionArray[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
-            this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
-            this.currentPositionArray[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
+            this.currentPositionArray[i * 3] = this.color[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
+            this.currentPositionArray[i * 3 + 1] = this.color[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
+            this.currentPositionArray[i * 3 + 2] = this.color[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
         }
-    }else{
+    }else if(this.currentPositionIsSet && this.currentDepartureIsSet){
         for (i = 0; i < length; i++) {
             this.currentPositionArray[i * 3] = this.currentDeparture[i * 3];
             this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1];
             this.currentPositionArray[i * 3 + 2] = this.currentDeparture[i * 3 + 2];
         }
-        console.log("Pas de destination !");
+        console.log("Direction isn't set");
+    }else if(this.currentSnapshotId >= (this.nbSnapShot - 1)){
+        console.log("Current snapshot doesn't exist");
+    }else{
+        console.log("Current position isn't set");
     }
 };
 
 /**
- * @description Change the current snapshot
- * @param {int} snapshot - wanted snapshot's id
+ * Change the current snapshot to the one with the given index
+ * @param {int} snapshotId - wanted snapshot's index
  */
-SIMU.Data.prototype.changeSnapshot = function(snapshot){
-    if(snapshot >= 0 && snapshot < this.nbSnapShot){
-        this.currentSnapshotId = snapshot;
-        if(this.snapshots[snapshot].isReady) {
+SIMU.Data.prototype.setCurrentSnapshot = function(snapshotId){
+    if(snapshotId >= 0 && snapshotId < this.nbSnapShot){
+        this.currentSnapshotId = snapshotId;
+        if(this.snapshots[snapshotId].isReady) {
             this.isReady = true;
-            this.currentDeparture = this.snapshots[snapshot].position;
-            if(this.snapshots[snapshot].directionIsSet) {
-                this.directionIsSet = true;
-                this.currentDirection = this.snapshots[snapshot].direction;
+
+            this.currentDeparture = this.snapshots[snapshotId].position;
+            this.currentDepartureIsSet = true;
+
+            if(this.snapshots[snapshotId].directionIsSet) {
+                this.currentDirectionIsSet = true;
+                this.currentDirection = this.snapshots[snapshotId].direction;
             }else{
-                this.directionIsSet = false;
+                this.currentDirectionIsSet = false;
             }
-                this.computePositions();
-            this.currentOctree = this.snapshots[snapshot].octree;
-            console.log("Success : change to snapshot " + snapshot);
-        }else{//For the moment, when the snapshot is empty, we let the previous snapshot as the current one
+
+            this.computePositions();
+
+            this.currentOctree = this.snapshots[snapshotId].octree;
+            console.log("Success : change to snapshot " + snapshotId);
+        }else{
             console.log("Warning : this snapshot is empty.");
             this.isReady = false;
         }
@@ -123,8 +159,8 @@ SIMU.Data.prototype.changeSnapshot = function(snapshot){
 
 /**
  * @author Arnaud Steinmetz
- * @description Set a reader for a file and process data once FileReader has done his job.
- * @param {file} file - The file to read in
+ * Set a reader for a file and process data once FileReader has done his job.
+ * @param {File} file - The file to read in
  * @param {function} callback - The function to call when all the data is read, to notify async "Hey ! We are done here !"
  */
 SIMU.Data.prototype.readAdd = function(file, callback) {
@@ -173,7 +209,6 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
     reader.onloadend = function (evt) {
         var file = evt.target;
         that.loadBar.domElement.value += 80/that.nbFiles;
-        //Checking if the file has correctly been read
         if (file.readyState == FileReader.DONE) {
             var data = that.script.script(file.result);
             callback(null, data);
@@ -182,7 +217,6 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
         }
     };
 
-    //Just use the right method to read in the file
     if(this.script.binary) {
         reader.readAsArrayBuffer(file);
     }else{
@@ -191,9 +225,9 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
 };
 
 /**
- * @description Get called when all the files have been loaded
+ * Get called when all the files have been loaded
  * @detail Populate the snapshot and modify other closed snapshot, and compute the octree & the right indexation
- * @param err
+ * @param err - Errors that might have occurred
  * @param {Array} results - Array of all results retrieved from each loaded files
  */
 SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
@@ -234,8 +268,8 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
         async.forEach(results, this.populateBuffer.bind(this), function () {
 
             //First compute the octree
-            if (typeof(w) == "undefined") {
-                var w = new Worker("js/octreeWorker.js");
+            if ("undefined" == typeof(w)) {
+                var w = new Worker("js/Class/octreeWorker.js");
                 w.postMessage({
                     position: snap.position,
                     index: snap.index
@@ -246,7 +280,9 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     snap.octree = event.data.octree;
 
                     //Get new indexation according to LevelOfDetail
-                    snap.index = that.computeLevelOfDetail(4, snap.index);
+                    snap.index = that.computeLevelOfDetail(that.levelOfDetailMax, snap.index);
+                    that.currentIndexIsSet = true;
+                    that.indexArray = snap.index;
 
                     var position = new Float32Array(snap.position.length);
 
@@ -260,7 +296,9 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         position[3*i] = snap.position[3*snap.index[i]];
                         position[3*i + 1] = snap.position[3*snap.index[i] + 1];
                         position[3*i + 2] = snap.position[3*snap.index[i] + 2];
-                        for(j = 0; j < snap.info.length;j++){//TODO index info buffer as well
+
+                        //TODO index info buffer as well
+                        for(j = 0; j < snap.info.length;j++){
                             if(snap.info[j].min > snap.info[j].value[i]){
                                 snap.info[j].min = snap.info[j].value[i];
                             }
@@ -274,6 +312,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     for(i = 0; i < size*3;i++){
                         that.currentPositionArray[i] = position[i];
                     }
+                    that.currentPositionIsSet = true;
 
                     //If next snapshot is already available, compute the direction
                     if(that.currentSnapshotId + 1 < that.nbSnapShot && that.snapshots[that.currentSnapshotId + 1].isReady){
@@ -285,6 +324,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         }
                         snap.directionIsSet = true;
                         that.currentDirection = snap.direction;
+                        that.currentDirectionIsSet = true;
                     }
                     //If there is a previous snapshot, compute its direction
                     if(that.currentSnapshotId > 0 && that.snapshots[that.currentSnapshotId - 1].isReady){
@@ -297,9 +337,14 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         previousSnapshot.directionIsSet = true;
                     }
                     snap.position = position;
+                    snap.positionIsSet = true;
 
                     that.currentDeparture = snap.position;
+                    that.currentDepartureIsSet = true;
+
                     that.color = snap.color;
+                    that.currentColorIsSet = true;
+
                     that.currentOctree = snap.octree;
 
                     snap.isReady = true;
@@ -349,7 +394,6 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
         switch(data[j].name){
             case "position" :
                 var position = data[j].value;
-                //if(SIMU.currentSnapshotId == 0){
                     for(i = 0; i < length;i++)
                     {
                         index = indexes[i];
@@ -357,71 +401,9 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
                         snap.position[index*3 + 1]=position[3*i + 1];
                         snap.position[index*3 + 2]=position[3*i + 2];
                     }
-               /* }
-                else
-                {
-                    var previousSnap = this.snapshots[this.nbSnapShot - 1];
-                    for(i = 0; i < length;i++)
-                    {
-                        index = indexes[i];
-
-                        var x = position[3*i];
-                        var y = position[3*i+1];
-                        var z = position[3*i+2];
-
-                        var dx = x-previousSnap.position[index*3];
-                        var dy = y-previousSnap.position[index*3+1];
-                        var dz = z-previousSnap.position[index*3+2];
-
-                        //Correcting the vector direction for the elements going outside the box
-                        //To be exact, you can check in the shader if the position goes outside the box, then you change it. Instead of doing that here.
-                        if(dx > 0.5)
-                        {
-                            previousSnap.position[index*3]+=1;
-                            dx = -(previousSnap.position[index*3]-x);
-                        }
-                        else if(dx < -0.5)
-                        {
-                            previousSnap.position[index*3]-=1;
-                            dx = -(previousSnap.position[index*3]-x);
-                        }
-
-
-                        if(dy > 0.5)
-                        {
-                            previousSnap.position[index*3+1]+=1;
-                            dy = -(previousSnap.position[index*3+1]-y);
-                        }
-                        else if(dy < -0.5)
-                        {
-                            previousSnap.position[index*3+1]-=1;
-                            dy = -(previousSnap.position[index*3+1]-y);
-                        }
-
-
-                        if(dz > 0.5)
-                        {
-                            previousSnap.position[index*3+2]+=1;
-                            dz = -(previousSnap.position[index*3+2]-z);
-                        }
-                        else if(dz < -0.5)
-                        {
-                            previousSnap.position[index*3+2]-=1;
-                            dz = -(previousSnap.position[index*3+2]-z);
-                        }
-
-                        previousSnap.direction[index*3]= dx;
-                        previousSnap.direction[index*3+1]= dy;
-                        previousSnap.direction[index*3+2]= dz;
-
-                        snap.position[index*3]= x;
-                        snap.position[index*3+1]= y;
-                        snap.position[index*3+2]= z;
-                    }
-                }*/
                 position = null;    //let's free some memory as fast as possible, shall we ?
                 break;
-            case "color" : // Here we populate colors and info buffer for each snapshot, but maybe we only need them once
+            case "color" :
                     value = data[j].value;
                     var color = snap.color;
                     for (i = 0; i < length; i++) {
@@ -430,7 +412,6 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
                         color[index*3 + 1] = value[i*3 + 1];
                         color[index*3 + 2] = value[i*3 + 2];
                     }
-                    //App.staticBufferGeometryPointCloud.geometry.attributes.color.needsUpdate = true;
                     value = null;
                 break;
             default :
@@ -441,10 +422,11 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
                             var info = snap.info[i].value;
                         }
                     }
-                    for(i = 0; i < length;i++){//TODO handle case with multiple value for only one index
+                    for(i = 0; i < length;i++){
                         index = indexes[i];
                         info[index] = value[i];
                     }
+                value = null;
                 break;
         }
     }
@@ -453,9 +435,9 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
 };
 
 /**
- * @description Change an index array to a structure easily usable for level of detail rendering
+ * Change an index array to a structure easily usable for level of detail rendering
  * @detail Makes different part of the array, for example, with a level of detail of 2 : [1, 2, 3, 4, 5, 6, 7, 8] -> [1, 3, 5, 7, 2, 4, 6, 8]
- * With that, we can render one point of two with a draw call to the four first elements, while keeping the order.
+ * With that, we can render one point of two with a draw call to the four first elements, while keeping the order and a certain homogeneity.
  * @param {int} levelOfDetail - The wanted lod, the more it is, the more we will be able to diminish the number of point rendered on screen
  * @param {Float32Array} indexArray - The index array to change
  * @returns {Float32Array} - The new index array
