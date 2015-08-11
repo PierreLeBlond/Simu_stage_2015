@@ -1,13 +1,19 @@
 /**
  * Created by lespingal on 31/07/15.
- * @description This class gives us an interface in order to manage the loaded file and data
  */
 
+/**
+ *  Global namespace
+ *  @namespace
+ */
 var SIMU = SIMU || {};
 
 /**
- *
+ * Represent a UI element to manage data and snapshot within the application
  * @constructor
+ *
+ * @property {Node} domElement                              - The domElement where this display the UI
+ * @property {Node} fileLoader                              - An element to load files using FileReader
  */
 SIMU.DataUIManager = function(){
     this.domElement                = null;
@@ -15,7 +21,7 @@ SIMU.DataUIManager = function(){
 };
 
 /**
- * @description Setup the dom element
+ * Setup the dom element
  */
 SIMU.DataUIManager.prototype.setupUI = function(){
     this.domElement = document.createElement('div');

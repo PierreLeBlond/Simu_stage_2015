@@ -1,14 +1,26 @@
 /**
- * Created by lespingal on 08/07/15.
+ * Created by lespingal on 10/08/15.
  */
 
-importScripts('../../lib/async.js');
+/**
+ *  Global namespace
+ *  @namespace
+ */
+var SIMU = SIMU || {};
 
-var octree = null;
-var position = null;
-var indexArray = null;
-
-var Octree = function(){
+/**
+ * Represent an octree structure
+ * The octree is bound to a index buffer, where the indexes are sorted in region as they are octant within the octree
+ * The octree gives us the section of the index buffer to look for
+ * @constructor
+ *
+ * @property {SIMU.Octree[]} child   - The eight octant, i.e. the child octree
+ * @property {object} box       - An object giving the geometry of the octant
+ * @property {boolean} hasChild - True if the octree has child octant
+ * @property {number} start     - Starting index of the point within this octree
+ * @property {number} count     - Number of point's index within this octree
+ */
+SIMU.Octree = function(){
     this.child = [];
     this.box = null;
     this.hasChild = false;
@@ -16,142 +28,25 @@ var Octree = function(){
     this.count = 0;
 };
 
-function createOctreeFromPos(positions, indexes){
-    octree = new Octree();
+/**
+ * Create the octree from the given position and modify the indexes buffer to match with it
+ * @detail Only the indexes buffer is rearrange, so the other buffer no longer match with this indexation. You have to either using a correspondence map of indexes, or rearrange the buffer one by one
+ * @param {Float32Array} positions  - The position buffer
+ * @param {Float32Array} indexes    - The index buffer
+ */
+SIMU.Octree.prototype.createOctreeFromPos = function(positions, indexes){
 
-    function coupeDecale(octant, offsets){
-
-        if(octant < 8){
-            coupeDecale(octant+1, offsets);
-            offsets[octant].max++;
-            positions[3*offsets[octant.max]] = positions[3*offsets[octant.min]];
-            positions[3*offsets[octant.max] + 1] = positions[3*offsets[octant.min] + 1];
-            positions[3*offsets[octant.max] + 2] = positions[3*offsets[octant.min] + 2];
-            offsets[octant].min++;
-        }
-    }
-
-    function swap(octant, offsets, index){
-        var tmpX = positions[3*offsets[octant].min];
-        var tmpY = positions[3*offsets[octant].min + 1];
-        var tmpZ = positions[3*offsets[octant].min + 2];
-        positions[3*offsets[octant].min] = positions[3*index];
-        positions[3*offsets[octant].min + 1] = positions[3*index + 1];
-        positions[3*offsets[octant].min + 2] = positions[3*index + 2];
-
-        coupeDecale(octant + 1, offsets);
-
-        offsets[octant].max++;
-        positions[3*offsets[octant].max] = tmpX;
-        positions[3*offsets[octant].max + 1] = tmpY;
-        positions[3*offsets[octant].max + 2] = tmpZ;
-    }
-
-
-    function fillOctreeWithoutCopy(octree, start, count, iter, box){
-        octree.box = box;
-        octree.start = start;
-        octree.count = count;
-
-        if(octree.count/3 > 100000 && iter < 5){
-            octree.hasChild = true;
-
-            console.log(iter);
-
-            var i;
-
-            for(i = 0; i < 8;i++){
-                octree.child.push(new Octree());
-            }
-
-            var offsets = [{min : start, max : start}, {min : start, max : start}, {min : start, max : start}, {min : start, max : start}, {min : start, max : start}, {min : start, max : start}, {min : start, max : start}, {min : start, max : start}];
-
-
-            var xMin = box.xMin;
-            var xMax = box.xMax;
-            var yMin = box.yMin;
-            var yMax = box.yMax;
-            var zMin = box.zMin;
-            var zMax = box.zMax;
-
-            var xMid = (xMin + xMax) / 2;
-            var yMid = (yMin + yMax) / 2;
-            var zMid = (zMin + zMax) / 2;
-
-            var x = 0;
-            var y = 0;
-            var z = 0;
-
-            //    y
-            //     |
-            //     8----4
-            // 7----3   |
-            // |    |   |
-            // |   6|- -2__x
-            // 5----1
-            ///
-            //z
-
-            for (i = start; i < start + count; i++) {
-                x = position[3 * i];
-                y = position[3 * i + 1];
-                z = position[3 * i + 2];
-                if (x < xMid) {
-                    if (y < yMid) {
-                        if (z < zMid) {
-                            swap(5, offsets, i);
-                        } else {
-                            swap(4, offsets, i);
-                        }
-                    } else {
-                        if (z < zMid) {
-                            swap(7, offsets, i);
-                        } else {
-                            swap(8, offsets, i);
-                        }
-                    }
-                } else {
-                    if (y < yMid) {
-                        if (z < zMid) {
-                            swap(1, offsets, i);
-                        } else {
-                            swap(0, offsets, i);
-                        }
-                    } else {
-                        if (z < zMid) {
-                            swap(3, offsets, i);
-                        } else {
-                            swap(2, offsets, i);
-                        }
-                    }
-                }
-            }
-
-            var boxes = [{xMin:xMid, xMax:xMax, yMin:yMin, yMax:yMid, zMin:zMid, zMax:zMax},
-                {xMin:xMid, xMax:xMax, yMin:yMin, yMax:yMid, zMin:zMin, zMax:zMid},
-                {xMin:xMid, xMax:xMax, yMin:yMid, yMax:yMax, zMin:zMid, zMax:zMax},
-                {xMin:xMid, xMax:xMax, yMin:yMid, yMax:yMax, zMin:zMin, zMax:zMid},
-                {xMin:xMin, xMax:xMid, yMin:yMin, yMax:yMid, zMin:zMid, zMax:zMax},
-                {xMin:xMin, xMax:xMid, yMin:yMin, yMax:yMid, zMin:zMin, zMax:zMid},
-                {xMin:xMin, xMax:xMid, yMin:yMid, yMax:yMax, zMin:zMid, zMax:zMax},
-                {xMin:xMin, xMax:xMid, yMin:yMid, yMax:yMax, zMin:zMin, zMax:zMid}];
-
-            for(i=0;i<8;i++){
-                fillOctreeWithoutCopy(octree.child[i], offsets[i].min, offsets[i].max, iter+1, boxes[i]);
-            }
-        }
-    }
-
+    var new_indexes = new Float32Array(indexes.length);
 
     /**
-     * @description
-     * @param array array of point
-     * @param octree Octree object
+     * @param  {Array} octant_indexes                                - Index within the current octant
+     * @param {SIMU.Octree} octree                                  - The current octant
      * @param start position in parent's array
+     * @param count position in parent's array
      * @param iter current iteration of the algorithm
      * @param box xmin, xmax, ymin, etc
      */
-    function fillOctree(indexes, octree, start, count, iter, box){
+    function fillOctree(octant_indexes, octree, start, count, iter, box){
 
         octree.box = box;
         octree.start = start;
@@ -159,19 +54,12 @@ function createOctreeFromPos(positions, indexes){
 
         var i;
 
-
-        //if(iter < 3) {
-        if(octree.count > 1000 && iter < 5){
+        if(octree.count > 1000 && iter < 5){ //Manage the condition to stop the construction
             octree.hasChild = true;
 
 
-            /*var positionArray = new Float32Array(array.length);
-             for(i = 0;i < array.length;i++){
-             positionArray[i] = array[i];
-             }*/
-
             for(i = 0; i < 8;i++){
-                octree.child.push(new Octree());
+                octree.child.push(new SIMU.Octree());
             }
 
             var index = [[], [], [], [], [], [], [], []];
@@ -200,13 +88,14 @@ function createOctreeFromPos(positions, indexes){
             // 5----1
             ///
             //z
-            //var stop = start + count;
+
+            //Let's sort the indexes between the different octant
             var j;
             for (i = 0; i < count; i++) {
-                j = indexes[i];
-                x = position[3 * j];
-                y = position[3 * j + 1];
-                z = position[3 * j + 2];
+                j = octant_indexes[i];
+                x = positions[3 * j];
+                y = positions[3 * j + 1];
+                z = positions[3 * j + 2];
                 if (x < xMid) {
                     if (y < yMid) {
                         if (z < zMid) {
@@ -238,7 +127,6 @@ function createOctreeFromPos(positions, indexes){
                 }
             }
 
-
             var offsets = [start, 0, 0, 0, 0, 0, 0, 0];
 
             var boxes = [{xMin:xMid, xMax:xMax, yMin:yMin, yMax:yMid, zMin:zMid, zMax:zMax},
@@ -250,15 +138,6 @@ function createOctreeFromPos(positions, indexes){
                 {xMin:xMin, xMax:xMid, yMin:yMid, yMax:yMax, zMin:zMid, zMax:zMax},
                 {xMin:xMin, xMax:xMid, yMin:yMid, yMax:yMax, zMin:zMin, zMax:zMid}];
 
-            /*offsets[5] = start;
-            offsets[4] = offsets[5] + index[5].length;
-            offsets[7] = offsets[4] + index[4].length;
-            offsets[6] = offsets[7] + index[7].length;
-            offsets[1] = offsets[6] + index[6].length;
-            offsets[0] = offsets[1] + index[1].length;
-            offsets[3] = offsets[0] + index[0].length;
-            offsets[2] = offsets[3] + index[3].length;*/
-
             for(i=1 ; i < 8;i++){
                 offsets[i] = offsets[i-1] + index[i - 1].length;
             }
@@ -268,42 +147,25 @@ function createOctreeFromPos(positions, indexes){
                 index[i] = null;
             }
 
-            /*async.forEach([0, 1, 2, 3, 4, 5, 6, 7], function(i, callback){
-                fillOctreeFast(index[i], octree.child[i], offsets[i], index[i].length, iter+1, boxes[i]);
-                index[i] = null;
-                callback();
-            }, function(err){
-            });*/
-
         }else{
-            //var tmp = [];//new Float32Array((start + count)*3);
-            /*for(i = 0; i < start + count;i++){
-                tmp.push(position[3*i]);
-                tmp.push(position[3*i + 1]);
-                tmp.push(position[3*i + 2]);
-            }*/
-            for(i = 0;i < indexes.length;i++){
-                //var id = indexes[i];
-                /*position[3*(i + start)] = tmp[3*id];
-                position[3*(i + start) + 1] = tmp[3*id + 1];
-                position[3*(i + start) + 2] = tmp[3*id + 2];*/
-                indexArray[i + start] = indexes[i];
+            for(i = 0;i < octant_indexes.length;i++){
+                new_indexes[i + start] = octant_indexes[i];
             }
 
-            indexes = null;
-            //tmp = null;
+            octant_indexes = null;
         }
     }
 
     /**
-     * @description
+     * @description This one also compute the new position, but is too eavy on large chunk of data
+     * @depreciate
      * @param array array of point
      * @param octree Octree object
      * @param start position in parent's array
      * @param iter current iteration of the algorithm
      * @param box xmin, xmax, ymin, etc
      */
-    function fillOctreeFast(array, indexs, octree, start, iter, box){
+    /*function fillOctreeFast(array, indexs, octree, start, iter, box){
 
         var length = array.length/3;
 
@@ -311,17 +173,11 @@ function createOctreeFromPos(positions, indexes){
         octree.start = start;
         octree.count = length;
 
-        //if(iter < 3) {
         if(octree.count > 1000 && iter < 5){
             octree.hasChild = true;
 
 
             var i;
-
-            /*var positionArray = new Float32Array(array.length);
-             for(i = 0;i < array.length;i++){
-             positionArray[i] = array[i];
-             }*/
 
 
             for(i = 0; i < 8;i++){
@@ -437,23 +293,6 @@ function createOctreeFromPos(positions, indexes){
             }, function(err){
             });
 
-            /*for(i=0;i<8;i++){
-             fillOctreeFast(part[i], index[i], octree.child[i], offsets[i], iter+1, boxes[i]);
-             }*/
-
-            /*var finish = false;
-
-             async.forEach([0, 1, 2, 3, 4, 5, 6, 7], function(i, callback){
-             fillOctree(part[i], index[i], octree.child[i], start + offsets[i], iter+1, boxes[i]);
-             callback();
-             }, function(err){
-             //results = responses;
-             finish = true;
-             });
-
-             //problem : updating the box wireframes doesn't work so well
-             while(!finish){} //Does it work ?*/
-
         }else{
             for(i = 0; i < length;i++){
                 position[3*(i+start)] = array[3*i];
@@ -462,10 +301,17 @@ function createOctreeFromPos(positions, indexes){
                 indexArray[i + start] = indexs[i];
             }
         }
-    }
+    }*/
 
-    //When the data are already sorted
-    function fillOctreeSorted(octree, start, count, iter, box){
+    /**
+     * Use this if the data is sure to be sorted already
+     * @param octree
+     * @param start
+     * @param count
+     * @param iter
+     * @param box
+     */
+    /*function fillOctreeSorted(octree, start, count, iter, box){
         octree.box = box;
         octree.start = start;
         octree.count = count;
@@ -478,11 +324,6 @@ function createOctreeFromPos(positions, indexes){
             console.log(iter);
 
             var i;
-
-            /*var positionArray = new Float32Array(array.length);
-             for(i = 0;i < array.length;i++){
-             positionArray[i] = array[i];
-             }*/
 
             console.log("coucou");
 
@@ -560,17 +401,9 @@ function createOctreeFromPos(positions, indexes){
             }
 
         }
-    }
+    }*/
 
-    //fillOctreeFast(positions, indexes, octree, 0, 0, {xMin:0.0, xMax:1.0, yMin:0.0, yMax:1.0,zMin:0.0, zMax:1.0});
-    fillOctree(indexes, octree, 0, indexArray.length, 0, {xMin:0.0, xMax:1.0, yMin:0.0, yMax:1.0,zMin:0.0, zMax:1.0});
+    fillOctree(indexes, this, 0, indexes.length, 0, {xMin:0.0, xMax:1.0, yMin:0.0, yMax:1.0,zMin:0.0, zMax:1.0});
+    return new_indexes;
 
-}
-
-onmessage = function(e){
-    console.log("message received");
-    position = e.data.position;
-    indexArray = e.data.index;
-    createOctreeFromPos(position, indexArray);
-    postMessage({octree:octree, index:indexArray}, [indexArray.buffer]);
 };

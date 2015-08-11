@@ -3,7 +3,8 @@
  */
 
 /**
- * @namespace SIMU
+ *  Global namespace
+ *  @namespace
  */
 var SIMU = SIMU || {};
 

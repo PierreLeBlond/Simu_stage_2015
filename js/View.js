@@ -1,95 +1,138 @@
 /**
  * Created by lespingal on 15/06/15.
  */
-SIMU = SIMU || {};
 
 /**
- * @description Classe qui permet d'afficher dans un element du DOM un rendu WebGL
- * L'idée et de pouvoir afficher simultanément plusieurs vues des données dans des parties différents de l'écran :
- * - On souhaite comparer différents jeux de données
- * - On souhaite comparer des données à des temps différents
- * - On souhaite comparer des informations différentes sur les même données
+ *  Global namespace
+ *  @namespace
  */
+SIMU = SIMU || {};
 
 /**
  * @description constructor SIMU.View
  * @constructor
+ *
+ * @property {boolean} isShown                                                  - True if the view is shown to the user
+ *
+ * @property {SIMU.Scene} scene                                                 - The scene to display on this view
+ * @property {THREE.WebGLRenderer} renderer                                     - The default renderer
+ * @property {THREE.OculusRiftEffect} oculusRenderer                            - The oculus renderer
+ * @property {THREE.StereoEffect} cardboardRenderer                             - The cardboard renderer
+ *
+ * @property {THREE.WebGLRenderer} currentRenderer                              - The current used renderer
+ *
+ * @property {object} sceneParameters                                           - A bunch of parameters to control the scene with dat.GUI
+ *      @property {number} sceneParameters.t                                    - The current time relative to the simulation
+ *      @property {number} sceneParameters.delta_t                              - The current elapsed time relative to the computer
+ *      @property {boolean} sceneParameters.active                              - True if the current point cloud ids displayed
+ *      @property {number} sceneParameters.pointsize                            - Size of the particles within the current point cloud
+ *      @property {boolean} sceneParameters.fog                                 - True if fog is enable
+ *      @property {boolean} sceneParameters.blink                               - True if blinking effect is enable
+ *      @property {boolean} sceneParameters.linkcamera                          - True if the current used camera is the global one
+ *      @property {boolean} sceneParameters.isStatic                            - True if we are in static mode
+ *      @property {number[]} sceneParameters.color                              - The default color of the current point cloud
+ *      @property {number} sceneParameters.idInfo                               - The id of the current highlighting info in the current point cloud
+ *      @property {number} sceneParameters.idTexture                            - The id of the currently used texture in the current point cloud
+ *      @property {number} sceneParameters.idBlending                           - The id of the blending mode used in the current point cloud
+ *      @property {boolean} sceneParameters.frustumculling                      - True if view frustum culling is enabled
+ *      @property {number} sceneParameters.levelOfDetail                        - Level of detail of the point cloud, i.e. fraction of the entire cloud being displayed
+ *      @property {number} sceneParameters.idParam                              - Id of the parameters used to highlight information in the shader
+ *
+ * @property {THREE.PerspectiveCamera} camera                                   - the currently used camera
+ * @property {THREE.PerspectiveCamera} globalCamera                             - the global camera
+ *
+ * @property {number} renderId                                                  - The id of the rendering loop, to cancel it if necessary
+ *
+ * @property {dat.GUI} gui                                                      - A GUI to control the scene
+ * @property {Stats} stats                                                      - An element to display performance info, like fps
+ *
+ * @property {Node} info                                                        - An element to display information about selected point
+ * @property {Node} debug                                                       - An element to display information abour rendering
+ *
+ * @property {Node} domElement                                                  - The element where we set the view
+ *
+ * @property {number} width                                                     - the view's width
+ * @property {number} height                                                    - the view's height
+ * @property {number} left                                                      - the view's left
+ * @property {number} top                                                       - the view's top
+ *
+ * @property {THREE.Clock} clock                                                - A THREE.js clock
+ *
+ * @property {object} infoList                                                  - The dat.GUI element for the highlighting info choice
  */
 SIMU.View = function () {
 
-    this.isShown                    = false;                                /** True if the view is shown to the user **/
+    this.isShown                    = false;
 
-    this.scene                      = null;                                 /** The scene to display and bind to this view **/
-    this.renderer                   = null;                                 /** The THREE.js renderer **/
+    this.scene                      = null;
+    this.renderer                   = null;
     this.oculusRenderer             = null;
     this.cardboardRenderer          = null;
 
     this.currentRenderer            = null;
 
     this.sceneParameters            = {
-        t                           : 0,                                    /** The snapshot time **/
-        delta_t                     : 0,                                    /** The current elapsed time **/
-        active                      : false,                                /** True if the current point cloud is displayed **/
-        pointsize                   : 0.5,                                  /** Size of the particle within the point cloud **/
-        fog                         : false,                                /** True if the fog is enable **/
-        blink                       : false,                                /** True if blinking effect is enable **/
-        linkcamera                  : false,                                /** True if the current used camera is the global one **/
-        isStatic                    : true,                                 /** True if we are in static mode **/
-        color                       : [ 255, 255, 255],                     /** Default color of the current point cloud **/
-        idInfo                      : -1,                                   /** Id of the current info of the current point cloud **/
-        idTexture                   : -1,                                   /** Id of the texture used in the current point cloud **/
-        idBlending                  : -1,                                   /** Id of the blending mode used in the current point cloud **/
-        frustumculling              : true,                                 /** True if view frustum culling is enabled **/
-        levelOfDetail               : 4,                                    /** level of detail of the point cloud **/
-        oculus                      : false,
-        idParam                     : 0,
-        paramEnabled                : false
+        t                           : 0,
+        delta_t                     : 0,
+        active                      : false,
+        pointsize                   : 0.5,
+        fog                         : false,
+        blink                       : false,
+        linkcamera                  : false,
+        isStatic                    : true,
+        color                       : [ 255, 255, 255],
+        idInfo                      : -1,
+        idTexture                   : -1,
+        idBlending                  : -1,
+        frustumculling              : true,
+        levelOfDetail               : 4,
+        idParam                     : 0
     };
 
-    this.camera                     = null;                                 /** Currently used camera **/
-    this.globalCamera               = null;                                 /** Global camera, shared with other scene **/
+    this.camera                     = null;
+    this.globalCamera               = null;
 
-    this.renderId                   = -1;                                   /** Id of rendering loop, to cancel it **/
+    this.renderId                   = -1;
 
     //UI elements
-    this.gui                        = null;                                 /** dat.gui instance **/
-    this.stats                      = null;                                 /** fps & spf indicator **/
+    this.gui                        = null;
+    this.stats                      = null;
 
-    this.info                       = document.createElement("div");        /** Info element on selected point **/
-    this.debug                      = document.createElement("div");        /** Info element on rendering information **/
+    this.info                       = document.createElement("div");
+    this.debug                      = document.createElement("div");
 
     //Display parameters
-    this.domElement                 = document.createElement("div");        /** The element where the view is set **/
+    this.domElement                 = document.createElement("div");
 
-    this.width                      = 0;                                    /** View's width **/
-    this.height                     = 0;                                    /** View's height **/
-    this.left                       = 0;                                    /** View's left space **/
-    this.top                        = 0;                                    /** view's top space **/
+    this.width                      = 0;
+    this.height                     = 0;
+    this.left                       = 0;
+    this.top                        = 0;
 
-    this.clock                      = new THREE.Clock();                    /** THREE.js clock **/
+    this.clock                      = new THREE.Clock();
 
-    this.infoList                   = null;                                 /** Store the dat.gui element with all info within the current renderable data **/
+    this.infoList                   = null;
 };
 
 /**
- * @description Set the global camera
- * @param {THREE.Camera} camera - The global camera
+ * Set the global camera
+ * @param {THREE.PerspectiveCamera} camera - The global camera
  */
 SIMU.View.prototype.setGlobalCamera = function(camera){
     this.globalCamera = camera;
 };
 
 /**
- * @description Set the scene attribute
- * @param {SIMU.Scene} scene
+ * Set the scene attribute
+ * @param {SIMU.Scene} scene - The scene
  */
 SIMU.View.prototype.setScene = function(scene){
     this.scene = scene;
 };
 
 /**
- * @description Set the DomElement attribute
- * @param {Node} el
+ * Set the DomElement attribute
+ * @param {Node} el - The dom element
  */
 SIMU.View.prototype.setDomElement = function(el){
     this.domElement = el;
@@ -97,10 +140,10 @@ SIMU.View.prototype.setDomElement = function(el){
 
 /**
  * @description Setup the scene, the renderer and the camera
- * @param left
- * @param top
- * @param width
- * @param height
+ * @param {number} left                 - The left css attribute
+ * @param {number} top                  - The top css attribute
+ * @param {number} width                - The width css attribute
+ * @param {number} height               - The height css attribute
  */
 SIMU.View.prototype.setupView = function(left, top, width, height){
 
@@ -117,8 +160,7 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         this.height = height;
 
         //RENDERER PROPERTIES
-        this.renderer = new THREE.WebGLRenderer({ stencil: false, precision: "lowp", premultipliedAlpha: false});//Let's make thing easier for the renderer
-        //App.renderer.autoClear = false; //TODO fix perf issue on firefox, profiler is pointing on renderer.clear, but it doesn't make any sense.
+        this.renderer = new THREE.WebGLRenderer({ stencil: false, precision: "lowp", premultipliedAlpha: false});
         this.renderer.setSize(this.width, this.height);
         this.domElement.appendChild( this.renderer.domElement );
 
@@ -139,13 +181,11 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         //Events listener
         this.currentRenderer.domElement.addEventListener('mousedown', this.getMouseIntersection.bind(this), false);
         this.currentRenderer.domElement.addEventListener('dblclick', this.reachMouseFocus.bind(this), false);
-
-        //window.addEventListener( 'resize', this.onWindowResize.bind(this), false );
     }
 };
 
 /**
- * @description setup a dat.GUI, stats and debug infos
+ * Setup a dat.GUI, stats and debug infos
  */
 SIMU.View.prototype.setupGui = function(){
 
@@ -244,10 +284,6 @@ SIMU.View.prototype.setupGui = function(){
             that.scene.setCurrentDataBlendingType(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'paramEnabled').name('enable param').onChange(function(value){
-
-        });
-
 
         this.infoList = this.gui.__folders.Data.add(this.scene.parameters, 'idInfo', {none: 0}).name('info');
 
@@ -283,6 +319,9 @@ SIMU.View.prototype.setupGui = function(){
     }
 };
 
+/**
+ * Display the UI
+ */
 SIMU.View.prototype.showGui = function(){
     this.gui.domElement.style.display = "block";
     this.stats.domElement.style.display = "block";
@@ -290,6 +329,9 @@ SIMU.View.prototype.showGui = function(){
     this.debug.style.display = "block";
 };
 
+/**
+ * Hide the UI
+ */
 SIMU.View.prototype.hideGui = function(){
     this.gui.domElement.style.display = "none";
     this.stats.domElement.style.display = "none";
@@ -297,6 +339,9 @@ SIMU.View.prototype.hideGui = function(){
     this.debug.style.display = "none";
 };
 
+/**
+ * Update the infoList dat.GUI element, to match with the news data and its information
+ */
 SIMU.View.prototype.updateUIinfoList = function(){
     var that = this;
 
@@ -340,6 +385,10 @@ SIMU.View.prototype.updateUIinfoList = function(){
     }
 };
 
+/**
+ * Update recursively the gui
+ * @param {dat.GUI} gui - The gui or part of the gui to update
+ */
 SIMU.View.prototype.updateGuiDisplay = function(gui) {
     for (var i in gui.__controllers) {
         gui.__controllers[i].updateDisplay();
@@ -351,9 +400,9 @@ SIMU.View.prototype.updateGuiDisplay = function(gui) {
 
 
 /**
- * @description set the id of the current renderable data
- * @detail update the ui to match the new current renderable data
- * @param id
+ * Set the id of the current renderable data
+ * @detail Update the ui to match the new current renderable data
+ * @param {number} id - The new id
  */
 SIMU.View.prototype.setCurrentRenderableData = function(id) {
     var currentRenderableData           = this.scene.renderableDatas[id];
@@ -374,16 +423,7 @@ SIMU.View.prototype.setCurrentRenderableData = function(id) {
 };
 
 /**
- * @description set the id of the current renderable snapshot
- * @detail Reset the data according to the new snapshot
- * @param id
- *
- */
-SIMU.View.prototype.setCurrentRenderableSnapshotId = function(id){
-};
-
-/**
- * @description process all stuff related to animation
+ * Process all stuff related to animation
  */
 SIMU.View.prototype.animate = function(){
     if(!this.camera.isNotFree) {
@@ -410,7 +450,7 @@ SIMU.View.prototype.animate = function(){
 };
 
 /**
- * @description render the view
+ * Render the view
  */
 SIMU.View.prototype.render = function(){
 
@@ -425,7 +465,7 @@ SIMU.View.prototype.render = function(){
         this.scene.computeCulling(this.camera);
     }
 
-    this.scene.setDeltaT(this.clock.elapsedTime);
+    this.scene.setCurrentTime(this.clock.elapsedTime);
 
     this.currentRenderer.render(this.scene.scene, this.camera);
 
@@ -434,15 +474,14 @@ SIMU.View.prototype.render = function(){
 };
 
 /**
- * @description Stop the current rendering loop
+ * Stop the current rendering loop
  */
 SIMU.View.prototype.stopRender = function(){
     cancelAnimationFrame(this.renderId);
 };
 
 /**
- * @author Pierre Lespingal
- * @description Show some info about rendering
+ * Show some info about rendering
  */
 SIMU.View.prototype.showDebuginfo = function(){
     var info = this.renderer.info.render;
@@ -451,10 +490,10 @@ SIMU.View.prototype.showDebuginfo = function(){
 
 /**
  * @description resize and adjust the view in order to render the scene properly
- * @param width
- * @param height
- * @param left
- * @param top
+ * @param {number} width                        - The width's css property
+ * @param {number} height                       - The height's css property
+ * @param {number} left                         - The left's css property
+ * @param {number} top                          - The top's css property
  */
 SIMU.View.prototype.resize = function(width, height, left, top){
     this.width = width;
@@ -475,7 +514,7 @@ SIMU.View.prototype.resize = function(width, height, left, top){
 };
 
 /**
- * @description Try to get the particle which is pointed by the mouse
+ * Try to get the particle which is pointed by the mouse
  * @detail If found, the point get colored, and information on it is displayed
  * @param event
  */
@@ -498,12 +537,12 @@ SIMU.View.prototype.getMouseIntersection = function(event){
         }
     }
     if(target){
-        negate(target.renderableData.data/*pointCloud.geometry.attributes*/.color, target.index);
+        negate(target.renderableData.data.currentColor, target.index);
         this.showInfo(target);
         target.renderableData.pointCloud.geometry.attributes.color.needsUpdate = true;
     }
     if(this.scene.target) {
-        negate(this.scene.target.renderableData.data/*pointCloud.geometry.attributes*/.color, this.scene.target.index);
+        negate(this.scene.target.renderableData.data.currentColor, this.scene.target.index);
         this.scene.target.renderableData.pointCloud.geometry.attributes.color.needsUpdate = true;
 
     }
@@ -511,7 +550,7 @@ SIMU.View.prototype.getMouseIntersection = function(event){
 };
 
 /**
- * @description Start to move the camera to reach the selected point
+ * Start to move the camera to reach the selected point
  * @detail Takes an average of 1s, with no camera interaction enabled during this time
  */
 SIMU.View.prototype.reachMouseFocus = function(){
@@ -528,17 +567,18 @@ SIMU.View.prototype.reachMouseFocus = function(){
 };
 
 /**
- * @description display information about the selected point
+ * Display information about the selected point
+ * @param {object} point                    - the selected point
  */
 SIMU.View.prototype.showInfo = function(point){
     var infos = point.renderableData.data.snapshots[point.renderableData.data.currentSnapshotId].info;
     var result = [];
     result.push("position : x = ");
-    result.push(point.renderableData.data.currentPositionArray[point.index*3]);
+    result.push(point.renderableData.data.currentPosition[point.index*3]);
     result.push(",y = ");
-    result.push(point.renderableData.data.currentPositionArray[point.index*3 + 1]);
+    result.push(point.renderableData.data.currentPosition[point.index*3 + 1]);
     result.push(",z = ");
-    result.push(point.renderableData.data.currentPositionArray[point.index*3 + 2]);
+    result.push(point.renderableData.data.currentPosition[point.index*3 + 2]);
     result.push("\n");
     for(var i = 0; i < infos.length;i++){
         result.push(infos[i].name);
@@ -550,8 +590,8 @@ SIMU.View.prototype.showInfo = function(point){
 };
 
 /**
- * @description Set the camera in order to control it as in a FPS
- * @param view
+ * Set the camera in order to control it as in a FPS
+ * @param {object} view - The view to attach the camera to
  */
 THREE.PerspectiveCamera.prototype.useFPSControls = function(view){
     if(this.controls){

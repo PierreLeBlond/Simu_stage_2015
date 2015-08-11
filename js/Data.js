@@ -12,23 +12,29 @@ var SIMU = SIMU || {};
  * Represent a whole data set, with all the snapshot related to it and the current used snapshot
  * @constructor
  *
- * @property {boolean} isReady - True if at least one snapshot is ready, and is the current one
- * @property {Array} snapshots - Array of Snapshot object
- * @property Number of snapshot
- * @property Index of the current snapshot
- * @property Last files used to populate a snapshot
- * @property Number of files used to create last snapshot
- * @property Current script used to load data from files
- * @property Current buffer of point's departure, used for point animation
- * @property Current position of the points
- * @property Current buffer of the point index
- * @property Current buffer of point's directions, used for point animation
- * @property Current buffer of point's color
- * @property Current buffer of other information, used for information highlighting
- * @property Current used Octree
- * @property Maximum fraction of particle we can render to improve performance
- * @property Current time relative to the application
- * @property Loading bar, used for user feedback about loading time
+ * @property {boolean} isReady                      - True if at least one snapshot is ready, and is the current one
+ * @property {Array} snapshots                      - Array of Snapshot object
+ * @property {number} nbSnapShot                    - Number of available snapshot
+ * @property {number} currentSnapshotId             - Index of the current snapshot
+ * @property {File} files                           - Last files used to populate a snapshot
+ * @property {number} nbFiles                       - Number of files used to create last snapshot
+ * @property {SIMU.Script} script                   - Current script used to load data from files
+ * @property {Float32Array} currentDeparture        - Current buffer of point's departure, used for point animation
+ * @property {boolean} currentDepartureIsSet        - True if currentDeparture buffer is available
+ * @property {Float32Array} currentPosition         - Current position of the points
+ * @property {boolean} currentPositionIsSet         - True if currentPosition buffer is available
+ * @property {Float32Array} currentIndex            - Current buffer of the point index
+ * @property {boolean} currentIndexIsSet            - True if currentIndex buffer is available
+ * @property {Float32Array} currentDirection        - Current buffer of point's directions, used for point animation
+ * @property {boolean} currentDirectionIsSet        - True if currentDirection buffer is available
+ * @property {Float32Array} currentColor            - Current buffer of point's color
+ * @property {boolean} currentColorIsSet            - True if currentColor buffer is available
+ * @property {Float32Array} currentInfo             - Current buffer of other information, used for information highlighting
+ * @property {boolean} currentInfoIsSet             - True if currentInfo buffer is available
+ * @property {SIMU.Octree} currentOctree            - Current used Octree
+ * @property {number} levelOfDetailMax              - Maximum fraction of particle we can render to improve performance
+ * @property {number} t                             - Current time relative to the application
+ * @property {SIMU.LoadingBarSingleton} loadBar     - Loading bar, used for user feedback about loading time
  */
 SIMU.Data = function(){
     this.isReady                    = false;                                    //** True if at least one snapshot is ready, and is the current one */
@@ -37,19 +43,19 @@ SIMU.Data = function(){
     this.nbSnapShot                 = 0;                                        //** Number of snapshot */
     this.currentSnapshotId          = -1;                                       //** Index of the current snapshot */
 
-    this.files                      = 0;                                        //** Last files used to populate a snapshot */
+    this.files                      = null;                                     //** Last files used to populate a snapshot */
     this.nbFiles                    = 0;                                        //** Number of files used to create last snapshot */
     this.script                     = null;                                     //** Current script used to load data from files */
 
     this.currentDeparture           = null;                                     //** Current buffer of point's departure, used for point animation */
     this.currentDepartureIsSet      = false;
-    this.currentPositionArray       = null;                                     //** Current position of the points */
+    this.currentPosition            = null;                                     //** Current position of the points */
     this.currentPositionIsSet       = false;
-    this.indexArray                 = null;                                     //** Current buffer of the point index */
+    this.currentIndex               = null;                                     //** Current buffer of the point index */
     this.currentIndexIsSet          = false;
     this.currentDirection           = null;                                     //** Current buffer of point's directions, used for point animation */
     this.currentDirectionIsSet      = false;
-    this.color                      = null;                                     //** Current buffer of point's color */
+    this.currentColor               = null;                                     //** Current buffer of point's color */
     this.currentColorIsSet          = null;
     this.currentInfo                = null;                                     //** Current buffer of other information, used for information highlighting */
     this.currentInfoIsSet           = null;
@@ -60,7 +66,7 @@ SIMU.Data = function(){
     this.t                          = 0;                                        //** Current time relative to the application **/
 
     //TODO Find a better way to use loading bar, for we don't want UI element in this class
-    this.loadBar                    = SIMU.LoadingBarSingleton.getInstance();   //** Loading bar, used for user feedback about loading time */
+    this.loadBar                    = SIMU.LoadingBarSingleton.getLoadingBarInstance();   //** Loading bar, used for user feedback about loading time */
 };
 
 /**
@@ -98,23 +104,22 @@ SIMU.Data.prototype.addSnapshot = function(){
 
 /**
  * Compute the particle position within the current snapshot
- * //TODO Fix memory leak, occurring when switching between static and animated mode
+ * @detail If next snapshot is set, interpolate
  */
 SIMU.Data.prototype.computePositions = function(){
-    //linear interpolation between two snapshots
-    var length = this.currentPositionArray.length / 3;
+    var length = this.currentPosition.length / 3;
     var i;
     if(this.currentSnapshotId < (this.nbSnapShot - 1) && this.currentPositionIsSet && this.currentDepartureIsSet && this.currentDirectionIsSet) {
         for (i = 0; i < length; i++) {
-            this.currentPositionArray[i * 3] = this.color[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
-            this.currentPositionArray[i * 3 + 1] = this.color[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
-            this.currentPositionArray[i * 3 + 2] = this.color[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
+            this.currentPosition[i * 3] = this.currentColor[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
+            this.currentPosition[i * 3 + 1] = this.currentColor[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
+            this.currentPosition[i * 3 + 2] = this.currentColor[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
         }
     }else if(this.currentPositionIsSet && this.currentDepartureIsSet){
         for (i = 0; i < length; i++) {
-            this.currentPositionArray[i * 3] = this.currentDeparture[i * 3];
-            this.currentPositionArray[i * 3 + 1] = this.currentDeparture[i * 3 + 1];
-            this.currentPositionArray[i * 3 + 2] = this.currentDeparture[i * 3 + 2];
+            this.currentPosition[i * 3] = this.currentDeparture[i * 3];
+            this.currentPosition[i * 3 + 1] = this.currentDeparture[i * 3 + 1];
+            this.currentPosition[i * 3 + 2] = this.currentDeparture[i * 3 + 2];
         }
         console.log("Direction isn't set");
     }else if(this.currentSnapshotId >= (this.nbSnapShot - 1)){
@@ -227,8 +232,8 @@ SIMU.Data.prototype.readAdd = function(file, callback) {
 /**
  * Get called when all the files have been loaded
  * @detail Populate the snapshot and modify other closed snapshot, and compute the octree & the right indexation
- * @param err - Errors that might have occurred
- * @param {Array} results - Array of all results retrieved from each loaded files
+ * @param err               - Errors that might have occurred
+ * @param {Array} results   - Array of all results retrieved from each loaded files
  */
 SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
 
@@ -269,7 +274,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
 
             //First compute the octree
             if ("undefined" == typeof(w)) {
-                var w = new Worker("js/Class/octreeWorker.js");
+                var w = new Worker("js/octreeWorker.js");
                 w.postMessage({
                     position: snap.position,
                     index: snap.index
@@ -282,7 +287,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     //Get new indexation according to LevelOfDetail
                     snap.index = that.computeLevelOfDetail(that.levelOfDetailMax, snap.index);
                     that.currentIndexIsSet = true;
-                    that.indexArray = snap.index;
+                    that.currentIndex = snap.index;
 
                     var position = new Float32Array(snap.position.length);
 
@@ -308,9 +313,9 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                         }
                     }
 
-                    that.currentPositionArray = new Float32Array(size*3);
+                    that.currentPosition = new Float32Array(size*3);
                     for(i = 0; i < size*3;i++){
-                        that.currentPositionArray[i] = position[i];
+                        that.currentPosition[i] = position[i];
                     }
                     that.currentPositionIsSet = true;
 
@@ -342,7 +347,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     that.currentDeparture = snap.position;
                     that.currentDepartureIsSet = true;
 
-                    that.color = snap.color;
+                    that.currentColor = snap.color;
                     that.currentColorIsSet = true;
 
                     that.currentOctree = snap.octree;
@@ -367,20 +372,20 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
  * @param evt
  */
 SIMU.Data.prototype.handleFileSelect = function(evt) {
-    var files = evt.target.files;
-    this.nbFiles = files.length;
+    this.files = evt.target.files;
+    this.nbFiles = this.files.length;
 
     this.loadBar.domElement.value = 0;
     this.loadBar.domElement.style.display = 'block';
 
-    async.map(files, this.readAdd.bind(this), this.onEveryLoadEnd.bind(this));
+    async.map(this.files, this.readAdd.bind(this), this.onEveryLoadEnd.bind(this));
 };
 
 /**
- * @description Populate the already created buffer with a part of the data providing by one of the file
+ * Populate the already created buffer with a part of the data providing by one of the file
  * @detail this function will be called for each of the loaded file
- * @param data Result from a reading file
- * @param {function} callback - Function to call when populating buffer is done, to notify async that, like, you know, it's done
+ * @param {object} data         - Result from a reading file
+ * @param {function} callback   - Function to call when populating buffer is done, to notify async that, like, you know, it's done
  */
 SIMU.Data.prototype.populateBuffer = function(data, callback){
     var i;
@@ -438,9 +443,9 @@ SIMU.Data.prototype.populateBuffer = function(data, callback){
  * Change an index array to a structure easily usable for level of detail rendering
  * @detail Makes different part of the array, for example, with a level of detail of 2 : [1, 2, 3, 4, 5, 6, 7, 8] -> [1, 3, 5, 7, 2, 4, 6, 8]
  * With that, we can render one point of two with a draw call to the four first elements, while keeping the order and a certain homogeneity.
- * @param {int} levelOfDetail - The wanted lod, the more it is, the more we will be able to diminish the number of point rendered on screen
+ * @param {int} levelOfDetail       - The wanted lod, the more it is, the more we will be able to diminish the number of point rendered on screen
  * @param {Float32Array} indexArray - The index array to change
- * @returns {Float32Array} - The new index array
+ * @returns {Float32Array}          - The new index array
  */
 SIMU.Data.prototype.computeLevelOfDetail = function(levelOfDetail, indexArray){
     var length = indexArray.length;

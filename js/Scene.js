@@ -1,32 +1,70 @@
 /**
  * Created by lespingal on 30/07/15.
  */
+
+/**
+ *  Global namespace
+ *  @namespace
+ */
 var SIMU = SIMU || {};
 
+/**
+ * Represent the data's point clouds and all the stuff to render them
+ * @constructor
+ *
+ * @property {THREE.Scene} scene                        - The scene
+ *
+ * @property {THREE.PerspectiveCamera} privateCamera    - The private camera, will be used only for this scene
+ *
+ * @property {object} parameters                        - Bunch of parameters telling us how to render the scene
+ *      @property {number} parameters.t                 - Relative time within the application
+ *      @property {number} parameters.delta_t           - Current elapsed time
+ *      @property {boolean} parameters.active           - True if the current point cloud is displayed
+ *      @property {number} parameters.pointsize         - Size of the particle within the point cloud
+ *      @property {boolean} parameters.fog              - True if the fog is enable
+ *      @property {boolean} parameters.linkcamera       - True if the current used camera is the global one
+ *      @property {number} parameters.shaderType        - One of {@link SIMU.ShaderType} value, the type of shader used to display the particles
+ *      @property {number[]} parameters.color           - Default color of the current point cloud
+ *      @property {number} parameters.idInfo            - Id of the current info of the current point cloud
+ *      @property {number} parameters.idTexture         - id of the texture used in the current point cloud
+ *      @property {number} parameters.idBlending        - Id of the blending mode used in the current point cloud
+ *      @property {boolean} parameters.frustumculling   - True if view frustum culling is enabled
+ *      @property {number} parameters.levelOfDetail     - level of detail of the point cloud
+ *
+ * @property {Array} texture                            - Array of available texture
+ * @property {number[]} blending                        - Array of available blending mode
+ *
+ * @property {Array} renderableDatas                    - Array of point cloud
+ * @property {number} currentRenderableDataId           - Id of current used point cloud
+ * @property {number} currentRenderableSnapshotId       - Id of current snapshot
+ *
+ * @property {object} target                            - Current selected point
+ *
+ */
 SIMU.Scene = function(){
 
-    this.scene                      = null;             /** The scene **/
+    this.scene                      = null;
 
-    this.privateCamera              = null;             /** private camera **/
+    this.privateCamera              = null;
 
-    this.parameters                 = {                 /** Scene parameters **/
-        t                           : 0,                /** The snapshot time **/
-        delta_t                     : 0,                /** The current elapsed time **/
-        active                      : false,            /** True if the current point cloud is displayed **/
-        pointsize                   : 0.5,              /** Size of the particle within the point cloud **/
-        fog                         : false,            /** True if the fog is enable **/
-        linkcamera                  : false,            /** True if the current used camera is the global one **/
+    this.parameters                 = {
+        t                           : 0,
+        delta_t                     : 0,
+        active                      : false,
+        pointsize                   : 0.5,
+        fog                         : false,
+        linkcamera                  : false,
         shaderType                  : SIMU.ShaderType.STATIC,
-        color                       : [ 255, 255, 255], /** Default color of the current point cloud **/
-        idInfo                      : -1,               /** Id of the current info of the current point cloud **/
-        idTexture                   : -1,               /** Id of the texture used in the current point cloud **/
-        idBlending                  : -1,               /** Id of the blending mode used in the current point cloud **/
-        frustumculling              : true,             /** True if view frustum culling is enabled **/
-        levelOfDetail               : 4                 /** level of detail of the point cloud **/
+        color                       : [ 255, 255, 255],
+        idInfo                      : -1,
+        idTexture                   : -1,
+        idBlending                  : -1,
+        frustumculling              : true,
+        levelOfDetail               : 4
     };
 
-    this.texture                    = [];               /** Array of available texture **/
-    this.blending                   = [                 /** Array of available blending mode **/
+    this.texture                    = [];
+    this.blending                   = [
         THREE.NoBlending,
         THREE.NormalBlending,
         THREE.AdditiveBlending,
@@ -34,18 +72,18 @@ SIMU.Scene = function(){
         THREE.MultiplyBlending
     ];
 
-    this.renderableDatas            = [];               /** Array of point cloud **/
-    this.currentRenderableDataId    = -1;               /** Id of current used point cloud **/
-    this.currentRenderableSnapshotId= -1;               /** Id of current snapshot **/
+    this.renderableDatas            = [];
+    this.currentRenderableDataId    = -1;
+    this.currentRenderableSnapshotId= -1;
 
-    this.target                     = null;             /** Current point selected **/
+    this.target                     = null;
 
 };
 
 /**
- * @description set time for the scene to t
+ * Set time for the scene to t
  * @detail get called whenever time is changing within the application
- * @param t
+ * @param {number} t - Current time relative to the simulation
  */
 SIMU.Scene.prototype.setTime = function(t){
     for(var i = 0; i < this.renderableDatas.length;i++){
@@ -53,14 +91,18 @@ SIMU.Scene.prototype.setTime = function(t){
     }
 };
 
-SIMU.Scene.prototype.setDeltaT = function(t){
+/**
+ * Set real time
+ * @param {number} t - Real time
+ */
+SIMU.Scene.prototype.setCurrentTime = function(t){
     for(var i = 0; i < this.renderableDatas.length;i++){
         this.renderableDatas[i].uniforms.current_time.value = t;
     }
 };
 
 /**
- * @description Setup the scene
+ * Setup the scene
  */
 SIMU.Scene.prototype.setupScene = function(){
     this.scene = new THREE.Scene();
@@ -78,7 +120,7 @@ SIMU.Scene.prototype.setupScene = function(){
 };
 
 /**
- * @description Activate the current RenderableData object, if this one wasn't ready, then create the point cloud
+ * Activate the current {@link SIMU.renderableData} object, if this one wasn't ready, then create the point cloud
  */
 SIMU.Scene.prototype.activateCurrentData = function(){
     var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
@@ -88,6 +130,9 @@ SIMU.Scene.prototype.activateCurrentData = function(){
     this.scene.add(currentRenderableData.pointCloud);
 };
 
+/**
+ * Enable the currently selected shader mode
+ */
 SIMU.Scene.prototype.enableCurrentDataShaderMode = function(){
     var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
     switch(this.parameters.shaderType){
@@ -103,11 +148,13 @@ SIMU.Scene.prototype.enableCurrentDataShaderMode = function(){
         case SIMU.ShaderType.PARAMETRICANIMATED :
             currentRenderableData.enableAnimatedParametricShaderMode();
             break;
+        default:
+            break;
     }
 };
 
 /**
- * @description Deactivate the current Renderabledata object
+ * Deactivate the current {@link SIMU.renderableData} object
  */
 SIMU.Scene.prototype.deactivateCurrentData = function(){
     var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
@@ -116,7 +163,7 @@ SIMU.Scene.prototype.deactivateCurrentData = function(){
 };
 
 /**
- * @description Set fog state
+ * Set fog state
  * @param {boolean} bool - State of fog parameter
  */
 SIMU.Scene.prototype.setCurrentDataFog = function(bool){
@@ -126,7 +173,7 @@ SIMU.Scene.prototype.setCurrentDataFog = function(bool){
 };
 
 /**
- * @description Set fog state
+ * Set fog state
  * @param {boolean} bool - State of fog parameter
  */
 SIMU.Scene.prototype.setCurrentDataBlink = function(bool){
@@ -136,7 +183,7 @@ SIMU.Scene.prototype.setCurrentDataBlink = function(bool){
 };
 
 /**
- * @description Set texture for the current RenderableData object
+ * Set texture for the current {@link SIMU.renderableData} object
  * @param {int} texture - Id of wanted texture
  */
 SIMU.Scene.prototype.setCurrentDataTexture = function(texture){
@@ -147,8 +194,8 @@ SIMU.Scene.prototype.setCurrentDataTexture = function(texture){
 };
 
 /**
- * @description Set point's size for the current RenderableData object
- * @param pointSize
+ * et point's size for the current {@link SIMU.renderableData} object
+ * @param {number} pointSize - Size of the rendered particles
  */
 SIMU.Scene.prototype.setCurrentDataPointSize = function(pointSize){
     if (this.currentRenderableDataId >= 0) {
@@ -157,8 +204,8 @@ SIMU.Scene.prototype.setCurrentDataPointSize = function(pointSize){
 };
 
 /**
- * @description Set default color for the current RenderableData object
- * @param color
+ * Set default color for the current {@link SIMU.renderableData} object
+ * @param {number[]} color - Default color
  */
 SIMU.Scene.prototype.setCurrentDataColor = function(color){
     if (this.currentRenderableDataId >= 0) {
@@ -176,12 +223,20 @@ SIMU.Scene.prototype.setCurrentDataColor = function(color){
     }
 };
 
+/**
+ * Set the level of detail for the current {@link SIMU.renderableData} object
+ * @param {number} levelOfDetail - The new level of detail
+ */
 SIMU.Scene.prototype.setCurrentDataLevelOfDetail = function(levelOfDetail){
     if (this.currentRenderableDataId >= 0) {
         this.renderableDatas[this.currentRenderableDataId].levelOfDetail = levelOfDetail;
     }
 };
 
+/**
+ * Set the level of detail for the current {@link SIMU.renderableData} object
+ * @param {number} blendingType - Id of the wanted blending type
+ */
 SIMU.Scene.prototype.setCurrentDataBlendingType = function(blendingType){
     if (this.currentRenderableDataId >= 0) {
         this.renderableDatas[this.currentRenderableDataId].animatedShaderMaterial.blending = this.blending[blendingType];
@@ -189,17 +244,19 @@ SIMU.Scene.prototype.setCurrentDataBlendingType = function(blendingType){
     }
 };
 
+/**
+ * Set the way of highlighting information within the shader
+ * @param {number} param - Id of the wanted way of highlighting information
+ */
 SIMU.Scene.prototype.setCurrentDataParam = function(param){
     if (this.currentRenderableDataId >= 0) {
         this.renderableDatas[this.currentRenderableDataId].uniforms.param_type.value = param;
     }
 };
 
-
-
 /**
- * @description Add RenderableData object
- * @param {SIMU.RenderableData} renderableData
+ * Add RenderableData object
+ * @param {SIMU.RenderableData} renderableData - The {@link RenderableData} object to add
  */
 SIMU.Scene.prototype.addRenderableData = function(renderableData)
 {
@@ -207,17 +264,17 @@ SIMU.Scene.prototype.addRenderableData = function(renderableData)
 };
 
 /**
- * @description Set id of current RenderableData object
- * @param {int} id - The id of the current RenderableData object
+ * Set the id of current RenderableData object
+ * @param {int} id - The id of the current {@link RenderableData} object
  */
 SIMU.Scene.prototype.setCurrentRenderableData = function(id){
     this.currentRenderableDataId = id;
 };
 
 /**
- * @description Set the id of the current Snapshot object
+ * Set the id of the current snapshot
  * @detail Reset the data to refresh the display
- * @param id
+ * @param {int} id - The id of the current snapshot
  */
 SIMU.Scene.prototype.setCurrentRenderableSnapshot = function(id){
     this.currentRenderableSnapshotId = id;
@@ -231,7 +288,7 @@ SIMU.Scene.prototype.setCurrentRenderableSnapshot = function(id){
 };
 
 /**
- * @description update the renderable datas to fit with the current data
+ * Update the renderable datas to fit with the current data
  * @detail get called when we jump to other snapshots
  */
 SIMU.Scene.prototype.dataHasChanged = function(){
@@ -244,7 +301,8 @@ SIMU.Scene.prototype.dataHasChanged = function(){
 };
 
 /**
- * @description Set shader type
+ * Set shader type
+ * @param {number} type - One of {SIMU.ShaderType} value
  */
 SIMU.Scene.prototype.setShaderType = function(type){
     this.parameters.shaderType = type;
@@ -256,8 +314,10 @@ SIMU.Scene.prototype.setShaderType = function(type){
     }
 };
 
-
-
+/**
+ * Compute the view frustum culling
+ * @param {THREE.PerspectiveCamera} camera - The camera to compute from
+ */
 SIMU.Scene.prototype.computeCulling = function(camera){
     for(var i = 0; i < this.renderableDatas.length;i++){
         if(this.renderableDatas[i].isActive && this.renderableDatas[i].isReady) {

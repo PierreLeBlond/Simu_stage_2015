@@ -1,38 +1,57 @@
 /**
  * Created by lespingal on 22/07/15.
- * @description Welcome to class Simu ! this class set all stuff required to visualize data
- * - A main container to dispatch different views
- * - A few views to render data
- * - A bunch of data to be rendered
  */
 
-//namespace SIMU
+/**
+ *  Global namespace
+ *  @namespace
+ */
 var SIMU = SIMU || {};
 
 //TODO Both interface logic and data logic are mixed together, which is bad, but not as bad as nazi zombies. Anyway, it'll be good to fix that.
 
 /**
- * @description Constructor of class Simu
  * @constructor
+ *
+ * @property {Array} scenes                         - Array of {@link SIMU.Scene} object, usually linked to one view
+ * @property {object} parameters                    - A bunch of parameters, to be used and changed with dat.GUI
+ *      @property {number} parameters.t             - Current Time relative to the data
+ *      @property {number} parameters.speed         - Speed of the animation
+ *      @property {number} parameters.idScript      - Id of the currently used script for parsing data
+ * @property {object} info                          - Information about the available data
+ *      @property {number} info.nbSnapShot          - Number of available snapshot
+ *      @property {number} info.nbData              - Number of available data
+ * @property {Array} datas                          - Array of {@link SIMU.Data} object, available in each scene
+ * @property {number} currentDataId                 - Current selected data id
+ * @property {number} currentSnapshotId             - Current selected snapshot id
+ * @property {THREE.PerspectiveCamera} globalCamera - Global camera used to have the same point of views in different {@link SIMU.View} object
+ * @property {Array} scripts                        - Available scripts for parsing data
+ * @property {Array} texture                        - Available texture for particle rendering
+ * @property {Array} views                          - Array of {@link SIMU.View} object, one for each scene
+ * @property {SIMU.View} currentView                - Current focused view
+ * @property {THREE.FirstPersonControls} controls   - Controls used with the global camera
+ * @property {SIMU.Menu} menu                       - The menu to switch between display mode
+ * @property {SIMU.Timeline} timeline               - The timeline to control animation
+ * @property {SIMU.DataUIManager} dataManager       - A UI element to load, organize & navigate through data
+ * @property {SIMU.LoadingBarSingleton} loadingBar  - A UI element to have a feedback on data processing evolution
+ * @property {Node} domElement                      - The dom element displaying the whole application
+ * @property {Node} container                       - A dom element containing the canvas
+ * @property {number} width                         - Width of the application's display
+ * @property {number} height                        - height of the application's display
+ * @property {function} lastFileEvent               - The current loading data event
+ * @property {function} windowResizeEvent           - The current resize window event
+ *
  */
 SIMU.Simu = function(){
 
     this.scenes                 = [];
-    this.currentScene           = null;
 
-    //Global parameters of the App
     this.parameters             = {
         "t"                   : 0.00001,
-        "position"            : 0,
         "speed"               : 0.5,
-        "idScript"            : 0,
-        "raycasting"          : false,
-        "frustumculling"      : false,
-        "play"                : false,
-        "octreeprecision"     : 0
+        "idScript"            : 0
     };
 
-    //General info about data
     this.info                   = {
         "nbSnapShot"          : 0,
         "nbData"              : 0
@@ -42,14 +61,11 @@ SIMU.Simu = function(){
     this.currentDataId          = -1;
     this.currentSnapshotId      = -1;
 
-    //This camera is used to have different views with the same point of view
     this.globalCamera           = null;
 
     this.scripts                = [];
     this.texture                = [];
 
-
-    //Views
     this.views                  = [];
     this.currentView            = null;
 
@@ -60,7 +76,7 @@ SIMU.Simu = function(){
 
     this.dataManager            = null;
 
-    this.loadingbar             = null;
+    this.loadingBar             = null;
 
     this.domElement             = null;
     this.container              = null;
@@ -68,21 +84,24 @@ SIMU.Simu = function(){
     this.width                  = 0;
     this.height                 = 0;
 
-    //Store the reference one the last loading file function, for it will be remove if current data change
     this.lastFileEvent          = null;
     this.windowResizeEvent      = null;
 
 };
 
+/**
+ * Set the dom element
+ * @param {Node} el             - The dom element from which the application will be displayed
+ */
 SIMU.Simu.prototype.setDomElement = function(el){
     this.domElement = el;
 };
 
 /**
- * @description Add a script
- * @param {string} name Name of the script
- * @param {function} script The script logic
- * @param {boolean} binary Do the script work with binary file or string formatted file ?
+ * Add a script
+ * @param {string} name         - Name of the script
+ * @param {function} script     - The script logic
+ * @param {boolean} binary      - Do the script work with binary file or string formatted file ?
  */
 SIMU.Simu.prototype.addScript = function(name, script, binary){
     var newScript = new SIMU.Script();
@@ -93,7 +112,7 @@ SIMU.Simu.prototype.addScript = function(name, script, binary){
 };
 
 /**
- * @description Setup the menu and the global camera
+ * Setup the global camera and the available textures
  */
 SIMU.Simu.prototype.setupSimu = function(){
     this.globalCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
@@ -109,6 +128,9 @@ SIMU.Simu.prototype.setupSimu = function(){
     this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/flatstar.jpg"));
 };
 
+/**
+ * Add a view to the application, while creating a new scene as well and liking the two together
+ */
 SIMU.Simu.prototype.addViewWithNewScene = function(){
     var view = new SIMU.View();
 
@@ -128,7 +150,6 @@ SIMU.Simu.prototype.addViewWithNewScene = function(){
         scene.setCurrentRenderableSnapshot(this.currentSnapshotId);
     }
 
-
     view.setScene(scene);
     view.setupView(0, 0, this.width, this.height);
     view.setupGui();
@@ -137,6 +158,10 @@ SIMU.Simu.prototype.addViewWithNewScene = function(){
     this.views.push(view);
 };
 
+/**
+ * Add a view and linked it to the given scene
+ * @param {SIMU.Scene} scene - The scene to be linked to the new view
+ */
 SIMU.Simu.prototype.addViewFromScene = function(scene){
     var view = new SIMU.View();
 
@@ -149,7 +174,7 @@ SIMU.Simu.prototype.addViewFromScene = function(scene){
 };
 
 /**
- * @description Enter simple view mode
+ * Enter simple view mode
  */
 SIMU.Simu.prototype.switchToSingleview = function(){
 
@@ -183,7 +208,8 @@ SIMU.Simu.prototype.switchToSingleview = function(){
 };
 
 /**
- * @description Enter simple view mode
+ * Enter oculus view mode
+ * @detail Work best if full screen is enabled, as the resolution is fixed and will not adapt itself to the dom element
  */
 SIMU.Simu.prototype.switchToOculusview = function(){
 
@@ -217,7 +243,7 @@ SIMU.Simu.prototype.switchToOculusview = function(){
 };
 
 /**
- * @description Enter cardboard view mode
+ * Enter cardboard view mode
  */
 SIMU.Simu.prototype.switchToCardboardview = function(){
 
@@ -252,7 +278,7 @@ SIMU.Simu.prototype.switchToCardboardview = function(){
 };
 
 /**
- * @description Enter multiple view mode, two view in this case and so far
+ * Enter multiple view mode, two view in this case and so far
  */
 SIMU.Simu.prototype.switchToMultiview = function()
 {
@@ -298,14 +324,14 @@ SIMU.Simu.prototype.switchToMultiview = function()
 };
 
 /**
- * @description Setup the User Interface
+ * Setup the User Interface
  */
 SIMU.Simu.prototype.setupGui = function(){
 
     var that = this;
 
-    this.loadingbar = SIMU.LoadingBarSingleton.getInstance();
-    this.domElement.appendChild(this.loadingbar.domElement);
+    this.loadingBar = SIMU.LoadingBarSingleton.getLoadingBarInstance();
+    this.domElement.appendChild(this.loadingBar.domElement);
 
     this.dataManager = new SIMU.DataUIManager();
     this.dataManager.setupUI();
@@ -372,21 +398,12 @@ SIMU.Simu.prototype.setupGui = function(){
         }
     });
 
-    var perfFolder = this.gui.addFolder('Perf');
-
-    perfFolder.add(this.parameters, 'frustumculling').name("Frustum Culling").onFinishChange(function(value){
-        for(var i = 0; i < that.scenes.length;i++){
-            that.scenes[i].parameters.frustumculling.value = value;
-        }
-    });
-    perfFolder.add(this.parameters, 'octreeprecision', 0, 5).name("Octree Precision");
-
     this.setupEvents();
     this.hideUI();
 };
 
 /**
- * @description Hide the User Interface
+ * Hide the User Interface
  */
 SIMU.Simu.prototype.hideUI = function(){
     document.getElementById('data_manager').style.display = "none";
@@ -395,7 +412,7 @@ SIMU.Simu.prototype.hideUI = function(){
 };
 
 /**
- * @description Show the User Interface
+ * Show the User Interface
  */
 SIMU.Simu.prototype.showUI = function(){
     document.getElementById('data_manager').style.display = "block";
@@ -404,7 +421,7 @@ SIMU.Simu.prototype.showUI = function(){
 };
 
 /**
- * @description handle animation, i.e. movement in time
+ * Handle animation, i.e. movement in time
  */
 SIMU.Simu.prototype.animate = function(){
 
@@ -454,7 +471,8 @@ SIMU.Simu.prototype.animate = function(){
 };
 
 /**
- * @description animate the application
+ * Rendering phase
+ * @depreciate All rendering occured within the views
  */
 SIMU.Simu.prototype.render = function(){
     var that = this;
@@ -464,7 +482,8 @@ SIMU.Simu.prototype.render = function(){
 };
 
 /**
- * @description Stop the rendering
+ * Stop the rendering
+ * @depreciate All rendering occured within the views
  */
 SIMU.Simu.prototype.stopRender = function(){
     cancelAnimationFrame(this.requestId);
@@ -479,7 +498,7 @@ SIMU.Simu.prototype.stopAnimation = function(){
 
 
 /**
- * @description Add empty data object to the application
+ * Add empty data object to the application
  * @detail for each scene an associated renderable data will be created
  */
 SIMU.Simu.prototype.addData = function(){
@@ -501,9 +520,8 @@ SIMU.Simu.prototype.addData = function(){
 };
 
 /**
- * @description Modify the User Interface to show the current data given by its id
- * @detail Call this function before setCurrentDataId
- * @param id
+ * Update the UI to match the current data
+ * @param {number} id - the current data id
  */
 SIMU.Simu.prototype.setUICurrentData = function(id){
     if(this.currentDataId != -1) {
@@ -522,8 +540,8 @@ SIMU.Simu.prototype.setUICurrentData = function(id){
 };
 
 /**
- * @description Set the current data within the application, i.e. for each views, by its id
- * @param id
+ * Set the current data within the application, i.e. for each views, by its id
+ * @param {number} id - the current data id
  */
 SIMU.Simu.prototype.setCurrentData = function(id){
     var i;
@@ -537,8 +555,8 @@ SIMU.Simu.prototype.setCurrentData = function(id){
 };
 
 /**
- * @description Handle the event in which we change the current data
- * @param event
+ * Handle the event in which we change the current data
+ * @param {Event} event - The event to blame for calling this function
  */
 SIMU.Simu.prototype.changeCurrentData = function(event){
     this.setUICurrentData(event.target.id);
@@ -546,7 +564,7 @@ SIMU.Simu.prototype.changeCurrentData = function(event){
 };
 
 /**
- * @description Add empty Snapshot for all available data
+ * Add empty Snapshot for all available data
  */
 SIMU.Simu.prototype.addSnapshot = function(){
     if(this.info.nbSnapShot == 1){
@@ -559,8 +577,8 @@ SIMU.Simu.prototype.addSnapshot = function(){
 };
 
 /**
- * @description Modify the User Interface to show the current snapshot given by its id
- * @param id
+ * Update the UI to match the current snapshot
+ * @param {number} id - the current snapshot id
  */
 SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
     var array = document.getElementsByClassName("snap_head_active");
@@ -572,8 +590,8 @@ SIMU.Simu.prototype.setUICurrentSnapshot = function(id){
 };
 
 /**
- * @description Set the current snapshot within the application, i.e. for each views, by its id
- * @param id
+ * Set the current snapshot within the application, i.e. for each views, by its id
+ * @param {number} id - the current snapshot id
  */
 SIMU.Simu.prototype.setCurrentSnapshot = function(id){
     var i;
@@ -587,8 +605,8 @@ SIMU.Simu.prototype.setCurrentSnapshot = function(id){
 };
 
 /**
- * @description Handle the event in which we change the current snapshot
- * @param event
+ * Handle the event in which we change the current snapshot
+ * @param {Event} event - The event to blame for calling this function
  */
 SIMU.Simu.prototype.handleCurrentSnapshotChangeEvent = function(event){
     var i;
@@ -610,7 +628,7 @@ SIMU.Simu.prototype.handleCurrentSnapshotChangeEvent = function(event){
 };
 
 /**
- * @description Add one column to the data tools, i.e. add one data to each of the views
+ * Add one column to the data tools, i.e. add one data to each of the views
  */
 SIMU.Simu.prototype.addColumn = function(){
     var i;
@@ -644,7 +662,7 @@ SIMU.Simu.prototype.addColumn = function(){
 };
 
 /**
- * @description Add a row to the data tools, i.e. add one snapshot to each of the available data
+ * Add a row to the data tools, i.e. add one snapshot to each of the available data
  */
 SIMU.Simu.prototype.addRow = function(){
     if(this.info.nbData > 0) {
@@ -687,10 +705,9 @@ SIMU.Simu.prototype.addRow = function(){
     }
 };
 
-//UI related action
 /**
- * @description Handle the focus on the different views
- * @param event
+ * Handle the focus on the different views
+ * @param {Event} event - The event to blame for calling this function
  */
 SIMU.Simu.prototype.focus = function(event){
     //TODO find a better way of retreiving the id than looking for its parent
@@ -706,8 +723,8 @@ SIMU.Simu.prototype.focus = function(event){
 };
 
 /**
- * @description Browse file which will be loaded into the data's snapshot given by id of event target
- * @param event
+ * Browse file which will be loaded into the data's snapshot given by id of event target
+ * @param {Event} event - The event to blame for calling this function
  */
 SIMU.Simu.prototype.browse = function(event){
     document.body.style.cursor = 'progress';
@@ -730,26 +747,18 @@ SIMU.Simu.prototype.browse = function(event){
     document.body.style.cursor = 'crosshair';
 };
 
-
-//Events
-
 /**
- * @description Setup and enabled the keyboard & mouse events
+ * Setup and enabled the keyboard & mouse events
  */
 SIMU.Simu.prototype.setupEvents = function(){
-
     document.getElementById('add_column_button').addEventListener('click', this.addColumn.bind(this), false);
     document.getElementById('add_row_button').addEventListener('click', this.addRow.bind(this), false);
 
     window.addEventListener('keydown', this.onKeyDown.bind(this), false);
-
-    /*for (var i = 0; i < this.views.length; i++) {
-     this.views[i].domElement.addEventListener('click', this.focus.bind(this), false);
-     }*/
 };
 
 /**
- * @description Handle window resizing in single view mode
+ * Handle window resizing in single view mode
  */
 SIMU.Simu.prototype.onSingleviewWindowResize = function(){
     this.width = this.domElement.clientWidth;
@@ -762,7 +771,7 @@ SIMU.Simu.prototype.onSingleviewWindowResize = function(){
 };
 
 /**
- * @description Handle window resizing in multiple view mode
+ * Handle window resizing in multiple view mode
  */
 SIMU.Simu.prototype.onMultiviewWindowResize = function(){
     var length = this.views.length;
@@ -782,7 +791,7 @@ SIMU.Simu.prototype.onMultiviewWindowResize = function(){
 
 /**
  * Handle keyboard event
- * @param event
+ * @param {Event} event - The keyboard event who has call this function
  */
 SIMU.Simu.prototype.onKeyDown = function(event){
     switch(event.keyCode){
@@ -830,8 +839,6 @@ SIMU.Simu.prototype.onKeyDown = function(event){
 /**
  * Computes and updates time in parameters property based on the cursor position when it's released. Change current snapshot and updates datas too.
  *
- * @name Simu#updateTimeOnCursorRelease
- * @method
  */
 SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
 {
@@ -861,7 +868,7 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
         /* Il n'est plus nécessaire de mettre à jour avant le prochain déplacement du curseur */
         this.timeline.cursor.positionHasToBeComputed = false;
 
-        /* @todo : keep it, it can be useful for improve the application. But it's not absolutely necessary.
+        /* @todo : keep it, it can be useful to improve the application. But it's not absolutely necessary.
          // Fonction catch qui permet d'attraper le curseur lorsque celui-ci est très proche d'un snapshot.
          // Peut toujours être utile, à conserver si nécessaire.
          // Exemple : En général, il est très compliqué de drag & drop le curseur pile sur un snapshot, on sera toujours à un pixel à côté. Cette fonctionnalité serait indispensable pour l'expérience utilisateur si un clic ne permettait pas de positionner le curseur sur un snapshot.
@@ -888,8 +895,6 @@ SIMU.Simu.prototype.updateTimeOnCursorRelease = function()
 /**
  * Updates datas based on time in parameters property
  *
- * @name Simu#updateDataOnTimeChange
- * @method
  */
 SIMU.Simu.prototype.updateDataOnTimeChange = function()
 {
@@ -915,8 +920,6 @@ SIMU.Simu.prototype.updateDataOnTimeChange = function()
 /**
  * Computes and updates time in parameters property based on the cursor position when the cursor is moving. Dynamically change the current snapshot too.
  *
- * @name Simu#updateTimeOnCursorMove
- * @method
  */
 SIMU.Simu.prototype.updateTimeOnCursorMove = function()
 {
@@ -943,8 +946,6 @@ SIMU.Simu.prototype.updateTimeOnCursorMove = function()
 /**
  * Initilalizes or interrumpts the animation when play event is fired
  *
- * @name Simu#onPlay
- * @method
  */
 SIMU.Simu.prototype.onPlay = function()
 {

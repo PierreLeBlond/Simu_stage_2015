@@ -1,6 +1,11 @@
 /**
  * Created by lespingal on 15/07/15.
  */
+
+/**
+ *  Global namespace
+ *  @namespace
+ */
 var SIMU = SIMU || {};
 
 /**
@@ -48,7 +53,7 @@ SIMU.ShaderManagerSingleton = (function() {
                 "uniform float max_info;                                                                        \n",
                 "                                                                                               \n",
                 "attribute vec3 color;                                                                          \n",
-                "attribute float info;                                                                          \n",
+                "attribute float information;                                                                          \n",
                 "                                                                                               \n",
                 "varying vec3 position_out;                                                                     \n",
                 "varying vec4 mvPosition;                                                                       \n",
@@ -60,20 +65,20 @@ SIMU.ShaderManagerSingleton = (function() {
                 "   mvPosition = modelViewMatrix*vec4(position, 1.0);                                           \n",
                 "   gl_Position = projectionMatrix*mvPosition;                                                  \n",
                 "   if(param_type == 1){                                                                        \n",
-                "       color_out = color*(min_info - info)/(min_info - max_info);                              \n",
+                "       color_out = color*(min_info - information)/(min_info - max_info);                              \n",
                 "       gl_PointSize = size/length(mvPosition.xyz);                                             \n",
                 "       blink_speed = 4.0;                                                                      \n",
                 "   }else if(param_type == 2){                                                                  \n",
-                "       blink_speed = 2.0*(min_info - info)/(min_info - max_info);                              \n",
+                "       blink_speed = 2.0*(min_info - information)/(min_info - max_info);                              \n",
                 "       color_out = color;                                                                      \n",
                 "       gl_PointSize = size/length(mvPosition.xyz);                                             \n",
                 "   }else if(param_type == 3){                                                                  \n",
-                "       float r = (min_info - info)/(min_info - max_info);                                      \n",
+                "       float r = (min_info - information)/(min_info - max_info);                                      \n",
                 "       color_out = vec3(r, 0.0, 1.0 - r);                                                      \n",
                 "       gl_PointSize = size/length(mvPosition.xyz);                                             \n",
                 "       blink_speed = 4.0;                                                                      \n",
                 "   }else if(param_type == 4){                                                                  \n",
-                "       gl_PointSize = (size/length(mvPosition.xyz))*(1.0 + ((min_info - info)/(min_info - max_info)));   \n",
+                "       gl_PointSize = (size/length(mvPosition.xyz))*(1.0 + ((min_info - information)/(min_info - max_info)));   \n",
                 "       blink_speed = 4.0;                                                                      \n",
                 "       color_out = color;                                                                      \n",
                 "   }else{                                                                                      \n",
@@ -128,7 +133,7 @@ SIMU.ShaderManagerSingleton = (function() {
                 "attribute vec3 endPosition;                                                                                \n",
                 "attribute vec3 color;                                                                                      \n",
                 "attribute vec3 departure;                                                                                  \n",
-                "attribute float info;                                                                                      \n",
+                "attribute float information;                                                                                      \n",
                 "                                                                                                           \n",
                 "varying vec3 position_out;                                                                                 \n",
                 "varying vec4 mvPosition;                                                                                   \n",
@@ -142,20 +147,20 @@ SIMU.ShaderManagerSingleton = (function() {
                 "   gl_PointSize = size/length(mvPosition.xyz);                                                             \n",
                 "   gl_Position = projectionMatrix*mvPosition;                                                              \n",
                 "   if(param_type == 1){                                                                                    \n",
-                "       color_out = color*(min_info - info)/(min_info - max_info);                                          \n",
+                "       color_out = color*(min_info - information)/(min_info - max_info);                                          \n",
                 "       gl_PointSize = size/length(mvPosition.xyz);                                                         \n",
                 "       blink_speed = 4.0;                                                                                  \n",
                 "   }else if(param_type == 2){                                                                              \n",
-                "       blink_speed = 2.0*(min_info - info)/(min_info - max_info);                                          \n",
+                "       blink_speed = 2.0*(min_info - information)/(min_info - max_info);                                          \n",
                 "       color_out = color;                                                                                  \n",
                 "       gl_PointSize = size/length(mvPosition.xyz);                                                         \n",
                 "   }else if(param_type == 3){                                                                              \n",
-                "       float r = (min_info - info)/(min_info - max_info);                                                  \n",
+                "       float r = (min_info - information)/(min_info - max_info);                                                  \n",
                 "       color_out = vec3(r, 0.0, 1.0 - r);                                                                  \n",
                 "       gl_PointSize = size/length(mvPosition.xyz);                                                         \n",
                 "       blink_speed = 4.0;                                                                                  \n",
                 "   }else if(param_type == 4){                                                                              \n",
-                "       gl_PointSize = (size/length(mvPosition.xyz))*(1.0 + ((min_info - info)/(min_info - max_info)));     \n",
+                "       gl_PointSize = (size/length(mvPosition.xyz))*(1.0 + ((min_info - information)/(min_info - max_info)));     \n",
                 "       blink_speed = 4.0;                                                                                  \n",
                 "       color_out = color;                                                                                  \n",
                 "   }else{                                                                                                  \n",
@@ -253,7 +258,7 @@ SIMU.ShaderManagerSingleton = (function() {
          * @description If not, create the singleton, and return it
          * @returns {*} The singleton
          */
-        getInstance: function(){
+        getShaderManagerInstance: function(){
             if(!instance){
                 instance = createInstance();
             }

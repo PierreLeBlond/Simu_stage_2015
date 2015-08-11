@@ -2,12 +2,21 @@
  * Created by lespingal on 15/07/15.
  */
 
+/**
+ *  Global namespace
+ *  @namespace
+ */
 SIMU = SIMU || {};
 
 /**
- *
+ * Represent a script used to load data from files
  * @constructor
- * @description Class managing a script with its name
+ *
+ * @property {String} name                  - name of the script
+ * @property {function} script              - the script itself /!\ The script will be given the result attribute of File object.
+ * The script MUST return an array of object as followed : [{name:"index", value:<index buffer>}, {name:"position", value:<position buffer>}, {name:"color", value:<color buffer>}, {name:"additional data", value:<additional data buffer>}, ...]
+ * where "index" & "position" are mandatory, the rest is optional
+ * @property {boolean} binary               - True if the file should be read with the readAsArrayBuffer function, else readAsBinaryString will be used
  */
 SIMU.Script = function(){
     this.name = "";
@@ -19,6 +28,7 @@ SIMU.Script = function(){
  * @description Add a new script for loading file
  * @param name
  * @param script
+ * @param binary
  */
 SIMU.addScript = function(name, script, binary){
     var myScript = new SIMU.Script();

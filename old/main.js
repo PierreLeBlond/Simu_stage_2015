@@ -253,7 +253,7 @@ function computePositions(){
         w.postMessage({position:App.data.currentPositionArray, index:App.data.indexArray});
         w.onmessage = function(event){
 
-            //App.data.currentPositionArray = event.data.position;
+            //App.data.currentPosition = event.data.position;
             App.data.indexArray = event.data.index;
             App.octree = event.data.octree;
 
@@ -288,7 +288,7 @@ function onComputePositionsFinish(){
 
     App.timer.stop("display wireframe");
 
-    //App.staticBufferGeometryPointCloud.geometry.attributes.position = new THREE.BufferAttribute(App.data.currentPositionArray, 3);
+    //App.staticBufferGeometryPointCloud.geometry.attributes.position = new THREE.BufferAttribute(App.data.currentPosition, 3);
     App.staticBufferGeometryPointCloud.geometry.attributes.position.needsUpdate = true;
     App.pointCloud.geometry.attributes.position.needsUpdate = true;
     setStaticShaderMode();

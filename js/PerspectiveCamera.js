@@ -3,8 +3,8 @@
  */
 
 /**
- * @description Set the camera in order to control it as in a FPS
- * @param view
+ * Set the camera in order to control it as in a FPS
+ * @param {SIMU.View} view - The view where the camera will be attach to get the user input
  */
 THREE.PerspectiveCamera.prototype.useFPSControls = function(view){
     if(this.controls){

@@ -1,6 +1,11 @@
 /**
  * Created by lespingal on 10/07/15.
  */
+
+/**
+ *  Global namespace
+ *  @namespace
+ */
 var SIMU = SIMU || {};
 
 /**
@@ -8,81 +13,116 @@ var SIMU = SIMU || {};
  * @detail Each instance is linked to a {@link Data} object
  * @constructor
  *
- * @property {SIMU.Data} this.data                                      - The {@link Data} set we want to render
- * @property {THREE.PointCloud} this.pointCloud                         - The point-cloud used to render the data
- * @property {boolean} this.isActive                                    - True if we are displaying the point-cloud on screen
- * @property {boolean} this.isReady                                     - True if the data is ready itself
- * @property {Array} this.drawCalls                                     - Array of calls, enable us to perform occlusion
- * @property {int} this.levelOfDetail                                   - The higher it is, the more particle we are actually rendering
- * @property {Array} this.defaultColor                                  - The default color used for particle
- * @property {int} this.idTexture                                       - The id of the currently used texture
- * @property {int} this.idBlending                                      - The id of the currently used blending type
- * @property {int} this.idInfo                                          - The id of the currently used information for highlighting
- * @property {object} this.clock                                        - the clock used to get elapsed time between frame
- * @property {object} this.animatedAttributes                           - Shader attributes in animated mode
- * @property {object} this.staticAttributes                             - Shader attributes in static mode
- * @property {object} this.animatedParametricAttributes                 - Shader attributes in animated mode, with the use of aditionnal information
- * @property {object} this.staticParametricAttributes                   - Shader attributes in static mode, with the use of aditionnal information
- * @property {object} this.uniforms                                     - Shader uniforms variables
+ * @property {SIMU.Data} data                                                       - The {@link SIMU.Data} set we want to render
+ * @property {THREE.PointCloud} pointCloud                                          - The point-cloud used to render the data
+ *
+ * @property {boolean} isActive                                                     - True if we are displaying the point-cloud on screen
+ * @property {boolean} isReady                                                      - True if the data is ready itself
+ *
+ * @property {Array} drawCalls                                                      - Array of calls, enable us to perform occlusion
+ * @property {int} levelOfDetail                                                    - The higher it is, the more particle we are actually rendering
+ *
+ * @property {Array} defaultColor                                                   - The default color used for particle
+ * @property {int} idTexture                                                        - The id of the currently used texture
+ * @property {int} idBlending                                                       - The id of the currently used blending type
+ * @property {int} idInfo                                                           - The id of the currently used information for highlighting
+ *
+ * @property {object} clock                                                         - the clock used to get elapsed time between frame
+ *
+ * @property {object} animatedAttributes                                            - Shader attributes in animated mode
+ *      @property {object} animatedAttributes.departure                             - Departure position buffer
+ *      @property {object} animatedAttributes.endPosition                           - Direction buffer
+ *      @property {object} animatedAttributes.color                                 - color buffer
+ *
+ * @property {object} staticAttributes                                              - Shader attributes in static mode
+ *
+ * @property {object} animatedParametricAttributes                                  - Shader attributes in animated mode, with the use of additional information
+ *
+ * @property {object} staticParametricAttributes                                    - Shader attributes in static mode, with the use of additional information
+ *
+ * @property {object} uniforms                                                      - Shader uniforms variables
+ *      @property {object} uniforms.t                                               - relative time within the application
+ *      @property {object} uniforms.current_time                                    - Real time given by the computer clock
+ *      @property {object} uniforms.size                                            - Size of the particle
+ *      @property {object} uniforms.fogFactor                                       - Strength factor of the scene fog
+ *      @property {object} uniforms.fogDistance                                     - Attenuation Distance of the scene fog
+ *      @property {object} uniforms.map                                             - Texture map
+ *      @property {object} uniforms.fog                                             - 1 if fog is enabled, else 0
+ *      @property {object} uniforms.blink                                           - 1 if blinking is enabled, else 0
+ *      @property {object} uniforms.param_type                                      - Way of highlighting the info attribute
+ *      @property {object} uniforms.min_info                                        - Minimum value of the current info attribute
+ *      @property {object} uniforms.max_info                                        - Maximum value of the current info attribute
+ *
+ * @property {object} animatedShaderMaterial                                        - Material used in animated mode
+ *
+ * @property {object} staticShaderMaterial                                          - Material used in static mode
+ *
+ * @property {object} animatedParametricShaderMaterial                              - Material used in animated mode, with the use of additional information
+ *
+ * @property {object} staticParametricShaderMaterial                                - Material used in static mode, with the use of additional information
+ *
+ * @property {THREE.BufferGeometry} bufferGeometry                                  - geometry buffer used within the shader
+ *
+ * @property {THREE.PointCloud} pointCloud                                          - PointCloud structure used to display the particles
  */
 SIMU.RenderableData = function(){
-    this.data                               = null;                     //** - The {@link Data} set we want to render */
-    this.pointCloud                         = null;                     //** - The point-cloud used to render the data */
+    this.data                               = null;
+    this.pointCloud                         = null;
 
-    this.isActive                           = false;                    //** - True if we are displaying the point-cloud on screen */
-    this.isReady                            = false;                    //** - True if the data is ready itself */
+    this.isActive                           = false;
+    this.isReady                            = false;
 
-    this.drawCalls                          = [];                       //** - Array of calls, enable us to perform occlusion */
-    this.levelOfDetail                      = 4;                        //** - The higher it is, the more particle we are actually rendering */
+    this.drawCalls                          = [];
+    this.levelOfDetail                      = 4;
 
-    this.defaultColor                       = [255, 255, 255];          //** - The default color used for particle */
-    this.idTexture                          = 0;                        //** - The id of the currently used texture */
-    this.idBlending                         = 1;                        //** - The id of the currently used blending type */
-    this.idInfo                             = 0;                        //** - The id of the currently used information for highlighting */
+    this.defaultColor                       = [255, 255, 255];
+    this.idTexture                          = 0;
+    this.idBlending                         = 1;
+    this.idInfo                             = 0;
 
-    this.clock                              = new THREE.Clock();        //** - the clock used to get elapsed time between frame */
+    this.clock                              = new THREE.Clock();
 
-    this.animatedAttributes                 = {                         //** - Shader attributes in animated mode */
+    this.animatedAttributes                 = {
         departure:      {type: 'v3', value: []},
         endPosition:    {type: 'v3', value: []},
         color:          {type: 'v3', value: []}
     };
 
-    this.staticAttributes                   = {                         //** Shader attributes in static mode */
+    this.staticAttributes                   = {
         color:          {type: 'v3', value: []}
     };
 //
-    this.animatedParametricAttributes       = {                         //** Shader attributes in animated mode, with the use of aditionnal information */
-        departure:      {type: 'v3', value: []},
-        endPosition:    {type: 'v3', value: []},
-        info:           {type: 'f', value: []},
-        color:          {type: 'v3', value: []}
+    this.animatedParametricAttributes       = {
+        departure:              {type: 'v3', value: []},
+        endPosition:            {type: 'v3', value: []},
+        information:            {type: 'f', value: []},
+        color:                  {type: 'v3', value: []}
     };
 //
-    this.staticParametricAttributes         = {                         //** Shader attributes in static mode, with the use of aditionnal information */
-        info:           {type: 'f', value: []},
-        color:          {type: 'v3', value: []}
+    this.staticParametricAttributes         = {
+        information:            {type: 'f', value: []},
+        color:                  {type: 'v3', value: []}
     };
 
-    this.uniforms                           = {                         //** Shader uniforms variables */
-        t:              { type: 'f', value: 0.001},                                                         /** relative time within the application */
-        current_time:   { type: 'f', value: 60.0},                                                          /** Real time given by the computer clock */
-        size:           { type: 'f', value: 0.5},                                                           /** Size of the particle */
-        fogFactor:      { type: 'f', value: 0.9},                                                           /** Strength factor of the scene fog */
-        fogDistance:    { type: 'f', value: 3.4},                                                           /** Attenuation Distance of the scene fog */
-        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},  /** Texture map */
-        fog:            { type: 'i', value: 0},                                                             /** 1 if fog is enabled, else 0 */
-        blink:          { type: 'i', value: 0},                                                             /** 1 if blinking is enabled, else 0 */
-        param_type:     { type: 'i', value: 0},                                                             /** Way of highlighting the info attribute */
-        min_info:       { type: 'f', value: 0.0},                                                           /** Minimum value of the current info attribute */
-        max_info:       { type: 'f', value: 0.0}                                                            /** Maximum value of the current info attribute */
+    this.uniforms                           = {
+        t:              { type: 'f', value: 0.001},
+        current_time:   { type: 'f', value: 60.0},
+        size:           { type: 'f', value: 0.5},
+        fogFactor:      { type: 'f', value: 0.9},
+        fogDistance:    { type: 'f', value: 3.4},
+        map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},
+        fog:            { type: 'i', value: 0},
+        blink:          { type: 'i', value: 0},
+        param_type:     { type: 'i', value: 0},
+        min_info:       { type: 'f', value: 0.0},
+        max_info:       { type: 'f', value: 0.0}
     };
 
     this.animatedShaderMaterial             = new THREE.ShaderMaterial( {
         attributes:     this.animatedAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.default.animated.vertex,
-        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.default.animated.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.default.animated.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.default.animated.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -92,8 +132,8 @@ SIMU.RenderableData = function(){
     this.staticShaderMaterial               = new THREE.ShaderMaterial({
         attributes:     this.staticAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.default.static.vertex,
-        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.default.static.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.default.static.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.default.static.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -103,8 +143,8 @@ SIMU.RenderableData = function(){
     this.animatedParametricShaderMaterial           = new THREE.ShaderMaterial({
         attributes:     this.animatedParametricAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.animated.vertex,
-        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.animated.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.parametric.animated.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.parametric.animated.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -114,8 +154,8 @@ SIMU.RenderableData = function(){
     this.staticParametricShaderMaterial           = new THREE.ShaderMaterial({
         attributes:     this.staticParametricAttributes,
         uniforms:       this.uniforms,
-        vertexShader:   SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.static.vertex,
-        fragmentShader: SIMU.ShaderManagerSingleton.getInstance().shaders.parametric.static.fragment,
+        vertexShader:   SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.parametric.static.vertex,
+        fragmentShader: SIMU.ShaderManagerSingleton.getShaderManagerInstance().shaders.parametric.static.fragment,
         blending:       THREE.AdditiveBlending,
         depthTest:      false,
         transparent:    true,
@@ -123,15 +163,15 @@ SIMU.RenderableData = function(){
     });
 
     this.bufferGeometry                             = new THREE.BufferGeometry();
-    //this.bufferGeometry.dynamic                     = true;
+    this.bufferGeometry.dynamic                     = true;
 
     this.pointCloud = new THREE.PointCloud(this.bufferGeometry, this.staticShaderMaterial);
 };
 
 /**
- * @description Bind a Data object to this RenderableData
+ * Bind a Data object to this RenderableData
  * @detail data can be empty for the moment
- * @param data
+ * @param {Simu.Data} data
  */
 SIMU.RenderableData.prototype.setData = function(data){
     this.data = data;
@@ -140,40 +180,37 @@ SIMU.RenderableData.prototype.setData = function(data){
 };
 
 /**
- * @description When the bind data is already loaded, reset the display attributes to see the new change on the screen
+ * When the bind data is already loaded, reset the display attributes to see the new change on the screen
+ * @detail We have to clear memory and create again the attributes for THREE.js doesn't allow us to update attribute created after the geometry buffer instantiation
  */
 SIMU.RenderableData.prototype.resetData = function(){
     if(this.data.isReady) {
 
-        if(typeof this.bufferGeometry.attributes.departure == 'undefined' && this.data.currentDepartureIsSet){
+        //Clear the memory
+        this.pointCloud.geometry = null;
+        this.bufferGeometry.dispose();
+
+        if(this.data.currentDepartureIsSet){
             this.bufferGeometry.addAttribute('departure', new THREE.BufferAttribute(this.data.currentDeparture, 3));
-        }else if(this.data.currentDepartureIsSet){
-            this.pointCloud.geometry.attributes.departure.needsUpdate = true;
         }
 
-        if(typeof this.bufferGeometry.attributes.info == 'undefined' && this.data.currentInfoIsSet){
-            this.bufferGeometry.addAttribute('info', new THREE.BufferAttribute(this.data.currentInfo, 1));
-        }else if(this.data.currentInfoIsSet){
-            this.pointCloud.geometry.attributes.info.needsUpdate = true;
+        if(this.data.currentInfoIsSet){
+            this.bufferGeometry.addAttribute('information', new THREE.BufferAttribute(this.data.currentInfo, 1));
         }
 
-        if(this.bufferGeometry.attributes.position == null && this.data.currentPositionIsSet){
-            this.bufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPositionArray, 3));
-        }else if(this.data.currentPositionIsSet){
-            this.pointCloud.geometry.attributes.position.needsUpdate = true;
+        if(this.data.currentPositionIsSet){
+            this.bufferGeometry.addAttribute('position', new THREE.BufferAttribute(this.data.currentPosition, 3));
         }
 
-        if(this.bufferGeometry.attributes.color == null && this.data.currentColorIsSet){
-            this.bufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.color, 3));
-        }else if(this.data.currentColorIsSet){
-            this.pointCloud.geometry.attributes.color.needsUpdate = true;
+        if(this.data.currentColorIsSet){
+            this.bufferGeometry.addAttribute('color', new THREE.BufferAttribute(this.data.currentColor, 3));
         }
 
-        if(typeof this.bufferGeometry.attributes.endPosition == 'undefined' && this.data.currentDirectionIsSet){
+        if(this.data.currentDirectionIsSet){
             this.bufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
-        }else if(this.data.currentDirectionIsSet){
-            this.pointCloud.geometry.attributes.endPosition.needsUpdate = true;
         }
+
+        this.pointCloud.geometry = this.bufferGeometry;
 
         this.isReady = true;
     }else{
@@ -188,7 +225,6 @@ SIMU.RenderableData.prototype.resetData = function(){
 SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
     if(this.data.currentDepartureIsSet && this.data.currentDirectionIsSet) {
         this.pointCloud.material = this.animatedShaderMaterial;
-        this.pointCloud.material.needsUpdate = true;
     }
     else
         console.log("No direction set");
@@ -199,7 +235,6 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
  */
 SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
     this.pointCloud.material = this.staticShaderMaterial;
-    this.pointCloud.material.needsUpdate = true;
 
 };
 
@@ -208,7 +243,6 @@ SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
  */
 SIMU.RenderableData.prototype.enableStaticParametricShaderMode = function(){
     this.pointCloud.material = this.staticParametricShaderMaterial;
-    this.pointCloud.material.needsUpdate = true;
 
 };
 
@@ -217,7 +251,6 @@ SIMU.RenderableData.prototype.enableStaticParametricShaderMode = function(){
  */
 SIMU.RenderableData.prototype.enableAnimatedParametricShaderMode = function(){
     this.pointCloud.material = this.animatedParametricShaderMaterial;
-    this.pointCloud.material.needsUpdate = true;
 };
 
 /**
@@ -330,6 +363,7 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
                     cullFromFrustum(octree.child[i]);
                 }
             }else{
+                //TODO Bunch of code trying to display a certain amount of points regarding to the distance between the octant and the camera, could be a good way to improve performance
                 /*var levelOfdetailMax = that.data.levelOfDetailMax;
 
                 var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
@@ -374,18 +408,11 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
     if(this.isReady) {
 
-
-
         cullFromFrustum(this.data.currentOctree);
-
-
-
-
 
         var levelOfdetailMax = this.data.levelOfDetailMax;
         this.pointCloud.geometry.offsets = this.pointCloud.geometry.drawcalls = [{start: 0, count: 0}];
         for (var i = 0; i < this.drawCalls.length; i++) {
-            //this.pointCloud.geometry.addDrawCall(this.drawCalls[i].start, this.drawCalls[i].count, this.drawCalls[i].start);
             for (var j = 0; j < this.levelOfDetail; j++) {
                 var start = this.drawCalls[i].start / levelOfdetailMax + j * this.data.snapshots[this.data.currentSnapshotId].index.length / levelOfdetailMax;
                 var count = this.drawCalls[i].count / levelOfdetailMax;
@@ -400,9 +427,9 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
 
 /**
  * Search for intersection between the mouse and the PointCloud
- * @param {THREE.Vector2} mouse - mouse coordinate in normalized screen space
- * @param {THREE.PerspectiveCamera} camera
- * @returns {*} An object with info about the intersected point
+ * @param {THREE.Vector2} mouse             - mouse coordinate in normalized screen space
+ * @param {THREE.PerspectiveCamera} camera  - The camera
+ * @returns {object}                        - An object with info about the intersected point
  */
 SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
     if(this.isReady) {
@@ -428,9 +455,9 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
                 this.pointCloud.geometry.addDrawCall(start, end - start, start);
                 for (i = start; i < end; i++) {
 
-                    var x = this.data.currentPositionArray[3 * i];
-                    var y = this.data.currentPositionArray[3 * i + 1];
-                    var z = this.data.currentPositionArray[3 * i + 2];
+                    var x = this.data.currentPosition[3 * i];
+                    var y = this.data.currentPosition[3 * i + 1];
+                    var z = this.data.currentPosition[3 * i + 2];
                     var a = raycaster.ray.direction.x;
                     var b = raycaster.ray.direction.y;
                     var c = raycaster.ray.direction.z;
@@ -465,9 +492,9 @@ SIMU.RenderableData.prototype.getIntersection = function(mouse, camera){
 
 /**
  * Search for all the Octree's octant intersecting with the mouse, in order to help the global research for point intersection
- * @param origin
- * @param ray
- * @returns {Array} Array of all the intersected octant
+ * @param {THREE.Vector3} origin            - Origin vector
+ * @param {THREE.Vector3} ray               - Casted ray
+ * @returns {Array} Array of all the intersected octants
  */
 SIMU.RenderableData.prototype.getIntersectedOctans = function(origin, ray){
     function getIntersectedOctanWithFace(octree, octan, face){
@@ -486,7 +513,7 @@ SIMU.RenderableData.prototype.getIntersectedOctans = function(origin, ray){
 
         var inter = false;
         var distance = 0;
-        //test if intersection really occur
+
         switch(face){
             case 1:
                 distance = (xMin-origin.x)/ray.x;
@@ -526,11 +553,10 @@ SIMU.RenderableData.prototype.getIntersectedOctans = function(origin, ray){
                 break;
         }
 
-
-        //if yes, continue
         if(inter) {
             var i;
             if(octreeChild.hasChild){
+                //We use a look-up table to get the possibly next intersected octants
                 var faceToOctan = SIMU.faceToOctan[face - 1];
                 for(i = 0; i < faceToOctan.length;i++){
                     getIntersectedOctanWithFace(octreeChild, faceToOctan[i], face);
