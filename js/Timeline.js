@@ -11,8 +11,7 @@ var SIMU = SIMU || {};
 /**
  * Represents the timeline of the application
  *
- * @name Timeline
- * @class
+ * @class Timeline
  *
  * @property {number}                   nbSnapshots         - Number of loaded snapshots and length of snapshots array
  * @property {Array|SnapshotBreakpoint} snapshots           - Array of SnapshotBreakpoint objects
@@ -21,8 +20,6 @@ var SIMU = SIMU || {};
  * @property {Cursor}                   cursor              - Cursor object of the timeline
  * @property {number}                   interval            - Number of pixels between each snapshot on the timeline (can be a float for computing)
  * @property {HTML}                     playButton          - HTML element of the play button of the timeline
- *
- * @constructor
  */
 SIMU.Timeline = function()
 {
@@ -280,8 +277,7 @@ SIMU.Timeline.prototype.setStopButton = function()
 /**
  * Represents the cursor of the timeline
  *
- * @name Cursor
- * @class
+ * @class Cursor
  *
  * @property {HTML}    html                        - HTML element of the cursor
  * @property {number}  cursorOffsetOrigin          - Position (left offset in pixels) of the cursor before any drag
@@ -290,8 +286,6 @@ SIMU.Timeline.prototype.setStopButton = function()
  * @property {event}   dragCursorEvent             - Event of type 'mousedown'
  * @property {event}   stopDraggingEvent           - Event of type 'mouseup'
  * @property {boolean} positionHasToBeComputed     - If the cursor just moved and its position needs to be computed or not
- *
- * @constructor
  */
 SIMU.Cursor = function()
 {
@@ -457,14 +451,11 @@ SIMU.Cursor.prototype.getOffset = function()
 /**
  * Represents a snapshot breakpoint on the timeline. You need to provide an index to create it.
  *
- * @name SnapshotBreakpoint
- * @class
+ * @class SnapshotBreakpoint
  *
  * @property {HTML}     html        - HTML element of the snapshot breakpoint
  *
  * @param {number}      id          - Index of the new snapshot
- *
- * @constructor
  */
 SIMU.SnapshotBreakpoint = function(id)
 {

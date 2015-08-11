@@ -11,8 +11,7 @@ var SIMU = SIMU || {};
 /**
  * Represents the menu of the application
  *
- * @name Menu
- * @class
+ * @class Menu
  *
  * @property {HTML}     simpleview      - HTML element of the simpleview div in DOM
  * @property {HTML}     multiview       - HTML element of the multiview div in DOM
