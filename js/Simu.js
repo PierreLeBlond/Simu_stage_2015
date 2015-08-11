@@ -14,30 +14,43 @@ var SIMU = SIMU || {};
  * @constructor
  *
  * @property {Array} scenes                         - Array of {@link SIMU.Scene} object, usually linked to one view
+ *
  * @property {object} parameters                    - A bunch of parameters, to be used and changed with dat.GUI
  *      @property {number} parameters.t             - Current Time relative to the data
  *      @property {number} parameters.speed         - Speed of the animation
  *      @property {number} parameters.idScript      - Id of the currently used script for parsing data
+ *
  * @property {object} info                          - Information about the available data
  *      @property {number} info.nbSnapShot          - Number of available snapshot
  *      @property {number} info.nbData              - Number of available data
+ *
  * @property {Array} datas                          - Array of {@link SIMU.Data} object, available in each scene
  * @property {number} currentDataId                 - Current selected data id
  * @property {number} currentSnapshotId             - Current selected snapshot id
+ *
  * @property {THREE.PerspectiveCamera} globalCamera - Global camera used to have the same point of views in different {@link SIMU.View} object
+ *
  * @property {Array} scripts                        - Available scripts for parsing data
  * @property {Array} texture                        - Available texture for particle rendering
+ *
  * @property {Array} views                          - Array of {@link SIMU.View} object, one for each scene
  * @property {SIMU.View} currentView                - Current focused view
+ *
  * @property {THREE.FirstPersonControls} controls   - Controls used with the global camera
+ *
  * @property {SIMU.Menu} menu                       - The menu to switch between display mode
  * @property {SIMU.Timeline} timeline               - The timeline to control animation
+ *
  * @property {SIMU.DataUIManager} dataManager       - A UI element to load, organize & navigate through data
+ *
  * @property {SIMU.LoadingBarSingleton} loadingBar  - A UI element to have a feedback on data processing evolution
+ *
  * @property {Node} domElement                      - The dom element displaying the whole application
  * @property {Node} container                       - A dom element containing the canvas
+ *
  * @property {number} width                         - Width of the application's display
  * @property {number} height                        - height of the application's display
+ *
  * @property {function} lastFileEvent               - The current loading data event
  * @property {function} windowResizeEvent           - The current resize window event
  *

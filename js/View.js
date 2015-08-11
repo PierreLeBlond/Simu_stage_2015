@@ -228,15 +228,6 @@ SIMU.View.prototype.setupGui = function(){
 
         viewFolder.add(this.sceneParameters, 'frustumculling').name('Frustum Culling');
 
-        viewFolder.add(this.sceneParameters, 'oculus').name('enable oculus view').onFinishChange(function(value){
-            if(!value){
-                that.currentRenderer = that.renderer;
-            }else{
-                that.currentRenderer = that.oculusRenderer;
-            }
-            that.currentRenderer.setSize(that.width, that.height);
-        });
-
         var dataFolder = this.gui.addFolder('Data');
 
         dataFolder.add(this.sceneParameters, 'active').name("activate data").onFinishChange(function () {
