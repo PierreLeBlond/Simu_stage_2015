@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 15/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -26,6 +27,7 @@ SIMU.Script = function(){
 
 /**
  * @description Add a new script for loading file
+ * @detail for the moment, must be used before calling setGui method on SIMU object, or the new script won't be available in the menu
  * @param name
  * @param script
  * @param binary
@@ -38,8 +40,8 @@ SIMU.addScript = function(name, script, binary){
     myScript.binary = binary;
 };
 
-var name = "Deparis script";
-var script = function(result){
+var part = "part";
+var partScript = function(result){
     /*
      The data contains a header with two values.
      One Int : that is the number of elements in the file
@@ -95,8 +97,8 @@ var script = function(result){
         {name : "ekin", value : ekin}];
 };
 
-var nameBis = "Deparis script star";
-var scriptBis = function(result){
+var star = "star";
+var starScript = function(result){
     /*
      The data contains a header with two values.
      One Int : that is the number of elements in the file
@@ -154,8 +156,8 @@ var scriptBis = function(result){
         {name : "age", value : age}];
 };
 
-var name2 = "Schaaff script";
-var script2 = function(result){
+var schaaff = "Schaaff script";
+var schaaffScript = function(result){
 
     var data = result.split('\n');
 

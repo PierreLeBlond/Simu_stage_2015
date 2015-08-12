@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 10/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -31,7 +32,7 @@ var SIMU = SIMU || {};
  *
  * @property {object} animatedAttributes                                            - Shader attributes in animated mode
  *      @property {object} animatedAttributes.departure                             - Departure position buffer
- *      @property {object} animatedAttributes.endPosition                           - Direction buffer
+ *      @property {object} animatedAttributes.direction                           - Direction buffer
  *      @property {object} animatedAttributes.color                                 - color buffer
  *
  * @property {object} staticAttributes                                              - Shader attributes in static mode
@@ -42,16 +43,16 @@ var SIMU = SIMU || {};
  *
  * @property {object} uniforms                                                      - Shader uniforms variables
  *      @property {object} uniforms.t                                               - relative time within the application
- *      @property {object} uniforms.current_time                                    - Real time given by the computer clock
+ *      @property {object} uniforms.currentTime                                    - Real time given by the computer clock
  *      @property {object} uniforms.size                                            - Size of the particle
  *      @property {object} uniforms.fogFactor                                       - Strength factor of the scene fog
  *      @property {object} uniforms.fogDistance                                     - Attenuation Distance of the scene fog
  *      @property {object} uniforms.map                                             - Texture map
  *      @property {object} uniforms.fog                                             - 1 if fog is enabled, else 0
  *      @property {object} uniforms.blink                                           - 1 if blinking is enabled, else 0
- *      @property {object} uniforms.param_type                                      - Way of highlighting the info attribute
- *      @property {object} uniforms.min_info                                        - Minimum value of the current info attribute
- *      @property {object} uniforms.max_info                                        - Maximum value of the current info attribute
+ *      @property {object} uniforms.paramType                                      - Way of highlighting the info attribute
+ *      @property {object} uniforms.minInfo                                        - Minimum value of the current info attribute
+ *      @property {object} uniforms.maxInfo                                        - Maximum value of the current info attribute
  *
  * @property {object} animatedShaderMaterial                                        - Material used in animated mode
  *
@@ -84,7 +85,7 @@ SIMU.RenderableData = function(){
 
     this.animatedAttributes                 = {
         departure:      {type: 'v3', value: []},
-        endPosition:    {type: 'v3', value: []},
+        direction:    {type: 'v3', value: []},
         color:          {type: 'v3', value: []}
     };
 
@@ -94,7 +95,7 @@ SIMU.RenderableData = function(){
 //
     this.animatedParametricAttributes       = {
         departure:              {type: 'v3', value: []},
-        endPosition:            {type: 'v3', value: []},
+        direction:            {type: 'v3', value: []},
         information:            {type: 'f', value: []},
         color:                  {type: 'v3', value: []}
     };
@@ -106,16 +107,16 @@ SIMU.RenderableData = function(){
 
     this.uniforms                           = {
         t:              { type: 'f', value: 0.001},
-        current_time:   { type: 'f', value: 60.0},
+        currentTime:   { type: 'f', value: 60.0},
         size:           { type: 'f', value: 0.5},
         fogFactor:      { type: 'f', value: 0.9},
         fogDistance:    { type: 'f', value: 3.4},
         map:            { type: 't', value: THREE.ImageUtils.loadTexture("resources/textures/spark.png")},
         fog:            { type: 'i', value: 0},
         blink:          { type: 'i', value: 0},
-        param_type:     { type: 'i', value: 0},
-        min_info:       { type: 'f', value: 0.0},
-        max_info:       { type: 'f', value: 0.0}
+        paramType:     { type: 'i', value: 0},
+        minInfo:       { type: 'f', value: 0.0},
+        maxInfo:       { type: 'f', value: 0.0}
     };
 
     this.animatedShaderMaterial             = new THREE.ShaderMaterial( {
@@ -171,7 +172,7 @@ SIMU.RenderableData = function(){
 /**
  * Bind a Data object to this RenderableData
  * @detail data can be empty for the moment
- * @param {Simu.Data} data
+ * @param {SIMU.Data} data
  */
 SIMU.RenderableData.prototype.setData = function(data){
     this.data = data;
@@ -207,7 +208,7 @@ SIMU.RenderableData.prototype.resetData = function(){
         }
 
         if(this.data.currentDirectionIsSet){
-            this.bufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(this.data.currentDirection, 3));
+            this.bufferGeometry.addAttribute('direction', new THREE.BufferAttribute(this.data.currentDirection, 3));
         }
 
         this.pointCloud.geometry = this.bufferGeometry;
@@ -226,8 +227,10 @@ SIMU.RenderableData.prototype.enableAnimatedShaderMode = function(){
     if(this.data.currentDepartureIsSet && this.data.currentDirectionIsSet) {
         this.pointCloud.material = this.animatedShaderMaterial;
     }
-    else
+    else {
         console.log("No direction set");
+        this.pointCloud.material = this.staticShaderMaterial;
+    }
 };
 
 /**
@@ -242,7 +245,13 @@ SIMU.RenderableData.prototype.enableStaticShaderMode = function(){
  * Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on CPU side
  */
 SIMU.RenderableData.prototype.enableStaticParametricShaderMode = function(){
-    this.pointCloud.material = this.staticParametricShaderMaterial;
+    if(this.data.currentInfoIsSet) {
+        this.pointCloud.material = this.staticParametricShaderMaterial;
+    }
+    else {
+        console.log("No information available");
+        this.pointCloud.material = this.staticShaderMaterial;
+    }
 
 };
 
@@ -250,7 +259,19 @@ SIMU.RenderableData.prototype.enableStaticParametricShaderMode = function(){
  * Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on GPU side
  */
 SIMU.RenderableData.prototype.enableAnimatedParametricShaderMode = function(){
-    this.pointCloud.material = this.animatedParametricShaderMaterial;
+    if(this.data.currentDepartureIsSet && this.data.currentDirectionIsSet) {
+        if(this.data.currentInfoIsSet) {
+            this.pointCloud.material = this.animatedParametricShaderMaterial;
+        }
+        else {
+            console.log("No information available");
+            this.pointCloud.material = this.animatedShaderMaterial;
+        }
+    }
+    else {
+        console.log("No direction set");
+        this.pointCloud.material = this.staticShaderMaterial;
+    }
 };
 
 /**
@@ -366,41 +387,41 @@ SIMU.RenderableData.prototype.computeCulling = function(camera){
                 //TODO Bunch of code trying to display a certain amount of points regarding to the distance between the octant and the camera, could be a good way to improve performance
                 /*var levelOfdetailMax = that.data.levelOfDetailMax;
 
-                var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
-                var distance = 0.1;
-                if(diff.length() > 1.0)
-                    distance = 1.0;
-                else if(diff.length() < 0.1)
-                    distance = 0.1;
-                else
-                    distance = diff.length();
-                var levelOfDetail = distance*(1 - levelOfdetailMax) + levelOfdetailMax;
+                 var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
+                 var distance = 0.1;
+                 if(diff.length() > 1.0)
+                 distance = 1.0;
+                 else if(diff.length() < 0.1)
+                 distance = 0.1;
+                 else
+                 distance = diff.length();
+                 var levelOfDetail = distance*(1 - levelOfdetailMax) + levelOfdetailMax;
 
-                for (var j = 0; j < levelOfDetail; j++) {
-                    var start = octree.start / levelOfdetailMax + j * that.data.snapshots[that.data.currentSnapshotId].index.length / levelOfdetailMax;
-                    var count = octree.count / levelOfdetailMax;
-                    that.drawCalls.push({start: start, count: count});
-                }*/
+                 for (var j = 0; j < levelOfDetail; j++) {
+                 var start = octree.start / levelOfdetailMax + j * that.data.snapshots[that.data.currentSnapshotId].index.length / levelOfdetailMax;
+                 var count = octree.count / levelOfdetailMax;
+                 that.drawCalls.push({start: start, count: count});
+                 }*/
                 that.drawCalls.push({start: octree.start, count: octree.count});
             }
         }else if(test == 2){
             /*var levelOfdetailMax = that.data.levelOfDetailMax;
 
-            var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
-            var distance = 0.1;
-            if(diff.length() > 1.0)
-                distance = 1.0;
-            else if(diff.length() < 0.1)
-                distance = 0.1;
-            else
-                distance = diff.length();
-            var levelOfDetail = distance*(1 - levelOfdetailMax) + levelOfdetailMax;
+             var diff = new THREE.Vector3(camera.position.x - center.x, camera.position.y - center.y,camera.position.z - center.z);
+             var distance = 0.1;
+             if(diff.length() > 1.0)
+             distance = 1.0;
+             else if(diff.length() < 0.1)
+             distance = 0.1;
+             else
+             distance = diff.length();
+             var levelOfDetail = distance*(1 - levelOfdetailMax) + levelOfdetailMax;
 
-            for (var j = 0; j < levelOfDetail; j++) {
-                var start = octree.start / levelOfdetailMax + j * that.data.snapshots[that.data.currentSnapshotId].index.length / levelOfdetailMax;
-                var count = octree.count / levelOfdetailMax;
-                that.drawCalls.push({start: start, count: count});
-            }*/
+             for (var j = 0; j < levelOfDetail; j++) {
+             var start = octree.start / levelOfdetailMax + j * that.data.snapshots[that.data.currentSnapshotId].index.length / levelOfdetailMax;
+             var count = octree.count / levelOfdetailMax;
+             that.drawCalls.push({start: start, count: count});
+             }*/
             that.drawCalls.push({start: octree.start, count: octree.count});
 
         }

@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 22/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -404,8 +405,14 @@ SIMU.Simu.prototype.setupGui = function(){
     animationFolder.add(this.parameters, 't', 0.00001, 1).name("time").listen().onFinishChange(this.updateDataOnTimeChange.bind(this)).onChange(function(value) { that.timeline.animate(value); });
     animationFolder.add(this.parameters, 'speed', 0.00001, 1).name("speed");
 
+    var scripts = {};
+
+    for(var i = 0; i < this.scripts.length;i++){
+        scripts[this.scripts[i].name] = i;
+    }
+
     var scriptFolder = this.gui.addFolder('Script');
-    scriptFolder.add(this.parameters, 'idScript', {Deparis : 0, Schaaff : 1, DeparisStar : 2}).name("script").onFinishChange(function(value){
+    scriptFolder.add(this.parameters, 'idScript', scripts).name("script").onFinishChange(function(value){
         for(var i = 0; i < that.datas.length;i++){
             that.datas[i].setScript(that.scripts[value]);
         }

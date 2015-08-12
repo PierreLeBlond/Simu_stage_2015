@@ -110,7 +110,7 @@ function onEveryLoadEnd(err, results){
  *
  * @description Function that will define what to do when opening a file.
  * First it will each file in an asynchronous way.
- * endPosition reading a file, it creates the PointCloud with the given positions
+ * direction reading a file, it creates the PointCloud with the given positions
  *
  */
 function initFileReading() {

@@ -1,12 +1,15 @@
 /**
  * Created by lespingal on 22/07/15.
+* pierre.lespingal@gmail.com
  */
 
 var simu = new SIMU.Simu();
 simu.setDomElement(document.getElementById('app'));
 simu.setupSimu();
-simu.setupGui();
 
-simu.addScript(name, script, true);
-simu.addScript(name2, script2, false);
-simu.addScript(nameBis, scriptBis, true);
+simu.addScript(part, partScript, true);
+simu.addScript(star, starScript, true);
+simu.addScript(schaaff, schaaffScript, false);
+
+
+simu.setupGui();

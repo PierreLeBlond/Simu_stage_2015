@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 30/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -18,17 +19,17 @@ var SIMU = SIMU || {};
  *
  * @property {object} parameters                        - Bunch of parameters telling us how to render the scene
  *      @property {number} parameters.t                 - Relative time within the application
- *      @property {number} parameters.delta_t           - Current elapsed time
+ *      @property {number} parameters.deltaT            - Current elapsed time
  *      @property {boolean} parameters.active           - True if the current point cloud is displayed
- *      @property {number} parameters.pointsize         - Size of the particle within the point cloud
+ *      @property {number} parameters.pointSize         - Size of the particle within the point cloud
  *      @property {boolean} parameters.fog              - True if the fog is enable
- *      @property {boolean} parameters.linkcamera       - True if the current used camera is the global one
+ *      @property {boolean} parameters.globalCamera     - True if the current used camera is the global one
  *      @property {number} parameters.shaderType        - One of {@link SIMU.ShaderType} value, the type of shader used to display the particles
  *      @property {number[]} parameters.color           - Default color of the current point cloud
  *      @property {number} parameters.idInfo            - Id of the current info of the current point cloud
  *      @property {number} parameters.idTexture         - id of the texture used in the current point cloud
  *      @property {number} parameters.idBlending        - Id of the blending mode used in the current point cloud
- *      @property {boolean} parameters.frustumculling   - True if view frustum culling is enabled
+ *      @property {boolean} parameters.frustumCulling   - True if view frustum culling is enabled
  *      @property {number} parameters.levelOfDetail     - level of detail of the point cloud
  *
  * @property {Array} texture                            - Array of available texture
@@ -49,17 +50,17 @@ SIMU.Scene = function(){
 
     this.parameters                 = {
         t                           : 0,
-        delta_t                     : 0,
+        deltaT                     : 0,
         active                      : false,
-        pointsize                   : 0.5,
+        pointSize                   : 0.5,
         fog                         : false,
-        linkcamera                  : false,
+        globalCamera                  : false,
         shaderType                  : SIMU.ShaderType.STATIC,
         color                       : [ 255, 255, 255],
         idInfo                      : -1,
         idTexture                   : -1,
         idBlending                  : -1,
-        frustumculling              : true,
+        frustumCulling              : true,
         levelOfDetail               : 4
     };
 
@@ -97,7 +98,7 @@ SIMU.Scene.prototype.setTime = function(t){
  */
 SIMU.Scene.prototype.setCurrentTime = function(t){
     for(var i = 0; i < this.renderableDatas.length;i++){
-        this.renderableDatas[i].uniforms.current_time.value = t;
+        this.renderableDatas[i].uniforms.currentTime.value = t;
     }
 };
 
@@ -131,7 +132,7 @@ SIMU.Scene.prototype.activateCurrentData = function(){
 };
 
 /**
- * Enable the currently selected shader mode
+ * Enable the currently selected shader mode for the current {@link RenderableData} object
  */
 SIMU.Scene.prototype.enableCurrentDataShaderMode = function(){
     var currentRenderableData = this.renderableDatas[this.currentRenderableDataId];
@@ -150,6 +151,32 @@ SIMU.Scene.prototype.enableCurrentDataShaderMode = function(){
             break;
         default:
             break;
+    }
+};
+
+/**
+ * Enable the currently selected shader for all {@link RenderableData} object
+ */
+SIMU.Scene.prototype.enableDatasShaderMode = function(){
+    for(var i = 0; i < this.renderableDatas.length; i++){
+        if(this.renderableDatas[i].isActive) {
+            switch (this.parameters.shaderType) {
+                case SIMU.ShaderType.STATIC :
+                    this.renderableDatas[i].enableStaticShaderMode();
+                    break;
+                case SIMU.ShaderType.ANIMATED :
+                    this.renderableDatas[i].enableAnimatedShaderMode();
+                    break;
+                case SIMU.ShaderType.PARAMETRICSTATIC :
+                    this.renderableDatas[i].enableStaticParametricShaderMode();
+                    break;
+                case SIMU.ShaderType.PARAMETRICANIMATED :
+                    this.renderableDatas[i].enableAnimatedParametricShaderMode();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 };
 
@@ -250,7 +277,7 @@ SIMU.Scene.prototype.setCurrentDataBlendingType = function(blendingType){
  */
 SIMU.Scene.prototype.setCurrentDataParam = function(param){
     if (this.currentRenderableDataId >= 0) {
-        this.renderableDatas[this.currentRenderableDataId].uniforms.param_type.value = param;
+        this.renderableDatas[this.currentRenderableDataId].uniforms.paramType.value = param;
     }
 };
 
@@ -306,12 +333,7 @@ SIMU.Scene.prototype.dataHasChanged = function(){
  */
 SIMU.Scene.prototype.setShaderType = function(type){
     this.parameters.shaderType = type;
-    for(var i = 0; i < this.renderableDatas.length;i++){
-        var renderableData = this.renderableDatas[i];
-        if(renderableData.isActive) {
-            this.enableCurrentDataShaderMode();
-        }
-    }
+    this.enableDatasShaderMode();
 };
 
 /**
@@ -321,7 +343,7 @@ SIMU.Scene.prototype.setShaderType = function(type){
 SIMU.Scene.prototype.computeCulling = function(camera){
     for(var i = 0; i < this.renderableDatas.length;i++){
         if(this.renderableDatas[i].isActive && this.renderableDatas[i].isReady) {
-            if(this.parameters.frustumculling) {
+            if(this.parameters.frustumCulling) {
                 this.renderableDatas[i].computeCulling(camera);
             }
         }

@@ -18,8 +18,8 @@ function animate(){
                 App.data.directionArray = App.data.directionsArray[App.parameters.posSnapShot];
                 App.animationBufferGeometry.attributes.position = new THREE.BufferAttribute(App.data.departureArray, 3);
                 App.animationBufferGeometry.attributes.position.needsUpdate = true;
-                App.animationBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(App.data.directionArray, 3);
-                App.animationBufferGeometryPointCloud.geometry.attributes.endPosition.needsUpdate = true;
+                App.animationBufferGeometry.attributes.direction = new THREE.BufferAttribute(App.data.directionArray, 3);
+                App.animationBufferGeometryPointCloud.geometry.attributes.direction.needsUpdate = true;
             }else{
                 App.uniforms.t.value = 1.0;
                 computePositions();//Let's go back to static mode
@@ -169,7 +169,7 @@ function loadData(){
         App.departureArray = App.data.positionsArray[App.parameters.nbSnapShot - 1];
         App.colorPickerBufferGeometry.addAttribute('position', new THREE.BufferAttribute(App.data.departureArray, 3));
         App.departureArray = App.data.positionsArray[App.parameters.nbSnapShot - 1];
-        App.colorPickerBufferGeometry.addAttribute('endPosition', new THREE.BufferAttribute(App.data.positionsArray[App.parameters.nbSnapShot], 3));
+        App.colorPickerBufferGeometry.addAttribute('direction', new THREE.BufferAttribute(App.data.positionsArray[App.parameters.nbSnapShot], 3));
         App.colorPickerBufferGeometry.addAttribute('colorIndex', new THREE.BufferAttribute(App.data.colorIndex, 3));
 
         App.colorPickerBufferGeometryPointCloud = new THREE.PointCloud(App.colorPickerBufferGeometry, App.colorPickerShaderMaterial);*/
@@ -193,7 +193,7 @@ function loadData(){
         App.data.directionArray = App.data.directionsArray[App.parameters.nbSnapShot - 1];
 
         App.animationBufferGeometry.addAttribute('position' , new THREE.BufferAttribute( App.data.departureArray, 3 ));
-        App.animationBufferGeometry.addAttribute('endPosition' , new THREE.BufferAttribute( App.data.directionArray, 3 ));
+        App.animationBufferGeometry.addAttribute('direction' , new THREE.BufferAttribute( App.data.directionArray, 3 ));
         App.animationBufferGeometry.addAttribute('color' , new THREE.BufferAttribute( App.data.color, 3 ));
 
         App.animationBufferGeometry.drawcalls.push({

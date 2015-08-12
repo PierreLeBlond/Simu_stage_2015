@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 20/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -11,7 +12,7 @@ var SIMU = SIMU || {};
 /**
  * Look-up table
  * This table gives each octant child to test for a given intersected face of the octree
- * @type {*[]}
+ * @type {number[][]}
  */
 SIMU.faceToOctan = [[5, 6, 7, 8], [1,2,3,4], [1,2,5,6], [3, 4, 7, 8], [2, 4, 6, 8], [1, 3, 5, 7]];
 
@@ -19,7 +20,7 @@ SIMU.faceToOctan = [[5, 6, 7, 8], [1,2,3,4], [1,2,5,6], [3, 4, 7, 8], [2, 4, 6, 
  * Look-up table to reduce ray casting test
  * When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
  * This table gives us the next child to look for in the direction of the ray.
- * @type {*[]}
+ * @type {object[][]}
  */
 SIMU.octanToFace = [
     /*octan 1*/[

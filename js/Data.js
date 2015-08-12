@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 10/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -14,7 +15,7 @@ var SIMU = SIMU || {};
  *
  * @property {boolean} isReady                      - True if at least one snapshot is ready, and is the current one
  * @property {Array} snapshots                      - Array of Snapshot object
- * @property {number} nbSnapShot                    - Number of available snapshot
+ * @property {number} nbSnapshots                   - Number of available snapshot
  * @property {number} currentSnapshotId             - Index of the current snapshot
  * @property {File} files                           - Last files used to populate a snapshot
  * @property {number} nbFiles                       - Number of files used to create last snapshot
@@ -40,7 +41,7 @@ SIMU.Data = function(){
     this.isReady                    = false;                                    //** True if at least one snapshot is ready, and is the current one */
 
     this.snapshots                  = [];                                       //** Array of Snapshot object */
-    this.nbSnapShot                 = 0;                                        //** Number of snapshot */
+    this.nbSnapshots                 = 0;                                        //** Number of snapshot */
     this.currentSnapshotId          = -1;                                       //** Index of the current snapshot */
 
     this.files                      = null;                                     //** Last files used to populate a snapshot */
@@ -71,7 +72,7 @@ SIMU.Data = function(){
 
 /**
  * Set current time, relative to the application and used to compute particle position
- * @param {float} t - New relative time
+ * @param {number} t - New relative time
  */
 SIMU.Data.prototype.setTime = function(t){
     this.t = t;
@@ -99,7 +100,7 @@ SIMU.Data.prototype.setCurrentSnapshotId = function(id){
 SIMU.Data.prototype.addSnapshot = function(){
     var snapshot = new SIMU.Snapshot();
     this.snapshots.push(snapshot);
-    this.nbSnapShot++;
+    this.nbSnapshots++;
 };
 
 /**
@@ -109,7 +110,7 @@ SIMU.Data.prototype.addSnapshot = function(){
 SIMU.Data.prototype.computePositions = function(){
     var length = this.currentPosition.length / 3;
     var i;
-    if(this.currentSnapshotId < (this.nbSnapShot - 1) && this.currentPositionIsSet && this.currentDepartureIsSet && this.currentDirectionIsSet) {
+    if(this.currentSnapshotId < (this.nbSnapshots - 1) && this.currentPositionIsSet && this.currentDepartureIsSet && this.currentDirectionIsSet) {
         for (i = 0; i < length; i++) {
             this.currentPosition[i * 3] = this.currentColor[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
             this.currentPosition[i * 3 + 1] = this.currentColor[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
@@ -122,7 +123,7 @@ SIMU.Data.prototype.computePositions = function(){
             this.currentPosition[i * 3 + 2] = this.currentDeparture[i * 3 + 2];
         }
         console.log("Direction isn't set");
-    }else if(this.currentSnapshotId >= (this.nbSnapShot - 1)){
+    }else if(this.currentSnapshotId >= (this.nbSnapshots - 1)){
         console.log("Current snapshot doesn't exist");
     }else{
         console.log("Current position isn't set");
@@ -134,7 +135,7 @@ SIMU.Data.prototype.computePositions = function(){
  * @param {int} snapshotId - wanted snapshot's index
  */
 SIMU.Data.prototype.setCurrentSnapshot = function(snapshotId){
-    if(snapshotId >= 0 && snapshotId < this.nbSnapShot){
+    if(snapshotId >= 0 && snapshotId < this.nbSnapshots){
         this.currentSnapshotId = snapshotId;
         if(this.snapshots[snapshotId].isReady) {
             this.isReady = true;
@@ -275,10 +276,14 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
             //First compute the octree
             if ("undefined" == typeof(w)) {
                 var w = new Worker("js/octreeWorker.js");
+
+                //Send message to the worker
                 w.postMessage({
                     position: snap.position,
                     index: snap.index
                 });
+
+                //When the worker send  message back
                 w.onmessage = function (event) {
 
                     snap.index = event.data.index;
@@ -320,7 +325,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                     that.currentPositionIsSet = true;
 
                     //If next snapshot is already available, compute the direction
-                    if(that.currentSnapshotId + 1 < that.nbSnapShot && that.snapshots[that.currentSnapshotId + 1].isReady){
+                    if(that.currentSnapshotId + 1 < that.nbSnapshots && that.snapshots[that.currentSnapshotId + 1].isReady){
                         var nextSnapshot = that.snapshots[that.currentSnapshotId + 1];
                         for(i = 0; i < size;i++) {
                             snap.direction[3*nextSnapshot.index[i]] = nextSnapshot.position[3*i] - snap.position[3*nextSnapshot.index[i]];
@@ -368,8 +373,8 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
 };
 
 /**
- * @description Handle file selection and start loading phase
- * @param evt
+ * Handle file selection and start loading phase
+ * @param {Event} evt
  */
 SIMU.Data.prototype.handleFileSelect = function(evt) {
     this.files = evt.target.files;

@@ -332,8 +332,8 @@ function render2() {
                 App.data.directionArray = App.data.directionsArray[App.parameters.posSnapShot];
                 App.animationBufferGeometry.attributes.position = new THREE.BufferAttribute(App.data.departureArray, 3);
                 App.animationBufferGeometry.attributes.position.needsUpdate = true;
-                App.animationBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(App.data.directionArray, 3);
-                App.animationBufferGeometryPointCloud.geometry.attributes.endPosition.needsUpdate = true;
+                App.animationBufferGeometry.attributes.direction = new THREE.BufferAttribute(App.data.directionArray, 3);
+                App.animationBufferGeometryPointCloud.geometry.attributes.direction.needsUpdate = true;
 
             }else{
                 App.uniforms.t.value = 1.0;//TODO go back to static mode ?
@@ -394,8 +394,8 @@ function render3() {
                 App.data.directionArray = App.data.directionsArray[App.parameters.posSnapShot];
                 App.animationBufferGeometry.attributes.position = new THREE.BufferAttribute(App.data.departureArray, 3);
                 App.animationBufferGeometry.attributes.position.needsUpdate = true;
-                App.animationBufferGeometry.attributes.endPosition = new THREE.BufferAttribute(App.data.directionArray, 3);
-                App.animationBufferGeometryPointCloud.geometry.attributes.endPosition.needsUpdate = true;
+                App.animationBufferGeometry.attributes.direction = new THREE.BufferAttribute(App.data.directionArray, 3);
+                App.animationBufferGeometryPointCloud.geometry.attributes.direction.needsUpdate = true;
             }else{
                 App.uniforms.t.value = 1.0;
                 computePositions();//Let's go back to static mode

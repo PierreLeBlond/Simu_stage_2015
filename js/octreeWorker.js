@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 08/07/15.
+ * pierre.lespingal@gmail.com
  */
 
 importScripts('../lib/async.js');

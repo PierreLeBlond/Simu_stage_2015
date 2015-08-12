@@ -13,11 +13,11 @@ var SIMU = SIMU || {};
  *
  * @class Menu
  *
- * @property {HTML}     simpleview      - HTML element of the simpleview div in DOM
- * @property {HTML}     multiview       - HTML element of the multiview div in DOM
- * @property {HTML}     oculus          - HTML element of the oculus div in DOM
- * @property {HTML}     cardboard       - HTML element of the cardboard div in DOM
- * @property {HTML}     blocker         - HTML element of the blocker div in DOM
+ * @property {Node}     simpleview      - HTML element of the simpleview div in DOM
+ * @property {Node}     multiview       - HTML element of the multiview div in DOM
+ * @property {Node}     oculus          - HTML element of the oculus div in DOM
+ * @property {Node}     cardboard       - HTML element of the cardboard div in DOM
+ * @property {Node}     blocker         - HTML element of the blocker div in DOM
  * @property {boolean}  isDisplayed     - If the menu is visible or not
  */
 SIMU.Menu = function()
@@ -194,4 +194,4 @@ SIMU.Menu.prototype.setCSS = function()
     ].join('\n');
 
     document.head.appendChild(css);
-}
+};

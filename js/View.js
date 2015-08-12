@@ -1,5 +1,6 @@
 /**
  * Created by lespingal on 15/06/15.
+ * pierre.lespingal@gmail.com
  */
 
 /**
@@ -19,22 +20,22 @@ SIMU = SIMU || {};
  * @property {THREE.OculusRiftEffect} oculusRenderer                            - The oculus renderer
  * @property {THREE.StereoEffect} cardboardRenderer                             - The cardboard renderer
  *
- * @property {THREE.WebGLRenderer} currentRenderer                              - The current used renderer
+ * @property {*} currentRenderer                                                - The current used renderer
  *
  * @property {object} sceneParameters                                           - A bunch of parameters to control the scene with dat.GUI
  *      @property {number} sceneParameters.t                                    - The current time relative to the simulation
- *      @property {number} sceneParameters.delta_t                              - The current elapsed time relative to the computer
+ *      @property {number} sceneParameters.deltaT                              - The current elapsed time relative to the computer
  *      @property {boolean} sceneParameters.active                              - True if the current point cloud ids displayed
- *      @property {number} sceneParameters.pointsize                            - Size of the particles within the current point cloud
+ *      @property {number} sceneParameters.pointSize                            - Size of the particles within the current point cloud
  *      @property {boolean} sceneParameters.fog                                 - True if fog is enable
  *      @property {boolean} sceneParameters.blink                               - True if blinking effect is enable
- *      @property {boolean} sceneParameters.linkcamera                          - True if the current used camera is the global one
+ *      @property {boolean} sceneParameters.globalCamera                          - True if the current used camera is the global one
  *      @property {boolean} sceneParameters.isStatic                            - True if we are in static mode
  *      @property {number[]} sceneParameters.color                              - The default color of the current point cloud
  *      @property {number} sceneParameters.idInfo                               - The id of the current highlighting info in the current point cloud
  *      @property {number} sceneParameters.idTexture                            - The id of the currently used texture in the current point cloud
  *      @property {number} sceneParameters.idBlending                           - The id of the blending mode used in the current point cloud
- *      @property {boolean} sceneParameters.frustumculling                      - True if view frustum culling is enabled
+ *      @property {boolean} sceneParameters.frustumCulling                      - True if view frustum culling is enabled
  *      @property {number} sceneParameters.levelOfDetail                        - Level of detail of the point cloud, i.e. fraction of the entire cloud being displayed
  *      @property {number} sceneParameters.idParam                              - Id of the parameters used to highlight information in the shader
  *
@@ -73,18 +74,18 @@ SIMU.View = function () {
 
     this.sceneParameters            = {
         t                           : 0,
-        delta_t                     : 0,
+        deltaT                     : 0,
         active                      : false,
-        pointsize                   : 0.5,
+        pointSize                   : 0.5,
         fog                         : false,
         blink                       : false,
-        linkcamera                  : false,
+        globalCamera                  : false,
         isStatic                    : true,
         color                       : [ 255, 255, 255],
         idInfo                      : -1,
         idTexture                   : -1,
         idBlending                  : -1,
-        frustumculling              : true,
+        frustumCulling              : true,
         levelOfDetail               : 4,
         idParam                     : 0
     };
@@ -175,6 +176,8 @@ SIMU.View.prototype.setupView = function(left, top, width, height){
         this.camera = this.scene.privateCamera;
         this.camera.useFPSControls(this);
 
+        this.camera.controls.enabled = false;
+
 
         this.resize(width, height, left, top);
 
@@ -213,9 +216,8 @@ SIMU.View.prototype.setupGui = function(){
 
         var viewFolder = this.gui.addFolder('View');
 
-        viewFolder.add(this.sceneParameters, 'linkcamera').name("Link Camera").onFinishChange(function () {
-            //TODO Create function in class SIMU.Scene
-            if (that.sceneParameters.linkcamera && that.globalCamera) {
+        viewFolder.add(this.sceneParameters, 'globalCamera').name("Use global camera").onFinishChange(function () {
+            if (that.sceneParameters.globalCamera && that.globalCamera) {
                 that.camera.controls.enabled = false;
                 that.camera = that.globalCamera;
                 that.camera.controls.enabled = true;
@@ -226,11 +228,11 @@ SIMU.View.prototype.setupGui = function(){
             }
         });
 
-        viewFolder.add(this.sceneParameters, 'frustumculling').name('Frustum Culling');
+        viewFolder.add(this.sceneParameters, 'frustumCulling').name('Enable culling');
 
         var dataFolder = this.gui.addFolder('Data');
 
-        dataFolder.add(this.sceneParameters, 'active').name("activate data").onFinishChange(function () {
+        dataFolder.add(this.sceneParameters, 'active').name("Activate data").onFinishChange(function () {
             if (that.sceneParameters.active) {
                 that.scene.activateCurrentData();
                 that.updateUIinfoList();
@@ -239,27 +241,27 @@ SIMU.View.prototype.setupGui = function(){
             }
         });
 
-        dataFolder.add(this.sceneParameters, 'fog').name("fog").onFinishChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'fog').name("Enable fog").onFinishChange(function (value) {
             that.scene.setCurrentDataFog(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'blink').name("blink").onFinishChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'blink').name("Enable blink effect").onFinishChange(function (value) {
             that.scene.setCurrentDataBlink(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'idTexture', {spark: 0, star: 1, starburst: 2, flatstar: 3}).name('texture').onFinishChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'idTexture', {spark: 0, star: 1, starburst: 2, flatstar: 3}).name('Texture').onFinishChange(function (value) {
             that.scene.setCurrentDataTexture(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'pointsize', 0.0001, 10).name("point size").onFinishChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'pointSize', 0.0001, 10).name("Point size").onFinishChange(function (value) {
             that.scene.setCurrentDataPointSize(value);
         });
 
-        dataFolder.addColor(this.sceneParameters, 'color').name("color").onChange(function (value) {
+        dataFolder.addColor(this.sceneParameters, 'color').name("Color").onChange(function (value) {
             that.scene.setCurrentDataColor(value);
         });
 
-        dataFolder.add(this.sceneParameters, 'levelOfDetail', 0, 4).name("Level of Detail").onChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'levelOfDetail', 0, 4).name("Level of detail").onChange(function (value) {
             that.scene.setCurrentDataLevelOfDetail(value);
         });
 
@@ -271,12 +273,12 @@ SIMU.View.prototype.setupGui = function(){
             multiply: 4
         };
 
-        dataFolder.add(this.sceneParameters, 'idBlending', blendingType).name('blending').onChange(function (value) {
+        dataFolder.add(this.sceneParameters, 'idBlending', blendingType).name('Blending type').onChange(function (value) {
             that.scene.setCurrentDataBlendingType(value);
         });
 
 
-        this.infoList = this.gui.__folders.Data.add(this.scene.parameters, 'idInfo', {none: 0}).name('info');
+        this.infoList = this.gui.__folders.Data.add(this.scene.parameters, 'idInfo', {none: 0}).name('Info to highlight');
 
         var param = {
             none: 0,
@@ -286,7 +288,7 @@ SIMU.View.prototype.setupGui = function(){
             size: 4
         };
 
-        dataFolder.add(this.sceneParameters, 'idParam', param).name('param').onChange(function(value){
+        dataFolder.add(this.sceneParameters, 'idParam', param).name('How to highlight info').onChange(function(value){
             that.scene.setCurrentDataParam(value);
         });
 
@@ -346,13 +348,13 @@ SIMU.View.prototype.updateUIinfoList = function(){
 
         this.gui.__folders.Data.remove(this.infoList);
 
-        this.infoList = this.gui.__folders.Data.add(this.sceneParameters, 'idInfo', info).name('info').onFinishChange(function (value) {
+        this.infoList = this.gui.__folders.Data.add(this.sceneParameters, 'idInfo', info).name('Info to highlight').onFinishChange(function (value) {
             var currentRenderableData = that.scene.renderableDatas[that.scene.currentRenderableDataId];
             if (value != 0 && snapInfo[value - 1].min <= snapInfo[value - 1].max) {
                 var min = snapInfo[value - 1].min;
                 var max = snapInfo[value - 1].max;
-                currentRenderableData.uniforms.min_info.value = min;
-                currentRenderableData.uniforms.max_info.value = max;
+                currentRenderableData.uniforms.minInfo.value = min;
+                currentRenderableData.uniforms.maxInfo.value = max;
                 currentRenderableData.idInfo = value - 1;
 
                 currentRenderableData.data.currentInfo = snapInfo[value - 1].value;
@@ -398,14 +400,14 @@ SIMU.View.prototype.updateGuiDisplay = function(gui) {
 SIMU.View.prototype.setCurrentRenderableData = function(id) {
     var currentRenderableData           = this.scene.renderableDatas[id];
     this.sceneParameters.active         = currentRenderableData.isActive;
-    this.sceneParameters.pointsize      = currentRenderableData.uniforms.size.value;
+    this.sceneParameters.pointSize      = currentRenderableData.uniforms.size.value;
     this.sceneParameters.color          = currentRenderableData.defaultColor;
     this.sceneParameters.idTexture      = currentRenderableData.idTexture;
     this.sceneParameters.idBlending     = currentRenderableData.idBlending;
     this.sceneParameters.levelOfDetail  = currentRenderableData.levelOfDetail;
     this.sceneParameters.fog            = currentRenderableData.uniforms.fog.value == 1;
     this.sceneParameters.blink          = currentRenderableData.uniforms.blink.value == 1;
-    this.sceneParameters.idParam        = currentRenderableData.uniforms.param_type.value;
+    this.sceneParameters.idParam        = currentRenderableData.uniforms.paramType.value;
     this.sceneParameters.idInfo         = currentRenderableData.idInfo;
 
     this.updateUIinfoList();
@@ -431,7 +433,7 @@ SIMU.View.prototype.animate = function(){
     }
 
     //TODO Update frustum only if camera has changed
-    if(this.scene.parameters.frustumculling) {
+    if(this.scene.parameters.frustumCulling) {
         this.camera.updateMatrix();
         this.camera.updateMatrixWorld();
         this.camera.matrixWorldInverse.getInverse(this.camera.matrixWorld);
@@ -452,7 +454,7 @@ SIMU.View.prototype.render = function(){
 
     this.animate();
 
-    if(this.sceneParameters.frustumculling) {
+    if(this.sceneParameters.frustumCulling) {
         this.scene.computeCulling(this.camera);
     }
 

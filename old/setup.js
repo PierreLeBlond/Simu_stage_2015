@@ -62,7 +62,7 @@ function setupScene()
     };
 
     /*App.colorPickerAttributes = {
-        endPosition:    {type: 'v3', value: []},
+        direction:    {type: 'v3', value: []},
         colorIndex:     {type: 'v3', value: []}
     };*/
 
