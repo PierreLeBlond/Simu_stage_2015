@@ -14,46 +14,48 @@ var SIMU = SIMU || {};
 /**
  * @constructor
  *
- * @property {Array} scenes                         - Array of {@link SIMU.Scene} object, usually linked to one view
+ * @property {Array} scenes                             - Array of {@link SIMU.Scene} object, usually linked to one view
  *
- * @property {object} parameters                    - A bunch of parameters, to be used and changed with dat.GUI
- *      @property {number} parameters.t             - Current Time relative to the data
- *      @property {number} parameters.speed         - Speed of the animation
- *      @property {number} parameters.idScript      - Id of the currently used script for parsing data
+ * @property {object} parameters                        - A bunch of parameters, to be used and changed with dat.GUI
+ *      @property {number} parameters.t                 - Current Time relative to the data
+ *      @property {number} parameters.speed             - Speed of the animation
+ *      @property {number} parameters.idScript          - Id of the currently used script for parsing data
  *
- * @property {object} info                          - Information about the available data
- *      @property {number} info.nbSnapShot          - Number of available snapshot
- *      @property {number} info.nbData              - Number of available data
+ * @property {object} info                              - Information about the available data
+ *      @property {number} info.nbSnapShot              - Number of available snapshot
+ *      @property {number} info.nbData                  - Number of available data
  *
- * @property {Array} datas                          - Array of {@link SIMU.Data} object, available in each scene
- * @property {number} currentDataId                 - Current selected data id
- * @property {number} currentSnapshotId             - Current selected snapshot id
+ * @property {Array} datas                              - Array of {@link SIMU.Data} object, available in each scene
+ * @property {number} currentDataId                     - Current selected data id
+ * @property {number} currentSnapshotId                 - Current selected snapshot id
  *
- * @property {THREE.PerspectiveCamera} globalCamera - Global camera used to have the same point of views in different {@link SIMU.View} object
+ * @property {THREE.PerspectiveCamera} globalCamera     - Global camera used to have the same point of views in different {@link SIMU.View} object
+ * @property {THREE.PerspectiveCamera[]} fixedCamera    - Array of positioned camera to access different point of view quickly
+ * @property {THREE.PerspectiveCamera} rotatingCamera - Camera rotating around the cubes
  *
- * @property {Array} scripts                        - Available scripts for parsing data
- * @property {Array} texture                        - Available texture for particle rendering
+ * @property {Array} scripts                            - Available scripts for parsing data
+ * @property {Array} texture                            - Available texture for particle rendering
  *
- * @property {Array} views                          - Array of {@link SIMU.View} object, one for each scene
- * @property {SIMU.View} currentView                - Current focused view
+ * @property {Array} views                              - Array of {@link SIMU.View} object, one for each scene
+ * @property {SIMU.View} currentView                    - Current focused view
  *
- * @property {THREE.FirstPersonControls} controls   - Controls used with the global camera
+ * @property {THREE.FirstPersonControls} controls       - Controls used with the global camera
  *
- * @property {SIMU.Menu} menu                       - The menu to switch between display mode
- * @property {SIMU.Timeline} timeline               - The timeline to control animation
+ * @property {SIMU.Menu} menu                           - The menu to switch between display mode
+ * @property {SIMU.Timeline} timeline                   - The timeline to control animation
  *
- * @property {SIMU.DataUIManager} dataManager       - A UI element to load, organize & navigate through data
+ * @property {SIMU.DataUIManager} dataManager           - A UI element to load, organize & navigate through data
  *
- * @property {SIMU.LoadingBarSingleton} loadingBar  - A UI element to have a feedback on data processing evolution
+ * @property {SIMU.LoadingBarSingleton} loadingBar      - A UI element to have a feedback on data processing evolution
  *
- * @property {Node} domElement                      - The dom element displaying the whole application
- * @property {Node} container                       - A dom element containing the canvas
+ * @property {Node} domElement                          - The dom element displaying the whole application
+ * @property {Node} container                           - A dom element containing the canvas
  *
- * @property {number} width                         - Width of the application's display
- * @property {number} height                        - height of the application's display
+ * @property {number} width                             - Width of the application's display
+ * @property {number} height                            - height of the application's display
  *
- * @property {function} lastFileEvent               - The current loading data event
- * @property {function} windowResizeEvent           - The current resize window event
+ * @property {function} lastFileEvent                   - The current loading data event
+ * @property {function} windowResizeEvent               - The current resize window event
  *
  */
 SIMU.Simu = function(){
@@ -76,6 +78,8 @@ SIMU.Simu = function(){
     this.currentSnapshotId      = -1;
 
     this.globalCamera           = null;
+    this.fixedCamera            = [];
+    this.rotatingCamera         = null;
 
     this.scripts                = [];
     this.texture                = [];
@@ -136,6 +140,38 @@ SIMU.Simu.prototype.setupSimu = function(){
 
     this.globalCamera.frustum = new THREE.Frustum();
 
+    this.rotatingCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
+    this.rotatingCamera.rotation.order  = 'ZYX';
+    this.rotatingCamera.position.set(1.5, 0.5, 1.5);
+    this.rotatingCamera.lookAt(new THREE.Vector3(0.5, 0.5, 0.5));
+
+    this.rotatingCamera.frustum = new THREE.Frustum();
+
+    var topCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
+    topCamera.position.set(0.5, 2, 0.5);
+    topCamera.lookAt(new THREE.Vector3(0.5, 0, 0.5));
+
+    topCamera.frustum = new THREE.Frustum();
+
+    this.fixedCamera.push(topCamera);
+
+    var leftCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
+    leftCamera.position.set(2, 0.5, 0.5);
+    leftCamera.lookAt(new THREE.Vector3(0, 0.5, 0.5));
+
+    leftCamera.frustum = new THREE.Frustum();
+
+    this.fixedCamera.push(leftCamera);
+
+    var rightCamera = new THREE.PerspectiveCamera(75, 1.0, 0.00001, 200);
+    rightCamera.position.set(-1,0.5, 0.5);
+    rightCamera.lookAt(new THREE.Vector3(0, 0.5, 0.5));
+
+    rightCamera.frustum = new THREE.Frustum();
+
+    this.fixedCamera.push(rightCamera);
+
+
     this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/spark.png"));
     this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/star.gif"));
     this.texture.push(THREE.ImageUtils.loadTexture("resources/textures/starburst.jpg"));
@@ -165,6 +201,8 @@ SIMU.Simu.prototype.addViewWithNewScene = function(){
     }
 
     view.setScene(scene);
+    view.setFixedCameras(this.fixedCamera);
+    view.setRotatingCamera(this.rotatingCamera);
     view.setupView(0, 0, this.width, this.height);
     view.setupGui();
     view.domElement.addEventListener('click', this.focus.bind(this), false);
@@ -180,6 +218,8 @@ SIMU.Simu.prototype.addViewFromScene = function(scene){
     var view = new SIMU.View();
 
     view.setScene(scene);
+    view.setFixedCameras(this.fixedCamera);
+    view.setRotatingCamera(this.rotatingCamera);
     view.setupView(0, 0, this.width, this.height);
     view.setupGui();
     view.domElement.addEventListener('click', this.focus.bind(this), false);
@@ -198,6 +238,14 @@ SIMU.Simu.prototype.switchToSingleview = function(){
 
     this.globalCamera.aspect = this.width / this.height;
     this.globalCamera.updateProjectionMatrix();
+
+    this.rotatingCamera.aspect = this.width / this.height;
+    this.rotatingCamera.updateProjectionMatrix();
+
+    for(var i = 0; i < this.fixedCamera.length;i++){
+        this.fixedCamera[i].aspect = this.width/this.height;
+        this.fixedCamera[i].updateProjectionMatrix();
+    }
 
     if(this.views.length == 0){
         this.addViewWithNewScene();
@@ -234,6 +282,14 @@ SIMU.Simu.prototype.switchToOculusview = function(){
     this.globalCamera.aspect = this.width / this.height;
     this.globalCamera.updateProjectionMatrix();
 
+    this.rotatingCamera.aspect = this.width / this.height;
+    this.rotatingCamera.updateProjectionMatrix();
+
+    for(var i = 0; i < this.fixedCamera.length;i++){
+        this.fixedCamera[i].aspect = this.width/this.height;
+        this.fixedCamera[i].updateProjectionMatrix();
+    }
+
     if(this.views.length == 0){
         this.addViewWithNewScene();
     }
@@ -267,6 +323,14 @@ SIMU.Simu.prototype.switchToCardboardview = function(){
 
     this.globalCamera.aspect = this.width / this.height;
     this.globalCamera.updateProjectionMatrix();
+
+    this.rotatingCamera.aspect = this.width / this.height;
+    this.rotatingCamera.updateProjectionMatrix();
+
+    for(var i = 0; i < this.fixedCamera.length;i++){
+        this.fixedCamera[i].aspect = this.width/this.height;
+        this.fixedCamera[i].updateProjectionMatrix();
+    }
 
     if(this.views.length == 0){
         this.addViewWithNewScene();
@@ -303,6 +367,14 @@ SIMU.Simu.prototype.switchToMultiview = function()
 
     this.globalCamera.aspect = (this.width/2) / this.height;
     this.globalCamera.updateProjectionMatrix();
+
+    this.rotatingCamera.aspect = (this.width/2) / this.height;
+    this.rotatingCamera.updateProjectionMatrix();
+
+    for(var i = 0; i < this.fixedCamera.length;i++){
+        this.fixedCamera[i].aspect = (this.width/2)/this.height;
+        this.fixedCamera[i].updateProjectionMatrix();
+    }
 
     if(this.views.length == 0){
         this.addViewWithNewScene();
@@ -367,6 +439,12 @@ SIMU.Simu.prototype.setupGui = function(){
     this.globalCamera.controls = new THREE.FirstPersonControls(this.globalCamera, this.container);
     this.globalCamera.controls.moveSpeed = 0.5;
     this.globalCamera.controls.enabled = false;
+
+    /*for(var i = 0; i < this.fixedCamera;i++){
+        this.fixedCamera[i].controls = new THREE.FirstPersonControls(this.fixedCamera[i], this.container);
+        this.fixedCamera[i].controls.moveSpeed = 0.5;
+        this.fixedCamera[i].controls.enabled = false;
+    }*/
 
 
     /* Création du menu et des événements associés */
@@ -450,6 +528,13 @@ SIMU.Simu.prototype.animate = function(){
     this.requestId = requestAnimationFrame(function (){
         that.animate();
     });
+
+    //Modify this value to change the animation
+    var rotationSpeed = 1/800;
+    var offset = 0.5;
+    var ray = (3/Math.sqrt(2));
+    this.rotatingCamera.position.set(ray*Math.cos(Date.now()*rotationSpeed) + offset, 0.5, ray*Math.sin(Date.now()*rotationSpeed) + offset);
+    this.rotatingCamera.lookAt(new THREE.Vector3(0.5, 0.5, 0.5));
 
     if(this.parameters.play) {
         if (this.parameters.t < 1.0) {
@@ -735,10 +820,14 @@ SIMU.Simu.prototype.focus = function(event){
 
     if(id != ""){
         for (var i = 0; i < this.views.length; i++) {
-            this.views[i].camera.controls.enabled = false;
+            if(this.views[i].camera.controls) {
+                this.views[i].camera.controls.enabled = false;
+            }
         }
         this.currentView = this.views[id];
-        this.currentView.camera.controls.enabled = true;
+        if(this.currentView.camera.controls) {
+            this.currentView.camera.controls.enabled = true;
+        }
     }
 };
 
@@ -784,9 +873,17 @@ SIMU.Simu.prototype.onSingleviewWindowResize = function(){
     this.width = this.domElement.clientWidth;
     this.height = this.domElement.clientHeight;
 
-
     this.globalCamera.aspect = this.width/this.height;
     this.globalCamera.updateProjectionMatrix();
+
+    this.rotatingCamera.aspect = this.width / this.height;
+    this.rotatingCamera.updateProjectionMatrix();
+
+    for(var i = 0; i < this.fixedCamera.length;i++){
+        this.fixedCamera[i].aspect = this.width/this.height;
+        this.fixedCamera[i].updateProjectionMatrix();
+    }
+
     this.currentView.resize(this.width, this.height, 0, 0);
 };
 
@@ -801,6 +898,15 @@ SIMU.Simu.prototype.onMultiviewWindowResize = function(){
 
     this.globalCamera.aspect = (this.width / 2)/this.height;
     this.globalCamera.updateProjectionMatrix();
+
+    this.rotatingCamera.aspect = (this.width/2) / this.height;
+    this.rotatingCamera.updateProjectionMatrix();
+
+    for(var i = 0; i < this.fixedCamera.length;i++){
+        this.fixedCamera[i].aspect = (this.width/2)/this.height;
+        this.fixedCamera[i].updateProjectionMatrix();
+    }
+
     for(var i = 0; i < length;i++){
         this.views[i].resize(length > 1 ? this.width / 2 : this.width,
             length > 2 ? this.width / 2 : this.height,
@@ -839,8 +945,6 @@ SIMU.Simu.prototype.onKeyDown = function(event){
 
             }
             break;
-        default:
-            break;
         case 72 ://h
             for(i = 0; i < this.views.length;i++){
                 this.views[i].hideGui();
@@ -852,6 +956,24 @@ SIMU.Simu.prototype.onKeyDown = function(event){
                 this.views[i].showGui();
             }
             this.showUI();
+            break;
+        case 104 ://Pav num 8
+            this.currentView.enableFixedCamera(0);
+            break;
+        case 100 ://Pav num 8
+            this.currentView.enableFixedCamera(1);
+            break;
+        case 102 ://Pav num 8
+            this.currentView.enableFixedCamera(2);
+            break;
+        case 101 ://Pav num 5
+            this.currentView.disableFixedCamera();
+            break;
+        case 82 :
+            this.currentView.switchRotatedCamera();
+            break;
+        default :
+            console.log(" You just press " + event.keyCode);
             break;
     }
 };

@@ -38,9 +38,12 @@ SIMU = SIMU || {};
  *      @property {boolean} sceneParameters.frustumCulling                      - True if view frustum culling is enabled
  *      @property {number} sceneParameters.levelOfDetail                        - Level of detail of the point cloud, i.e. fraction of the entire cloud being displayed
  *      @property {number} sceneParameters.idParam                              - Id of the parameters used to highlight information in the shader
+ *      @property {boolean} sceneParameters.log                                  - True if we want log interpolation, else it's linear
  *
  * @property {THREE.PerspectiveCamera} camera                                   - the currently used camera
  * @property {THREE.PerspectiveCamera} globalCamera                             - the global camera
+ * @property {THREE.PerspectiveCamera[]} fixedCameras                           - Array of positioned cameras
+ * @property {THREE.PerspectiveCamera} rotatingCamera                           - Camera rotating around the cube
  *
  * @property {number} renderId                                                  - The id of the rendering loop, to cancel it if necessary
  *
@@ -74,12 +77,12 @@ SIMU.View = function () {
 
     this.sceneParameters            = {
         t                           : 0,
-        deltaT                     : 0,
+        deltaT                      : 0,
         active                      : false,
         pointSize                   : 0.5,
         fog                         : false,
         blink                       : false,
-        globalCamera                  : false,
+        globalCamera                : false,
         isStatic                    : true,
         color                       : [ 255, 255, 255],
         idInfo                      : -1,
@@ -87,11 +90,15 @@ SIMU.View = function () {
         idBlending                  : -1,
         frustumCulling              : true,
         levelOfDetail               : 4,
-        idParam                     : 0
+        idParam                     : 0,
+        log                         : false
     };
 
     this.camera                     = null;
     this.globalCamera               = null;
+    this.fixedCameras               = [];
+    this.rotatingCamera             = null;
+    this.cameraState                = THREE.PerspectiveCamera.CameraState.FREE;
 
     this.renderId                   = -1;
 
@@ -121,6 +128,60 @@ SIMU.View = function () {
  */
 SIMU.View.prototype.setGlobalCamera = function(camera){
     this.globalCamera = camera;
+};
+
+/**
+ * Set the fixed cameras array
+ * @param {THREE.PerspectiveCamera[]} cameras - The array of fixed cameras
+ */
+SIMU.View.prototype.setFixedCameras = function(cameras){
+    this.fixedCameras = cameras;
+};
+
+SIMU.View.prototype.setRotatingCamera = function(camera){
+    this.rotatingCamera = camera;
+};
+
+/**
+ * Set the current camera as the fixed camera from the given id
+ * @param {number} cameraId - The id of the wanted fixed camera
+ */
+SIMU.View.prototype.enableFixedCamera = function(cameraId){
+    if(cameraId != 'undefined'){
+        if(this.camera.controls) {
+            this.camera.controls.enabled = false;
+        }
+        this.camera = this.fixedCameras[cameraId];
+        this.cameraState = THREE.PerspectiveCamera.CameraState.FIXED;
+    }
+};
+
+SIMU.View.prototype.disableFixedCamera = function(){
+    if(this.sceneParameters.globalCamera){
+        this.camera = this.globalCamera;
+        this.camera.controls.enabled = true;
+    }else{
+        this.camera = this.scene.privateCamera;
+        this.camera.controls.enabled = true;
+    }
+    this.cameraState = THREE.PerspectiveCamera.CameraState.FREE;
+};
+
+SIMU.View.prototype.switchRotatedCamera = function(){
+    if(this.cameraState == THREE.PerspectiveCamera.CameraState.FREE){
+        this.camera.controls.enabled = false;
+        this.camera = this.rotatingCamera;
+        this.cameraState = THREE.PerspectiveCamera.CameraState.ROTATING;
+    }else if(this.cameraState == THREE.PerspectiveCamera.CameraState.ROTATING){
+        if(this.sceneParameters.globalCamera){
+            this.camera = this.globalCamera;
+            this.camera.controls.enabled = true;
+        }else{
+            this.camera = this.scene.privateCamera;
+            this.camera.controls.enabled = true;
+        }
+        this.cameraState = THREE.PerspectiveCamera.CameraState.FREE;
+    }
 };
 
 /**
@@ -217,11 +278,11 @@ SIMU.View.prototype.setupGui = function(){
         var viewFolder = this.gui.addFolder('View');
 
         viewFolder.add(this.sceneParameters, 'globalCamera').name("Use global camera").onFinishChange(function () {
-            if (that.sceneParameters.globalCamera && that.globalCamera) {
+            if (that.sceneParameters.globalCamera && that.cameraState == THREE.PerspectiveCamera.CameraState.FREE) {
                 that.camera.controls.enabled = false;
                 that.camera = that.globalCamera;
                 that.camera.controls.enabled = true;
-            } else {
+            } else if (that.cameraState == THREE.PerspectiveCamera.CameraState.FREE){
                 that.camera.controls.enabled = false;
                 that.camera = that.scene.privateCamera;
                 that.camera.controls.enabled = true;
@@ -277,8 +338,9 @@ SIMU.View.prototype.setupGui = function(){
             that.scene.setCurrentDataBlendingType(value);
         });
 
-
-        this.infoList = this.gui.__folders.Data.add(this.scene.parameters, 'idInfo', {none: 0}).name('Info to highlight');
+        dataFolder.add(this.sceneParameters, 'log').name('log interpolation').onChange(function (value) {
+            that.scene.setCurrentDataLogInterpolation(value);
+        });
 
         var param = {
             none: 0,
@@ -291,6 +353,9 @@ SIMU.View.prototype.setupGui = function(){
         dataFolder.add(this.sceneParameters, 'idParam', param).name('How to highlight info').onChange(function(value){
             that.scene.setCurrentDataParam(value);
         });
+
+        this.infoList = this.gui.__folders.Data.add(this.scene.parameters, 'idInfo', {none: 0}).name('Info to highlight');
+
 
         this.domElement.appendChild(this.gui.domElement);
 
@@ -409,6 +474,7 @@ SIMU.View.prototype.setCurrentRenderableData = function(id) {
     this.sceneParameters.blink          = currentRenderableData.uniforms.blink.value == 1;
     this.sceneParameters.idParam        = currentRenderableData.uniforms.paramType.value;
     this.sceneParameters.idInfo         = currentRenderableData.idInfo;
+    this.sceneParameters.log            = currentRenderableData.uniforms.logInterpolation.value == 1;
 
     this.updateUIinfoList();
 
@@ -419,17 +485,20 @@ SIMU.View.prototype.setCurrentRenderableData = function(id) {
  * Process all stuff related to animation
  */
 SIMU.View.prototype.animate = function(){
-    if(!this.camera.isNotFree) {
+    //If the camera is free, i.e. not moving toward a particle
+    if (this.cameraState == THREE.PerspectiveCamera.CameraState.FREE) {
         this.camera.controls.update(this.clock.getDelta());
-    }else{
-        this.time += 1/60;
-        if(this.time < 1.0) {
+    } else if (this.cameraState == THREE.PerspectiveCamera.CameraState.TARGETING){
+        this.time += 1 / 60;
+        if (this.time < 1.0) {
             this.camera.position.set(this.origin.x + this.time * this.objectif.x,
                 this.origin.y + this.time * this.objectif.y,
                 this.origin.z + this.time * this.objectif.z);
-        }else{
-            this.camera.isNotFree = false;
+        } else {
+            this.cameraState = THREE.PerspectiveCamera.CameraState.FREE;
         }
+    } else if (this.cameraState == THREE.PerspectiveCamera.CameraState.ROTATING){
+
     }
 
     //TODO Update frustum only if camera has changed
@@ -547,7 +616,7 @@ SIMU.View.prototype.getMouseIntersection = function(event){
  * @detail Takes an average of 1s, with no camera interaction enabled during this time
  */
 SIMU.View.prototype.reachMouseFocus = function(){
-    if(this.scene.target) {
+    if(this.scene.target && this.cameraState == THREE.PerspectiveCamera.CameraState.FREE) {
         var x = this.scene.target.renderableData.pointCloud.geometry.attributes.position.array[this.scene.target.index * 3];
         var y = this.scene.target.renderableData.pointCloud.geometry.attributes.position.array[this.scene.target.index * 3 + 1];
         var z = this.scene.target.renderableData.pointCloud.geometry.attributes.position.array[this.scene.target.index * 3 + 2];
@@ -555,7 +624,7 @@ SIMU.View.prototype.reachMouseFocus = function(){
         this.origin = new THREE.Vector3(this.camera.position.x, this.camera.position.y, this.camera.position.z);
         this.objectif = new THREE.Vector3(x - this.origin.x, y - this.origin.y, z - this.origin.z);
         this.time = 0.0;
-        this.camera.isNotFree = true;
+        this.cameraState = THREE.PerspectiveCamera.CameraState.TARGETING;
     }
 };
 

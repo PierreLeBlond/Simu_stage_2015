@@ -31,6 +31,7 @@ var SIMU = SIMU || {};
  *      @property {number} parameters.idBlending        - Id of the blending mode used in the current point cloud
  *      @property {boolean} parameters.frustumCulling   - True if view frustum culling is enabled
  *      @property {number} parameters.levelOfDetail     - level of detail of the point cloud
+ *      @property {number} parameters.log               - True if we want log interpolation, else it's linear
  *
  * @property {Array} texture                            - Array of available texture
  * @property {number[]} blending                        - Array of available blending mode
@@ -61,7 +62,8 @@ SIMU.Scene = function(){
         idTexture                   : -1,
         idBlending                  : -1,
         frustumCulling              : true,
-        levelOfDetail               : 4
+        levelOfDetail               : 4,
+        log                         : 0
     };
 
     this.texture                    = [];
@@ -268,6 +270,12 @@ SIMU.Scene.prototype.setCurrentDataBlendingType = function(blendingType){
     if (this.currentRenderableDataId >= 0) {
         this.renderableDatas[this.currentRenderableDataId].animatedShaderMaterial.blending = this.blending[blendingType];
         this.renderableDatas[this.currentRenderableDataId].staticShaderMaterial.blending = this.blending[blendingType];
+    }
+};
+
+SIMU.Scene.prototype.setCurrentDataLogInterpolation = function(log){
+    if (this.currentRenderableDataId >= 0) {
+        this.renderableDatas[this.currentRenderableDataId].uniforms.logInterpolation.value = log ? 1 : 0;
     }
 };
 

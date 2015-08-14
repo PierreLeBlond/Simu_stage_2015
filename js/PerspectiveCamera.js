@@ -4,6 +4,20 @@
  */
 
 /**
+ *
+ * @enum
+ * @type {{FREE: number, FIXED: number, TARGETING: number, ROTATING: number}}
+ * @property {number} FREE              - The camera is free, it respond to all user input
+ */
+THREE.PerspectiveCamera.CameraState = {
+    FREE:0,
+    FIXED:1,
+    TARGETING:2,
+    ROTATING:3
+};
+
+
+/**
  * Set the camera in order to control it as in a FPS
  * @param {SIMU.View} view - The view where the camera will be attach to get the user input
  */

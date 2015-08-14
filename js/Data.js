@@ -112,9 +112,9 @@ SIMU.Data.prototype.computePositions = function(){
     var i;
     if(this.currentSnapshotId < (this.nbSnapshots - 1) && this.currentPositionIsSet && this.currentDepartureIsSet && this.currentDirectionIsSet) {
         for (i = 0; i < length; i++) {
-            this.currentPosition[i * 3] = this.currentColor[i * 3] = this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
-            this.currentPosition[i * 3 + 1] = this.currentColor[i * 3 + 1] = this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
-            this.currentPosition[i * 3 + 2] = this.currentColor[i * 3 + 2] = this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
+            this.currentPosition[i * 3] /*= this.currentColor[i * 3] */= this.currentDeparture[i * 3] + this.t * this.currentDirection[i * 3];
+            this.currentPosition[i * 3 + 1] /*= this.currentColor[i * 3 + 1] */= this.currentDeparture[i * 3 + 1] + this.t * this.currentDirection[i * 3 + 1];
+            this.currentPosition[i * 3 + 2] /*= this.currentColor[i * 3 + 2] */= this.currentDeparture[i * 3 + 2] + this.t * this.currentDirection[i * 3 + 2];
         }
     }else if(this.currentPositionIsSet && this.currentDepartureIsSet){
         for (i = 0; i < length; i++) {
@@ -333,6 +333,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                             snap.direction[3*nextSnapshot.index[i]+2] = nextSnapshot.position[3*i+2] - snap.position[3*nextSnapshot.index[i]+2];
                         }
                         snap.directionIsSet = true;
+                        snap.fixedCyclicPosition();
                         that.currentDirection = snap.direction;
                         that.currentDirectionIsSet = true;
                     }
@@ -345,6 +346,7 @@ SIMU.Data.prototype.onEveryLoadEnd = function(err, results){
                             previousSnapshot.direction[3*i+2] = snap.position[3*previousSnapshot.index[i]+2] - previousSnapshot.position[3*i+2];
                         }
                         previousSnapshot.directionIsSet = true;
+                        previousSnapshot.fixedCyclicPosition();
                     }
                     snap.position = position;
                     snap.positionIsSet = true;
@@ -380,10 +382,14 @@ SIMU.Data.prototype.handleFileSelect = function(evt) {
     this.files = evt.target.files;
     this.nbFiles = this.files.length;
 
-    this.loadBar.domElement.value = 0;
-    this.loadBar.domElement.style.display = 'block';
+    if(this.nbFiles > 0) {
+        this.loadBar.domElement.value = 0;
+        this.loadBar.domElement.style.display = 'block';
 
-    async.map(this.files, this.readAdd.bind(this), this.onEveryLoadEnd.bind(this));
+        async.map(this.files, this.readAdd.bind(this), this.onEveryLoadEnd.bind(this));
+    }else{
+        console.log("No file selected !");
+    }
 };
 
 /**

@@ -35,3 +35,24 @@ SIMU.Snapshot = function(){
 
     this.info           = [];           //** Array of buffer, storing different information about the point */
 };
+
+
+/**
+ * Some data cube are cyclic, so we have to adjust position and direction to avoid weird displacement of some particles
+ */
+SIMU.Snapshot.prototype.fixedCyclicPosition = function(){
+    if(this.position && this.directionIsSet){
+        var length = this.position.length;
+        for(var i = 0; i < length;i++){
+            var dx = this.direction[i];
+
+            if(dx > 0.5){
+                this.position[i] += 1;
+                this.direction[i] -=1;
+            }else if(dx < -0.5){
+                this.position[i] -= 1;
+                this.direction[i] += 1;
+            }
+        }
+    }
+};

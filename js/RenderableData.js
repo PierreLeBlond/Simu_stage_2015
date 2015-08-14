@@ -32,7 +32,7 @@ var SIMU = SIMU || {};
  *
  * @property {object} animatedAttributes                                            - Shader attributes in animated mode
  *      @property {object} animatedAttributes.departure                             - Departure position buffer
- *      @property {object} animatedAttributes.direction                           - Direction buffer
+ *      @property {object} animatedAttributes.direction                             - Direction buffer
  *      @property {object} animatedAttributes.color                                 - color buffer
  *
  * @property {object} staticAttributes                                              - Shader attributes in static mode
@@ -43,16 +43,17 @@ var SIMU = SIMU || {};
  *
  * @property {object} uniforms                                                      - Shader uniforms variables
  *      @property {object} uniforms.t                                               - relative time within the application
- *      @property {object} uniforms.currentTime                                    - Real time given by the computer clock
+ *      @property {object} uniforms.currentTime                                     - Real time given by the computer clock
  *      @property {object} uniforms.size                                            - Size of the particle
  *      @property {object} uniforms.fogFactor                                       - Strength factor of the scene fog
  *      @property {object} uniforms.fogDistance                                     - Attenuation Distance of the scene fog
  *      @property {object} uniforms.map                                             - Texture map
  *      @property {object} uniforms.fog                                             - 1 if fog is enabled, else 0
  *      @property {object} uniforms.blink                                           - 1 if blinking is enabled, else 0
- *      @property {object} uniforms.paramType                                      - Way of highlighting the info attribute
- *      @property {object} uniforms.minInfo                                        - Minimum value of the current info attribute
- *      @property {object} uniforms.maxInfo                                        - Maximum value of the current info attribute
+ *      @property {object} uniforms.paramType                                       - Way of highlighting the info attribute
+ *      @property {object} uniforms.minInfo                                         - Minimum value of the current info attribute
+ *      @property {object} uniforms.maxInfo                                         - Maximum value of the current info attribute
+ *      @property {object} uniforms.logInterpolation                                - True if we want log interpolation, else it's linear
  *
  * @property {object} animatedShaderMaterial                                        - Material used in animated mode
  *
@@ -116,7 +117,8 @@ SIMU.RenderableData = function(){
         blink:          { type: 'i', value: 0},
         paramType:     { type: 'i', value: 0},
         minInfo:       { type: 'f', value: 0.0},
-        maxInfo:       { type: 'f', value: 0.0}
+        maxInfo:       { type: 'f', value: 0.0},
+        logInterpolation:            {type: 'i', value: 0}
     };
 
     this.animatedShaderMaterial             = new THREE.ShaderMaterial( {
