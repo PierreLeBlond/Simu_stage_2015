@@ -14,6 +14,12 @@ Commandes :
 - Vitesse de déplacement :                  molette de la souris
 - lancement et arrêt de l'animation :       touche p du clavier
 
+- Activer/désactiver la caméra tournante    touche r
+- Activer vue de dessus                     pavé numérique 8
+- Activer vue de droite                     pavé numérique 6
+- Activer vue de gauche                     pavé numérique 4
+- Revenir en mode caméra libre              pavé numérique 5
+
 Paramètres Global - menu en haut à gauche :
 - Time :                                    Temps relatif entre les deux cubes de données (interpolation linéaire)
 - speed :                                   Vitesse d'animation des particules
