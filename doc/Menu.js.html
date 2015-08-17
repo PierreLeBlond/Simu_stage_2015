@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Menu.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Menu.js</h1>
+
+
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Created by Nicolas Buecher on 22/07/15.
+ */
+
+/**
+ *  Global namespace
+ *  @namespace
+ */
+var SIMU = SIMU || {};
+
+/**
+ * Represents the menu of the application
+ *
+ * @class Menu
+ *
+ * @property {Node}     simpleview      - HTML element of the simpleview div in DOM
+ * @property {Node}     multiview       - HTML element of the multiview div in DOM
+ * @property {Node}     oculus          - HTML element of the oculus div in DOM
+ * @property {Node}     cardboard       - HTML element of the cardboard div in DOM
+ * @property {Node}     blocker         - HTML element of the blocker div in DOM
+ * @property {boolean}  isDisplayed     - If the menu is visible or not
+ */
+SIMU.Menu = function()
+{
+    this.simpleView         = null;
+    this.multiView          = null;
+    this.oculus             = null;
+    this.cardboard          = null;
+
+    this.blocker            = null;
+    this.isDisplayed        = false;
+};
+
+/**
+ * Sets up the properties of Menu creating the HTML &amp; CSS elements
+ *
+ * @name Menu#setup
+ * @method
+ */
+SIMU.Menu.prototype.setup = function()
+{
+    this.setCSS();
+
+    this.blocker = document.createElement('div');
+    this.blocker.id = 'blocker';
+
+    this.simpleView = document.createElement('div');
+    this.simpleView.id = 'simpleview';
+    this.simpleView.className = 'choices';
+    this.simpleView.innerHTML = [
+        '&lt;span>Simple View&lt;/span>\n'
+    ].join('');
+
+    this.multiView = document.createElement('div');
+    this.multiView.id = 'multiview';
+    this.multiView.className = 'choices';
+    this.multiView.innerHTML = [
+        '&lt;span>Multiview&lt;/span>\n'
+    ].join('');
+
+    this.oculus = document.createElement('div');
+    this.oculus.id = 'oculus';
+    this.oculus.className = 'choices';
+    this.oculus.innerHTML = [
+        '&lt;span>Oculus Rift&lt;/span>\n'
+    ].join('');
+
+    this.cardboard = document.createElement('div');
+    this.cardboard.id = 'cardboard';
+    this.cardboard.className = 'choices';
+    this.cardboard.innerHTML = [
+        '&lt;span>Google Cardboard&lt;/span>\n'
+    ].join('');
+
+    this.blocker.innerHTML = [
+        '&lt;div id="instructions">',
+        '&lt;span style="font-size:50px">Choose display type&lt;/span>',
+        '&lt;br/>',
+        '&lt;/div>'
+    ].join('\n');
+
+    this.blocker.firstElementChild.appendChild(this.simpleView);
+    this.blocker.firstElementChild.appendChild(this.multiView);
+    this.blocker.firstElementChild.appendChild(this.oculus);
+    this.blocker.firstElementChild.appendChild(this.cardboard);
+};
+
+/**
+ * Displays menu if it's hidden or hides menu if it's displayed after escape key is pressed.
+ *
+ * @name Menu#switchMenu
+ * @method
+ *
+ * @param {event} e - Event of type 'keydown'
+ */
+SIMU.Menu.prototype.switchMenu = function(e)
+{
+    var evt = window.event ? window.event : e;
+
+    switch (evt.keyCode)
+    {
+        case 27:
+            if ( this.isDisplayed )
+            {
+                this.hideMenu();
+            }
+            else
+            {
+                this.displayMenu();
+            }
+            break;
+        default:
+            break;
+    }
+};
+
+/**
+ * Makes the blocker div visible
+ *
+ * @name Menu#displayMenu
+ * @method
+ */
+SIMU.Menu.prototype.displayMenu = function()
+{
+    this.blocker.style.display = 'initial';
+    this.isDisplayed = true;
+};
+
+/** Hides the blocker div
+ *
+ * @name Menu#hideMenu
+ * @method
+ */
+SIMU.Menu.prototype.hideMenu = function()
+{
+    this.blocker.style.display = 'none';
+    this.isDisplayed = false;
+};
+
+/** Creates CSS elements and appends them to DOM
+ *
+ * @name Menu#setCSS
+ * @method
+ */
+SIMU.Menu.prototype.setCSS = function()
+{
+    var css = document.createElement('style');
+
+    css.innerHTML = [
+        '/* Style du menu (choix du type d\'affichage) */',
+        '',
+        '#blocker {',
+        '   position: absolute;',
+        '   display: none;',
+        '   top: 0;',
+        '   left: 0;',
+        '   width: 100%;',
+        '   height: 100%;',
+        '   background-color: rgba(0,0,0,0.5);',
+        '   font-family: Arial, sans-serif;',
+        '   z-index: 100;',
+        '}',
+        '',
+        '#instructions {',
+        '   width: 100%;',
+        '   height: 100%;',
+        '   display: -webkit-box;',
+        '   display: -moz-box;',
+        '   display: box;',
+        '   -webkit-box-orient: horizontal;',
+        '   -moz-box-orient: horizontal;',
+        '   box-orient: horizontal;',
+        '   -webkit-box-pack: center;',
+        '   -moz-box-pack: center;',
+        '   box-pack: center;',
+        '   -webkit-box-align: center;',
+        '   -moz-box-align: center;',
+        '   box-align: center;',
+        '   color: #ffffff;',
+        '   text-align: center;',
+        '}',
+        '',
+        '.choices {',
+        '   display: inline-block;',
+        '   margin: 20px 20px;',
+        '   font-size: 25px;',
+        '   cursor: pointer;',
+        '   transition-duration: .5s;',
+        '}',
+        '',
+        '.choices:hover {',
+        '   font-size: 30px;',
+        '}'
+    ].join('\n');
+
+    document.head.appendChild(css);
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="doc.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cursor.html">Cursor</a></li><li><a href="Menu.html">Menu</a></li><li><a href="SIMU.Data.html">Data</a></li><li><a href="SIMU.DataUIManager.html">DataUIManager</a></li><li><a href="SIMU.Octree.html">Octree</a></li><li><a href="SIMU.RenderableData.html">RenderableData</a></li><li><a href="SIMU.Scene.html">Scene</a></li><li><a href="SIMU.Script.html">Script</a></li><li><a href="SIMU.Simu.html">Simu</a></li><li><a href="SIMU.Snapshot.html">Snapshot</a></li><li><a href="SIMU.View.html">View</a></li><li><a href="SnapshotBreakpoint.html">SnapshotBreakpoint</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Namespaces</h3><ul><li><a href="SIMU.html">SIMU</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getLoadingBarInstance">getLoadingBarInstance</a></li><li><a href="global.html#getShaderManagerInstance">getShaderManagerInstance</a></li><li><a href="global.html#isMobile">isMobile</a></li><li><a href="global.html#simu">simu</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed Aug 12 2015 14:07:00 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

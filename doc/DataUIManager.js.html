@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: DataUIManager.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: DataUIManager.js</h1>
+
+
+
+
+
+
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Created by lespingal on 31/07/15.
+ * pierre.lespingal@gmail.com
+ */
+
+/**
+ *  Global namespace
+ *  @namespace
+ */
+var SIMU = SIMU || {};
+
+/**
+ * Represent a UI element to manage data and snapshot within the application
+ * @constructor
+ *
+ * @property {Node} domElement                              - The domElement where this display the UI
+ * @property {Node} fileLoader                              - An element to load files using FileReader
+ */
+SIMU.DataUIManager = function(){
+    this.domElement                = null;
+    this.fileLoader                = null;
+};
+
+/**
+ * Setup the dom element
+ */
+SIMU.DataUIManager.prototype.setupUI = function(){
+    this.domElement = document.createElement('div');
+    this.domElement.id = 'data_manager';
+    this.domElement.style.position = 'absolute';
+    this.domElement.style.left = '0';
+    this.domElement.style.top = '0';
+    this.domElement.style.background = 'black';
+    this.domElement.style.padding = '2px';
+    this.domElement.style.zIndex = '10';
+    this.domElement.style.color = 'white';
+    this.domElement.style.fontSize = 'small';
+
+    this.fileLoader = document.createElement('input');
+    this.fileLoader.type = "file";
+    this.fileLoader.accept = "*";
+    this.fileLoader.id = "files";
+    this.fileLoader.name = "file";
+    this.fileLoader.style.display = "none";
+    this.fileLoader.multiple = true;
+
+    this.domElement.innerHTML = [
+        '&lt;div id=\"loader\">\n',
+        '&lt;/div>\n',
+        '&lt;table id=\"data_table\">\n',
+        '   &lt;thead>\n',
+        '   &lt;tr id=\"data_head\"\n>',
+        '       &lt;th>&lt;/th>\n',
+        '   &lt;th>&lt;input id=\"add_column_button\" type=\"image\" alt=\"Add data\" src=\"resources/icons/Add_icon_16.png\"/>&lt;/th>\n',
+        '   &lt;/tr>\n',
+        '   &lt;/thead>\n',
+        '   &lt;tr>\n',
+        '       &lt;td>\n',
+        '           &lt;input id=\"add_row_button\" type=\"image\" alt=\"Add data\" src=\"resources/icons/Add_icon_16.png\"/>\n',
+        '       &lt;/td>\n',
+        '       &lt;td>&lt;/td>\n',
+        '   &lt;/tr>\n',
+        '&lt;/table>\n'].join('');
+
+    var css = [
+        'tr.border {                            \n',
+        '   height: 2px;                        \n',
+        '   background: white;                  \n',
+        '   border-spacing: 0;                  \n',
+        '}                                      \n',
+        '                                       \n',
+        '.browse_button {                       \n',
+        '   width: 16px;                        \n',
+        '   margin-left: auto;                  \n',
+        '   margin-right: auto;                 \n',
+        '}                                      \n',
+        '                                       \n',
+        '.data_head_active {                    \n',
+        '   border-bottom: white solid 1px;     \n',
+        '   border-left: white solid 2px;       \n',
+        '   border-right: white solid 1px;      \n',
+        '   border-top: white solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '.data_head {                           \n',
+        '   border-bottom: black solid 1px;     \n',
+        '   border-left: black solid 2px;       \n',
+        '   border-right: black solid 1px;      \n',
+        '   border-top: black solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '.snap_head_active {                    \n',
+        '   border-bottom: white solid 1px;     \n',
+        '   border-left: white solid 2px;       \n',
+        '   border-right: white solid 1px;      \n',
+        '   border-top: white solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '.snap_head {                           \n',
+        '   border-bottom: black solid 1px;     \n',
+        '   border-left: black solid 2px;       \n',
+        '   border-right: black solid 1px;      \n',
+        '   border-top: black solid 2px;        \n',
+        '}                                      \n',
+        '                                       \n',
+        '#loader {                              \n',
+        '   color: white;                       \n',
+        '   width: 100%;                        \n',
+        '}                                      \n'
+    ].join('');
+
+
+    var style = document.createElement('style');
+    style.innerHTML = css;
+    document.body.appendChild(style);
+
+    this.domElement.firstElementChild.appendChild(this.fileLoader);
+
+};
+
+/**
+ * Hide the dom element
+ */
+SIMU.DataUIManager.prototype.hide = function(){
+    this.domElement.style.display = "none";
+};
+
+/**
+ * Show the dom element
+ */
+SIMU.DataUIManager.prototype.show = function(){
+    this.domElement.style.display = "block";
+};</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="doc.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cursor.html">Cursor</a></li><li><a href="Menu.html">Menu</a></li><li><a href="SIMU.Data.html">Data</a></li><li><a href="SIMU.DataUIManager.html">DataUIManager</a></li><li><a href="SIMU.Octree.html">Octree</a></li><li><a href="SIMU.RenderableData.html">RenderableData</a></li><li><a href="SIMU.Scene.html">Scene</a></li><li><a href="SIMU.Script.html">Script</a></li><li><a href="SIMU.Simu.html">Simu</a></li><li><a href="SIMU.Snapshot.html">Snapshot</a></li><li><a href="SIMU.View.html">View</a></li><li><a href="SnapshotBreakpoint.html">SnapshotBreakpoint</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Namespaces</h3><ul><li><a href="SIMU.html">SIMU</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getLoadingBarInstance">getLoadingBarInstance</a></li><li><a href="global.html#getShaderManagerInstance">getShaderManagerInstance</a></li><li><a href="global.html#isMobile">isMobile</a></li><li><a href="global.html#simu">simu</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed Aug 12 2015 14:07:00 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

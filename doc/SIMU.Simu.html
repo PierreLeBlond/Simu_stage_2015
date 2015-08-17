@@ -1,0 +1,4449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: Simu</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: Simu</h1>
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>
+            <span class="ancestors"><a href="SIMU.html">SIMU</a>.</span>Simu</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+
+
+
+    <h4 class="name" id="Simu"><span class="type-signature"></span>new Simu<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+
+
+<table class="props">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>scenes</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Array of <a href="SIMU.Scene.html">SIMU.Scene</a> object, usually linked to one view</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>parameters</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">A bunch of parameters, to be used and changed with dat.GUI
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>t</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Current Time relative to the data</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>speed</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Speed of the animation</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>idScript</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Id of the currently used script for parsing data</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>info</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Information about the available data
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>nbSnapShot</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Number of available snapshot</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>nbData</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Number of available data</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>datas</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Array of <a href="SIMU.Data.html">SIMU.Data</a> object, available in each scene</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>currentDataId</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Current selected data id</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>currentSnapshotId</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Current selected snapshot id</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>globalCamera</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="THREE.PerspectiveCamera.html">THREE.PerspectiveCamera</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Global camera used to have the same point of views in different <a href="SIMU.View.html">SIMU.View</a> object</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>scripts</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Available scripts for parsing data</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>texture</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Available texture for particle rendering</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>views</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Array of <a href="SIMU.View.html">SIMU.View</a> object, one for each scene</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>currentView</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="SIMU.View.html">SIMU.View</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Current focused view</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>controls</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.FirstPersonControls</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Controls used with the global camera</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>menu</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">SIMU.Menu</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The menu to switch between display mode</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>timeline</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">SIMU.Timeline</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The timeline to control animation</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>dataManager</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="SIMU.DataUIManager.html">SIMU.DataUIManager</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">A UI element to load, organize & navigate through data</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>loadingBar</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">SIMU.LoadingBarSingleton</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">A UI element to have a feedback on data processing evolution</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>domElement</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Node</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The dom element displaying the whole application</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>container</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Node</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">A dom element containing the canvas</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>width</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Width of the application's display</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>height</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">height of the application's display</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>lastFileEvent</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">function</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The current loading data event</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>windowResizeEvent</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">function</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The current resize window event</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line59">line 59</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id="addColumn"><span class="type-signature"></span>addColumn<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add one column to the data tools, i.e. add one data to each of the views
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line647">line 647</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="addData"><span class="type-signature"></span>addData<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add empty data object to the application
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line518">line 518</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="addRow"><span class="type-signature"></span>addRow<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a row to the data tools, i.e. add one snapshot to each of the available data
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line681">line 681</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="addScript"><span class="type-signature"></span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a script
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">string</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Name of the script</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">function</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The script logic</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">boolean</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Do the script work with binary file or string formatted file ?</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line120">line 120</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="addSnapshot"><span class="type-signature"></span>addSnapshot<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add empty Snapshot for all available data
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line583">line 583</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="addViewFromScene"><span class="type-signature"></span>addViewFromScene<span class="signature">(scene)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a view and linked it to the given scene
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>scene</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="SIMU.Scene.html">SIMU.Scene</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The scene to be linked to the new view</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line179">line 179</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="addViewWithNewScene"><span class="type-signature"></span>addViewWithNewScene<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a view to the application, while creating a new scene as well and liking the two together
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line148">line 148</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="animate"><span class="type-signature"></span>animate<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle animation, i.e. movement in time
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line440">line 440</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="browse"><span class="type-signature"></span>browse<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Browse file which will be loaded into the data's snapshot given by id of event target
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>event</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Event</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The event to blame for calling this function</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line743">line 743</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="changeCurrentData"><span class="type-signature"></span>changeCurrentData<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle the event in which we change the current data
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>event</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Event</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The event to blame for calling this function</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line575">line 575</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="focus"><span class="type-signature"></span>focus<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle the focus on the different views
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>event</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Event</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The event to blame for calling this function</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line726">line 726</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="handleCurrentSnapshotChangeEvent"><span class="type-signature"></span>handleCurrentSnapshotChangeEvent<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle the event in which we change the current snapshot
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>event</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Event</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The event to blame for calling this function</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line625">line 625</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="hideUI"><span class="type-signature"></span>hideUI<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Hide the User Interface
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line422">line 422</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="onKeyDown"><span class="type-signature"></span>onKeyDown<span class="signature">(event)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle keyboard event
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>event</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Event</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The keyboard event who has call this function</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line810">line 810</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="onMultiviewWindowResize"><span class="type-signature"></span>onMultiviewWindowResize<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle window resizing in multiple view mode
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line790">line 790</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="onPlay"><span class="type-signature"></span>onPlay<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Initilalizes or interrumpts the animation when play event is fired
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line964">line 964</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="onSingleviewWindowResize"><span class="type-signature"></span>onSingleviewWindowResize<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Handle window resizing in single view mode
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line777">line 777</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="render"><span class="type-signature"></span>render<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Rendering phase
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line491">line 491</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setCurrentData"><span class="type-signature"></span>setCurrentData<span class="signature">(id)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the current data within the application, i.e. for each views, by its id
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">the current data id</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line560">line 560</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setCurrentSnapshot"><span class="type-signature"></span>setCurrentSnapshot<span class="signature">(id)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the current snapshot within the application, i.e. for each views, by its id
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">the current snapshot id</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line610">line 610</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setDomElement"><span class="type-signature"></span>setDomElement<span class="signature">(el)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the dom element
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>el</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Node</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The dom element from which the application will be displayed</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line110">line 110</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setUICurrentData"><span class="type-signature"></span>setUICurrentData<span class="signature">(id)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Update the UI to match the current data
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">the current data id</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line540">line 540</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setUICurrentSnapshot"><span class="type-signature"></span>setUICurrentSnapshot<span class="signature">(id)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Update the UI to match the current snapshot
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>id</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">number</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">the current snapshot id</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line597">line 597</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setupEvents"><span class="type-signature"></span>setupEvents<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Setup and enabled the keyboard & mouse events
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line767">line 767</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setupGui"><span class="type-signature"></span>setupGui<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Setup the User Interface
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line343">line 343</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setupSimu"><span class="type-signature"></span>setupSimu<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Setup the global camera and the available textures
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line131">line 131</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="showUI"><span class="type-signature"></span>showUI<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Show the User Interface
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line431">line 431</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="stopAnimation"><span class="type-signature"></span>stopAnimation<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Stop animation
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line509">line 509</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="stopRender"><span class="type-signature"></span>stopRender<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Stop the rendering
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line502">line 502</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="switchToCardboardview"><span class="type-signature"></span>switchToCardboardview<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Enter cardboard view mode
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line262">line 262</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="switchToMultiview"><span class="type-signature"></span>switchToMultiview<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Enter multiple view mode, two view in this case and so far
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line297">line 297</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="switchToOculusview"><span class="type-signature"></span>switchToOculusview<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Enter oculus view mode
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line228">line 228</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="switchToSingleview"><span class="type-signature"></span>switchToSingleview<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Enter simple view mode
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line193">line 193</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="updateDataOnTimeChange"><span class="type-signature"></span>updateDataOnTimeChange<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Updates datas based on time in parameters property
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line913">line 913</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="updateTimeOnCursorMove"><span class="type-signature"></span>updateTimeOnCursorMove<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Computes and updates time in parameters property based on the cursor position when the cursor is moving. Dynamically change the current snapshot too.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line938">line 938</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="updateTimeOnCursorRelease"><span class="type-signature"></span>updateTimeOnCursorRelease<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Computes and updates time in parameters property based on the cursor position when it's released. Change current snapshot and updates datas too.
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line857">line 857</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="doc.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cursor.html">Cursor</a></li><li><a href="Menu.html">Menu</a></li><li><a href="SIMU.Data.html">Data</a></li><li><a href="SIMU.DataUIManager.html">DataUIManager</a></li><li><a href="SIMU.Octree.html">Octree</a></li><li><a href="SIMU.RenderableData.html">RenderableData</a></li><li><a href="SIMU.Scene.html">Scene</a></li><li><a href="SIMU.Script.html">Script</a></li><li><a href="SIMU.Simu.html">Simu</a></li><li><a href="SIMU.Snapshot.html">Snapshot</a></li><li><a href="SIMU.View.html">View</a></li><li><a href="SnapshotBreakpoint.html">SnapshotBreakpoint</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Namespaces</h3><ul><li><a href="SIMU.html">SIMU</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getLoadingBarInstance">getLoadingBarInstance</a></li><li><a href="global.html#getShaderManagerInstance">getShaderManagerInstance</a></li><li><a href="global.html#isMobile">isMobile</a></li><li><a href="global.html#simu">simu</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed Aug 12 2015 14:07:00 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

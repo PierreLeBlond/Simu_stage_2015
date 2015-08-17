@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Class: RenderableData</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Class: RenderableData</h1>
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>
+            <span class="ancestors"><a href="SIMU.html">SIMU</a>.</span>RenderableData</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+
+
+
+    <h4 class="name" id="RenderableData"><span class="type-signature"></span>new RenderableData<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Represent some data set which can be display on screen
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+
+
+<table class="props">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>data</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="SIMU.Data.html">SIMU.Data</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The <a href="SIMU.Data.html">SIMU.Data</a> set we want to render</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>pointCloud</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.PointCloud</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The point-cloud used to render the data</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>isActive</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">boolean</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">True if we are displaying the point-cloud on screen</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>isReady</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">boolean</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">True if the data is ready itself</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>drawCalls</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Array of calls, enable us to perform occlusion</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>levelOfDetail</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">int</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The higher it is, the more particle we are actually rendering</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>defaultColor</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">Array</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The default color used for particle</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>idTexture</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">int</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The id of the currently used texture</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>idBlending</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">int</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The id of the currently used blending type</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>idInfo</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">int</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The id of the currently used information for highlighting</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>clock</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">the clock used to get elapsed time between frame</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>animatedAttributes</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Shader attributes in animated mode
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>departure</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Departure position buffer</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>direction</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Direction buffer</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>color</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">color buffer</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>staticAttributes</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Shader attributes in static mode</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>animatedParametricAttributes</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Shader attributes in animated mode, with the use of additional information</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>staticParametricAttributes</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Shader attributes in static mode, with the use of additional information</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>uniforms</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Shader uniforms variables
+                <h6>Properties</h6>
+
+<table class="props">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>t</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">relative time within the application</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>currentTime</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Real time given by the computer clock</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>size</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Size of the particle</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>fogFactor</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Strength factor of the scene fog</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>fogDistance</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Attenuation Distance of the scene fog</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>map</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Texture map</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>fog</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">1 if fog is enabled, else 0</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>blink</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">1 if blinking is enabled, else 0</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>paramType</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Way of highlighting the info attribute</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>minInfo</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Minimum value of the current info attribute</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>maxInfo</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Maximum value of the current info attribute</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>animatedShaderMaterial</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Material used in animated mode</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>staticShaderMaterial</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Material used in static mode</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>animatedParametricShaderMaterial</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Material used in animated mode, with the use of additional information</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>staticParametricShaderMaterial</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">object</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Material used in static mode, with the use of additional information</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>bufferGeometry</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.BufferGeometry</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">geometry buffer used within the shader</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>pointCloud</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.PointCloud</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">PointCloud structure used to display the particles</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line69">line 69</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id="computeCulling"><span class="type-signature"></span>computeCulling<span class="signature">(camera)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Compute the frustum culling, by change the PointCloud draw-calls
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>camera</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.Camera</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line281">line 281</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="enableAnimatedParametricShaderMode"><span class="type-signature"></span>enableAnimatedParametricShaderMode<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on GPU side
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line261">line 261</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="enableAnimatedShaderMode"><span class="type-signature"></span>enableAnimatedShaderMode<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the PointCloud in animated mode, i.e. with the position being compute within the shader (GPU)
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line226">line 226</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="enableStaticParametricShaderMode"><span class="type-signature"></span>enableStaticParametricShaderMode<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the PointCloud in parametric mode, where the interpolate information within the shader, while computing position on CPU side
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line247">line 247</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="enableStaticShaderMode"><span class="type-signature"></span>enableStaticShaderMode<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Set the PointCloud in static mode, i.e. with the position being compute within the CPU
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line239">line 239</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="getIntersectedOctans"><span class="type-signature"></span>getIntersectedOctans<span class="signature">(origin, ray)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+
+
+
+
+
+<div class="description">
+    Search for all the Octree's octant intersecting with the mouse, in order to help the global research for point intersection
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>origin</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.Vector3</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Origin vector</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>ray</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.Vector3</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">Casted ray</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line520">line 520</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+
+<div class="param-desc">
+    Array of all the intersected octants
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="getIntersection"><span class="type-signature"></span>getIntersection<span class="signature">(mouse, camera)</span><span class="type-signature"> &rarr; {object}</span></h4>
+
+
+
+
+
+<div class="description">
+    Search for intersection between the mouse and the PointCloud
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>mouse</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type">THREE.Vector2</span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">mouse coordinate in normalized screen space</td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>camera</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="THREE.PerspectiveCamera.html">THREE.PerspectiveCamera</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last">The camera</td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line455">line 455</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+
+<div class="param-desc">
+    - An object with info about the intersected point
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="resetData"><span class="type-signature"></span>resetData<span class="signature">()</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    When the bind data is already loaded, reset the display attributes to see the new change on the screen
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line187">line 187</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h4 class="name" id="setData"><span class="type-signature"></span>setData<span class="signature">(data)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Bind a Data object to this RenderableData
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>data</code></td>
+
+
+            <td class="type">
+
+
+<span class="param-type"><a href="SIMU.Data.html">SIMU.Data</a></span>
+
+
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line177">line 177</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="doc.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cursor.html">Cursor</a></li><li><a href="Menu.html">Menu</a></li><li><a href="SIMU.Data.html">Data</a></li><li><a href="SIMU.DataUIManager.html">DataUIManager</a></li><li><a href="SIMU.Octree.html">Octree</a></li><li><a href="SIMU.RenderableData.html">RenderableData</a></li><li><a href="SIMU.Scene.html">Scene</a></li><li><a href="SIMU.Script.html">Script</a></li><li><a href="SIMU.Simu.html">Simu</a></li><li><a href="SIMU.Snapshot.html">Snapshot</a></li><li><a href="SIMU.View.html">View</a></li><li><a href="SnapshotBreakpoint.html">SnapshotBreakpoint</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Namespaces</h3><ul><li><a href="SIMU.html">SIMU</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getLoadingBarInstance">getLoadingBarInstance</a></li><li><a href="global.html#getShaderManagerInstance">getShaderManagerInstance</a></li><li><a href="global.html#isMobile">isMobile</a></li><li><a href="global.html#simu">simu</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed Aug 12 2015 14:07:00 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

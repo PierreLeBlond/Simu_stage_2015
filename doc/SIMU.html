@@ -1,0 +1,6682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Namespace: SIMU</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Namespace: SIMU</h1>
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Menu.js.html">Menu.js</a>, <a href="Menu.js.html#line9">line 9</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Snapshot.js.html">Snapshot.js</a>, <a href="Snapshot.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Octree.js.html">Octree.js</a>, <a href="Octree.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="DataUIManager.js.html">DataUIManager.js</a>, <a href="DataUIManager.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="RenderableData.js.html">RenderableData.js</a>, <a href="RenderableData.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Timeline.js.html">Timeline.js</a>, <a href="Timeline.js.html#line9">line 9</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Scene.js.html">Scene.js</a>, <a href="Scene.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Data.js.html">Data.js</a>, <a href="Data.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Simu.js.html">Simu.js</a>, <a href="Simu.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+
+
+
+<section>
+
+<header>
+
+        <h2>SIMU</h2>
+
+
+</header>
+
+<article>
+    <div class="container-overview">
+
+
+            <div class="description">Global namespace</div>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="View.js.html">View.js</a>, <a href="View.js.html#line10">line 10</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+    </div>
+
+
+
+
+
+
+        <h3 class="subsection-title">Classes</h3>
+
+        <dl>
+            <dt><a href="SIMU.Data.html">Data</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.DataUIManager.html">DataUIManager</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Octree.html">Octree</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.RenderableData.html">RenderableData</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Scene.html">Scene</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Script.html">Script</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Simu.html">Simu</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.Snapshot.html">Snapshot</a></dt>
+            <dd></dd>
+
+            <dt><a href="SIMU.View.html">View</a></dt>
+            <dd></dd>
+        </dl>
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Members</h3>
+
+
+
+<h4 class="name" id=".faceToOctan"><span class="type-signature">(static) </span>faceToOctan<span class="type-signature"> :Array.&lt;Array.&lt;number>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table
+This table gives each octant child to test for a given intersected face of the octree
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;number>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line17">line 17</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".octanToFace"><span class="type-signature">(static) </span>octanToFace<span class="type-signature"> :Array.&lt;Array.&lt;object>></span></h4>
+
+
+
+
+<div class="description">
+    Look-up table to reduce ray casting test
+When the ray enters an octree's child, we know for use that at worst three other child could be intersected next.
+This table gives us the next child to look for in the direction of the ray.
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Array.&lt;Array.&lt;object>></span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="util.js.html">util.js</a>, <a href="util.js.html#line25">line 25</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+<h4 class="name" id=".ShaderManagerSingleton"><span class="type-signature">(static) </span>ShaderManagerSingleton<span class="type-signature"> :Object</span></h4>
+
+
+
+
+<div class="description">
+    Singleton used to access shader code
+</div>
+
+
+
+    <h5>Type:</h5>
+    <ul>
+        <li>
+
+<span class="param-type">Object</span>
+
+
+        </li>
+    </ul>
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Shader.js.html">Shader.js</a>, <a href="Shader.js.html#line16">line 16</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+        <h3 class="subsection-title">Methods</h3>
+
+
+
+
+
+
+    <h4 class="name" id=".addScript"><span class="type-signature">(static) </span>addScript<span class="signature">(name, script, binary)</span><span class="type-signature"></span></h4>
+
+
+
+
+
+<div class="description">
+    Add a new script for loading file
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+
+
+<table class="params">
+    <thead>
+    <tr>
+
+        <th>Name</th>
+
+
+        <th>Type</th>
+
+
+
+
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+
+
+        <tr>
+
+                <td class="name"><code>name</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>script</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+
+        <tr>
+
+                <td class="name"><code>binary</code></td>
+
+
+            <td class="type">
+
+            </td>
+
+
+
+
+
+            <td class="description last"></td>
+        </tr>
+
+
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Script.js.html">Script.js</a>, <a href="Script.js.html#line34">line 34</a>
+    </li></ul></dd>
+
+
+
+
+
+
+
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="doc.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Cursor.html">Cursor</a></li><li><a href="Menu.html">Menu</a></li><li><a href="SIMU.Data.html">Data</a></li><li><a href="SIMU.DataUIManager.html">DataUIManager</a></li><li><a href="SIMU.Octree.html">Octree</a></li><li><a href="SIMU.RenderableData.html">RenderableData</a></li><li><a href="SIMU.Scene.html">Scene</a></li><li><a href="SIMU.Script.html">Script</a></li><li><a href="SIMU.Simu.html">Simu</a></li><li><a href="SIMU.Snapshot.html">Snapshot</a></li><li><a href="SIMU.View.html">View</a></li><li><a href="SnapshotBreakpoint.html">SnapshotBreakpoint</a></li><li><a href="Timeline.html">Timeline</a></li></ul><h3>Namespaces</h3><ul><li><a href="SIMU.html">SIMU</a></li></ul><h3>Global</h3><ul><li><a href="global.html#getLoadingBarInstance">getLoadingBarInstance</a></li><li><a href="global.html#getShaderManagerInstance">getShaderManagerInstance</a></li><li><a href="global.html#isMobile">isMobile</a></li><li><a href="global.html#simu">simu</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0-dev</a> on Wed Aug 12 2015 14:07:00 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

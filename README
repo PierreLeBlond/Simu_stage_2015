@@ -2,7 +2,7 @@
 Visualisation de données astronomiques en 3D avec WebGL
 
 
-
+UTILISATION :
 
 Commandes :
 - ouvrir/fermer le menu :                   touche echap
@@ -38,5 +38,11 @@ Paramètres Vues - menu en bas à gauche :
 - color :                                   Couleur par défaut des particules du jeu de données courant
 - Level Of Detail :                         Modifie le nombre de particules à afficher : Pour M la valeur max, une valeur x permettra d'afficher x/M de l'ensemble des particules
 - blending :                                Choix du mode de blending. Seul none, normal et additive permettront un rendu visible
-- info :                                    Parmis les données supplémentaires sur les particules, permet d'en choisir une et de la mettre en valeur via le paramétre suivant :
+- info :                                    Parmi les données supplémentaires sur les particules, permet d'en choisir une et de la mettre en valeur via le paramétre suivant :
 - param :                                   Choisit la façon de mettre en valeur les données selectionné. Il s'agit d'une interpolation entre le minimum et le maximum de cette données parmis l'ensemble des particules
+
+DEVELOPMENT :
+
+Trello du stage : https://trello.com/b/0egIqurG/stage-2015
+Wiki : http://cds.u-strasbg.fr/twiki/bin/view/Stages/PierreLespingal
+Doc : Dans le dossier doc, lancer doc.html
